@@ -4,7 +4,9 @@ This document describes the maintained firmware in
 [feature_extractor.cpp](../firmware/feature_extractor.cpp),
 [fft_power.h](../firmware/fft_power.h), and
 [audio_pipeline.cpp](../firmware/audio_pipeline.cpp). All feature extraction and
-model access execute in the audio task. The PDM interrupt only acquires samples
+model access execute in the audio task. Capture-to-DSP input is a fixed-size
+`AudioHop` reference; DSP-to-model input is a const `FeatureTensor` reference.
+The FFT power helper also enforces its input/output extents at compile time. The PDM interrupt only acquires samples
 and wakes that task; the control task receives classification scores.
 
 ## Signal flow and dimensions

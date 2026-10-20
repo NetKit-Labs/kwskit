@@ -5,6 +5,9 @@ fields are documented in the [project README](../README.md).
 
 | Record | Contents |
 |---|---|
+| [C++ idioms normal telemetry](cpp-idioms-normal.json) | One-minute normal-operation regression and developer-confirmed spoken-word LED check |
+| [C++ idioms stress telemetry](cpp-idioms-stress.json) | Live control-stall regression after typed interfaces and scoped ownership changes |
+| [C++ idioms and ownership review](cpp-idioms.md) | Typed buffer/FFT contracts, RAII critical sections and resource lifetimes, source audit, and regression evidence |
 | [Engineering overview](engineering-overview.md) | Requirements, design tradeoffs, source entry points, measured margins, and claim-to-evidence mapping |
 | [C++ ownership and refactor](cpp-refactor.md) | Object lifetimes, explicit dependencies, fixed storage, callback boundaries, and refactor regression/hardware evidence |
 | [Periodic Hann normal telemetry](periodic-hann-normal.json) | One-minute continuous audio/inference and spoken-word check after loading the updated normal firmware |

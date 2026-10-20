@@ -1,5 +1,6 @@
 #pragma once
 #include "kws_config.h"
+#include <cstdint>
 
 // One fixed TFLite runtime for the deployed model, constructed on first use.
 // Implementation storage stays private so consumers do not depend on TFLite headers.
@@ -11,8 +12,8 @@ public:
 
     bool begin();
     float inputScale() const;
-    int32_t inputZeroPoint() const;
-    bool predict(const int8_t *features, float &probability);
+    std::int32_t inputZeroPoint() const;
+    bool predict(const FeatureTensor &features, float &probability);
 
 private:
     struct Runtime;

@@ -1,25 +1,29 @@
 #pragma once
 #include "pipeline_metrics.h"
+#include <cstdint>
 #include "kws_config.h"
 #include "keyword_event.h"
-#include "audio_capture.h"
-#include "feature_extractor.h"
-#include "keyword_model.h"
+class AudioCapture;
+class FeatureExtractor;
+class KeywordModel;
 struct AudioStep {
     bool processed, hasEvent, reset;
 };
 // Called only by the audio task. Model/feature buffers never leave this owner.
 class AudioPipeline {
     AudioCapture &capture;
-    FeatureExtractor &features;
+    FeatureExtractor &extractor;
     KeywordModel &model;
     PipelineMetrics metrics;
-    uint32_t seenDrops = 0;
-    int16_t audioHop[HOP_SIZE];
+    std::uint32_t seenDrops = 0;
+    AudioHop audioHop{};
 
 public:
-    AudioPipeline(AudioCapture &capture, FeatureExtractor &features, KeywordModel &model)
-        : capture(capture), features(features), model(model) {}
+    AudioPipeline(AudioCapture &capture, FeatureExtractor &extractor, KeywordModel &model)
+        : capture(capture), extractor(extractor), model(model) {}
+    AudioPipeline(const AudioPipeline &) = delete;
+    AudioPipeline &operator=(const AudioPipeline &) = delete;
+
     AudioStep process(KeywordEvent &event);
     const PipelineMetrics &statistics() const {
         return metrics;

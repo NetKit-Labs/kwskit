@@ -11,8 +11,8 @@ From the repository root, with Python 3.9+, Make, and a host C++ compiler suppor
 AddressSanitizer and UndefinedBehaviorSanitizer:
 
 ```sh
-make test-unit        # Nine component checks
-make test-regression  # All thirteen checks, including the unit tests
+make test-unit        # Ten component checks
+make test-regression  # All fourteen checks, including the unit tests
 make test             # Same complete regression gate used by CI
 ```
 
@@ -38,8 +38,9 @@ firmware modules; they no longer embed C++ programs in Python string literals.
 | [keyword_event](../tests/keyword_event_test.cpp) | Stale timestamps/generations, missing/duplicate sequences, cadence gaps, sequence/timer rollover, and preserving cooldown/latch evidence across gaps |
 | [timing_stats](../tests/timing_stats_test.cpp) | Empty statistics, average/maximum/last values, and unsigned elapsed-time rollover |
 | [device_action](../tests/device_action_test.py) | Actual device-control module initializes the LED off and alternates GPIO state on confirmed actions, using fake GPIO |
-| [audio_capture](../tests/audio_capture_test.py) | Actual receiver with fake PDM: startup failure, exclusive callback ownership/context, bounded reads, overflow accounting without overwrite, complete-hop timestamps, discard, late callbacks, and handoff to a new owner |
+| [audio_capture](../tests/audio_capture_test.py) | Actual receiver with fake PDM: startup failure, exclusive callback ownership/context, bounded reads, overflow accounting without overwrite, complete-hop timestamps, discard, owner destruction, interrupt-mask preservation, late callbacks, and handoff to a new owner |
 | [feature_extractor](../tests/feature_extractor_test.py) | Actual extractor with scalar host DSP backend: initialization failure, priming/warmup, eight-hop inference cadence, reset, independent contexts, clipping, and periodic Hann coefficients and 84,180 frozen quantized feature bytes |
+| [buffer_contract](../tests/buffer_contract_test.py) | Ten compiler probes: valid typed calls compile; invalid audio/feature/FFT extents, odd FFT length, zero/non-power-of-two ring capacity, and copying noncopyable owners fail compilation |
 
 ## Additional integration and regression coverage
 
@@ -48,9 +49,9 @@ firmware modules; they no longer embed C++ programs in Python string literals.
 | [stream](../tests/stream_test.cpp) | Ten simulated seconds of ordered 16 kHz audio while the consumer pauses for 60 ms inference intervals; no ring loss in the simulated workload |
 | [pipeline](../tests/pipeline_test.py) | Actual audio pipeline with fake capture/features/model: no-hop/readiness behavior, backlog deferral, event timestamps, DSP/inference timing, inference failure, and loss-triggered feature reset |
 | [build_tooling](../tests/build_tooling_test.py) | Five Python cases for archive checksums/cache, extraction boundaries, library/lock changes, missing/modified core restoration, and isolation from ambient Arduino configuration |
-| [rtos_startup](../tests/rtos_startup_test.py) | Actual coordinator with fake CMSIS APIs: static stack/queue storage, task priorities, callback notification, idle delay, and cleanup after seven initialization failure modes |
+| [rtos_startup](../tests/rtos_startup_test.py) | Actual coordinator with fake CMSIS APIs: static stack/queue storage, task priorities, callback notification, idle delay, scoped mutex release, idempotent startup, and cleanup after seven initialization failure modes |
 
-The thirteen checks are suite entries, not a claim of thirteen individual assertions;
+The fourteen checks are suite entries, not a claim of fourteen individual assertions;
 each entry can exercise many cases. In particular, FFT/bin bounds, unread-audio
 preservation, and latch retention guard against the project's earlier defects.
 
@@ -117,7 +118,7 @@ again on October 20, 2026. Notebook code was checked for equivalent Python synta
 trees, and its saved training outputs were preserved. Build/artifact checks for
 this change are recorded in [source-style validation](source-style.md#formatting-only-validation-before-the-object-refactor).
 
-The subsequent object refactor adds two component checks. `make test` now runs
+The earlier object refactor added two component checks, bringing its gate to
 thirteen entries (nine component checks plus four integration/build checks).
 See [C++ refactor verification](cpp-refactor.md#verification) for current-build
 host, compile, and hardware evidence. The current frozen extractor vectors come from the procedural `a2c3c0d`
@@ -125,6 +126,12 @@ reference with periodic Hann applied, using the same deterministic PCM and scala
 host backend. Window sum and coefficient checks also run independently of that
 feature digest. The historical implementation is not copied into the maintained
 source tree. See [periodic-window validation](periodic-hann-validation.md).
+
+The [C++ idioms review](cpp-idioms.md) adds typed buffer/FFT contracts, scoped
+resource handling, and the compiler-probe entry. The current complete gate is
+fourteen entries: ten component checks plus four integration/build checks.
+Compiler-rejection fixtures are separate `.cpp` files and intentionally do not
+compile when invoked as ordinary programs.
 
 ## Limits
 

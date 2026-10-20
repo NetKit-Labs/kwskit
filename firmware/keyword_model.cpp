@@ -1,4 +1,5 @@
 #include "keyword_model.h"
+#include <cstdint>
 #include <TensorFlowLite.h>
 #include <tensorflow/lite/micro/micro_error_reporter.h>
 #include <tensorflow/lite/micro/micro_interpreter.h>
@@ -12,7 +13,10 @@
 #include <type_traits>
 
 struct KeywordModel::Runtime {
-    alignas(16) std::array<uint8_t, 96 * 1024> tensorArena{};
+    Runtime() = default;
+    Runtime(const Runtime &) = delete;
+    Runtime &operator=(const Runtime &) = delete;
+    alignas(16) std::array<std::uint8_t, 96 * 1024> tensorArena{};
     tflite::MicroErrorReporter errorReporter;
     tflite::MicroProfiler profiler;
     tflite::MicroMutableOpResolver<4> resolver;
@@ -71,15 +75,15 @@ float KeywordModel::inputScale() const {
     return runtime.input ? runtime.input->params.scale : 0.0f;
 }
 
-int32_t KeywordModel::inputZeroPoint() const {
+std::int32_t KeywordModel::inputZeroPoint() const {
     return runtime.input ? runtime.input->params.zero_point : 0;
 }
 
-bool KeywordModel::predict(const int8_t *features, float &probability) {
+bool KeywordModel::predict(const FeatureTensor &features, float &probability) {
     if (!runtime.ready) {
         return false;
     }
-    std::copy_n(features, NUM_FRAMES * NUM_MEL, runtime.input->data.int8);
+    std::copy(features.begin(), features.end(), runtime.input->data.int8);
     if (runtime.interpreter->Invoke() != kTfLiteOk) {
         return false;
     }

@@ -1,29 +1,30 @@
 #include "audio_pipeline.h"
+#include <cstdint>
 #include "audio_capture.h"
 #include "feature_extractor.h"
 #include "keyword_model.h"
 #include <Arduino.h>
 AudioStep AudioPipeline::process(KeywordEvent &event) {
-    uint32_t start = micros();
-    AudioStep result{false, false, false};
-    auto audio = capture.snapshot();
+    std::uint32_t start = micros();
+    AudioStep result{};
+    const auto audio = capture.snapshot();
     if (audio.droppedSamples != seenDrops) {
         seenDrops = audio.droppedSamples;
         capture.discardPending();
-        features.reset();
+        extractor.reset();
         result.reset = true;
     }
-    uint32_t captureEndUs;
+    std::uint32_t captureEndUs;
     if (!capture.readHop(audioHop, captureEndUs))
         return result;
     result.processed = true;
-    uint32_t dspStart = micros();
-    features.consume(audioHop);
+    std::uint32_t dspStart = micros();
+    extractor.consume(audioHop);
     metrics.dspTiming.record(micros() - dspStart);
-    if (features.inferenceDue() && capture.available() < HOP_SIZE) {
-        features.markInferred();
-        uint32_t inferenceStart = micros();
-        bool success = model.predict(features.data(), metrics.latestProbability);
+    if (extractor.inferenceDue() && capture.available() < HOP_SIZE) {
+        extractor.markInferred();
+        std::uint32_t inferenceStart = micros();
+        bool success = model.predict(extractor.features(), metrics.latestProbability);
         metrics.inferenceTiming.record(micros() - inferenceStart);
         if (!success) {
             ++metrics.inferenceErrors;

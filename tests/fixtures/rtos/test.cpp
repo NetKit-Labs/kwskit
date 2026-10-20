@@ -1,4 +1,6 @@
 #include "kws_pipeline.h"
+#include "mutex_lock.h"
+#include <cstdint>
 #include "audio_pipeline.h"
 #include "audio_capture.h"
 #include "feature_extractor.h"
@@ -7,87 +9,93 @@
 #include "telemetry.h"
 #include <cmsis_os2.h>
 #include <Arduino.h>
-#include <assert.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
 SerialFake Serial;
-uint32_t micros() {
+std::uint32_t micros() {
     return 0;
 }
-uint32_t millis() {
+std::uint32_t millis() {
     return 0;
 }
 int failure = 0, mutexes = 0, queues = 0, threads = 0, threadCalls = 0, lastDelay = 0,
     flagCalls = 0;
 AudioCapture::Notification notifier = nullptr;
 void *notificationContext = nullptr;
-osThreadAttr_t attrs[2];
+std::array<osThreadAttr_t, 2> attrs{};
 osMutexId_t osMutexNew(const osMutexAttr_t *a) {
     assert(a->cb_mem && a->cb_size && a->attr_bits == osMutexPrioInherit);
     if (failure == 1) {
         return nullptr;
     }
     ++mutexes;
-    return (void *)1;
+    return reinterpret_cast<void *>(std::uintptr_t{1});
 }
 int osMutexDelete(osMutexId_t) {
     --mutexes;
     return 0;
 }
-int osMutexAcquire(osMutexId_t, uint32_t) {
+int heldLocks = 0;
+int osMutexAcquire(osMutexId_t mutex, std::uint32_t wait) {
+    assert(mutex && wait == osWaitForever);
+    ++heldLocks;
     return 0;
 }
 int osMutexRelease(osMutexId_t) {
+    assert(heldLocks > 0);
+    --heldLocks;
     return 0;
 }
-osMessageQueueId_t osMessageQueueNew(uint32_t n, uint32_t size, const osMessageQueueAttr_t *a) {
+osMessageQueueId_t osMessageQueueNew(
+    std::uint32_t n, std::uint32_t size, const osMessageQueueAttr_t *a) {
     assert(n == 8 && size == sizeof(KeywordEvent));
     assert(a->cb_mem && a->mq_mem && a->mq_size >= n * size);
     if (failure == 2) {
         return nullptr;
     }
     ++queues;
-    return (void *)2;
+    return reinterpret_cast<void *>(std::uintptr_t{2});
 }
 int osMessageQueueDelete(osMessageQueueId_t) {
     --queues;
     return 0;
 }
-int osMessageQueuePut(osMessageQueueId_t, const void *, uint8_t, uint32_t wait) {
+int osMessageQueuePut(osMessageQueueId_t, const void *, std::uint8_t, std::uint32_t wait) {
     assert(wait == 0);
     return 0;
 }
-int osMessageQueueGet(osMessageQueueId_t, void *, uint8_t *, uint32_t) {
+int osMessageQueueGet(osMessageQueueId_t, void *, std::uint8_t *, std::uint32_t) {
     return -1;
 }
 osThreadId_t osThreadNew(void (*entry)(void *), void *context, const osThreadAttr_t *a) {
     assert(context);
-    assert(entry && a->stack_mem && a->cb_mem && (uintptr_t(a->stack_mem) % 8) == 0);
+    assert(entry && a->stack_mem && a->cb_mem && (std::uintptr_t(a->stack_mem) % 8) == 0);
     int call = threadCalls++;
     attrs[call % 2] = *a;
     if ((failure == 3 && call == 0) || (failure == 4 && call == 1))
         return nullptr;
     ++threads;
-    return reinterpret_cast<void *>(uintptr_t(call + 3));
+    return reinterpret_cast<void *>(std::uintptr_t(call + 3));
 }
 int osThreadTerminate(osThreadId_t) {
     --threads;
     return 0;
 }
-uint32_t osThreadGetStackSpace(osThreadId_t) {
+std::uint32_t osThreadGetStackSpace(osThreadId_t) {
     return 4096;
 }
-uint32_t osThreadFlagsSet(osThreadId_t id, uint32_t f) {
+std::uint32_t osThreadFlagsSet(osThreadId_t id, std::uint32_t f) {
     assert(id);
     ++flagCalls;
     return f;
 }
-uint32_t osThreadFlagsWait(uint32_t f, uint32_t, uint32_t) {
+std::uint32_t osThreadFlagsWait(std::uint32_t f, std::uint32_t, std::uint32_t) {
     return f;
 }
-uint32_t osKernelGetTickFreq() {
+std::uint32_t osKernelGetTickFreq() {
     return 1000;
 }
-int osDelay(uint32_t t) {
+int osDelay(std::uint32_t t) {
     lastDelay = t;
     return 0;
 }
@@ -111,11 +119,11 @@ bool KeywordModel::begin() {
 float KeywordModel::inputScale() const {
     return 0.5f;
 }
-int32_t KeywordModel::inputZeroPoint() const {
+std::int32_t KeywordModel::inputZeroPoint() const {
     return 0;
 }
 
-bool FeatureExtractor::begin(float, int32_t) {
+bool FeatureExtractor::begin(float, std::int32_t) {
     return failure != 7;
 }
 
@@ -136,7 +144,7 @@ void Telemetry::report(const AudioCapture::Snapshot &, const PipelineMetrics &, 
 
 AudioStep AudioPipeline::process(KeywordEvent &) {
     (void)capture;
-    (void)features;
+    (void)extractor;
     (void)model;
     (void)seenDrops;
     (void)audioHop;
@@ -149,6 +157,13 @@ KeywordModel &KeywordModel::instance() {
     return model;
 }
 int main() {
+    const auto earlyReturn = [] {
+        const MutexLock lock(reinterpret_cast<void *>(std::uintptr_t{1}));
+        assert(heldLocks == 1);
+        return;
+    };
+    earlyReturn();
+    assert(heldLocks == 0);
     for (int f = 1; f <= 7; ++f) {
         failure = f;
         threadCalls = 0;
@@ -162,7 +177,10 @@ int main() {
     assert(attrs[0].priority > attrs[1].priority);
     assert(attrs[0].stack_size == 8192 && attrs[1].stack_size == 6144);
     assert(attrs[0].stack_mem != attrs[1].stack_mem);
-    assert(strcmp(attrs[0].name, "kws-audio") == 0 && strcmp(attrs[1].name, "kws-control") == 0);
+    assert(std::strcmp(attrs[0].name, "kws-audio") == 0 &&
+        std::strcmp(attrs[1].name, "kws-control") == 0);
+    assert(KwsPipeline::begin()); // Repeated startup cannot allocate duplicate resources.
+    assert(threads == 2 && queues == 1 && mutexes == 1);
     flagCalls = 0;
     notifier(notificationContext);
     assert(flagCalls == 1);

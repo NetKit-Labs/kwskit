@@ -1,4 +1,5 @@
 #include "feature_extractor.h"
+#include <cstdint>
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -16,25 +17,25 @@ int main() {
     failFftInitialization = true;
     assert(!extractor.begin(1.0f, 0));
     failFftInitialization = false;
-    std::array<int16_t, HOP_SIZE> samples{};
+    std::array<std::int16_t, HOP_SIZE> samples{};
     for (const float scale : {0.09529872239f, 0.0001f, 1.0f}) {
         assert(extractor.begin(scale, 17));
         assert(!extractor.inferenceDue());
-        uint32_t random = 7;
+        std::uint32_t random = 7;
         for (int hop = 0; hop < 240; ++hop) {
             for (int i = 0; i < HOP_SIZE; ++i) {
                 random = random * 1664525u + 1013904223u;
                 samples[i] = hop < 75
                     ? 0
-                    : (hop < 150
-                              ? (i % 16 < 8 ? 30000 : -30000)
-                              : static_cast<int16_t>(static_cast<int32_t>(random >> 16) - 32768));
+                    : (hop < 150 ? (i % 16 < 8 ? 30000 : -30000)
+                                 : static_cast<std::int16_t>(
+                                       static_cast<std::int32_t>(random >> 16) - 32768));
             }
-            extractor.consume(samples.data());
+            extractor.consume(samples);
             const bool expectedDue = hop >= NUM_FRAMES && (hop - NUM_FRAMES) % INFERENCE_HOP == 0;
             assert(extractor.inferenceDue() == expectedDue);
             if (extractor.inferenceDue()) {
-                assert(std::fwrite(extractor.data(), 1, NUM_FRAMES * NUM_MEL, stdout) ==
+                assert(std::fwrite(extractor.features().data(), 1, NUM_FRAMES * NUM_MEL, stdout) ==
                     NUM_FRAMES * NUM_MEL);
                 extractor.markInferred();
                 assert(!extractor.inferenceDue());
@@ -54,7 +55,7 @@ int main() {
         assert(std::abs(lastAppliedWindow.back() - 0.00003764908f) < 0.0000001f);
         extractor.reset();
         for (int i = 0; i < NUM_FRAMES; ++i) {
-            extractor.consume(samples.data());
+            extractor.consume(samples);
             assert(!extractor.inferenceDue());
         }
     }
@@ -63,14 +64,15 @@ int main() {
     FeatureExtractor silence, tone;
     assert(silence.begin(0.09529872239f, 17));
     assert(tone.begin(0.09529872239f, 17));
-    std::array<int16_t, HOP_SIZE> zero{};
+    std::array<std::int16_t, HOP_SIZE> zero{};
     for (int hop = 0; hop <= NUM_FRAMES; ++hop) {
-        silence.consume(zero.data());
-        tone.consume(samples.data());
+        silence.consume(zero);
+        tone.consume(samples);
     }
     assert(silence.inferenceDue() && tone.inferenceDue());
-    assert(std::memcmp(silence.data(), tone.data(), NUM_FRAMES * NUM_MEL) != 0);
-    assert(silence.data() != tone.data());
+    assert(
+        std::memcmp(silence.features().data(), tone.features().data(), NUM_FRAMES * NUM_MEL) != 0);
+    assert(silence.features().data() != tone.features().data());
     silence.reset();
     assert(!silence.inferenceDue() && tone.inferenceDue());
 }

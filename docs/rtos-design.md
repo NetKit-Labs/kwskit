@@ -111,3 +111,8 @@ objects. `AudioPipeline` borrows its capture, extractor, and single model by ref
 Thread entry adapters receive the application as their CMSIS context; the PDM
 notification also carries that context. Queue/event ownership and task priorities
 are unchanged. See [C++ refactor](cpp-refactor.md) for storage and validation.
+
+The [C++ idioms review](cpp-idioms.md) documents fixed-size buffer references,
+scoped interrupt/mutex guards, automatic cleanup, and idempotent startup in the
+current implementation. Scheduling, queue capacities, and task priorities remain
+those described above.

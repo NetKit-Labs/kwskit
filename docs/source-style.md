@@ -16,6 +16,9 @@ The downloaded Arduino/Mbed board core, CMSIS, and TFLite dependencies include
 upstream C/C++ implementations. Their language/build configuration is retained;
 the project does not claim that the complete dependency stack is exclusively C++.
 
+The [C++ idioms review](cpp-idioms.md) records typed buffer contracts, RAII
+critical sections/lifetimes, noncopyable owners, and the native-source review.
+
 ## Four-space policy
 
 - C++: four spaces per indentation level, including namespaces, with formatter

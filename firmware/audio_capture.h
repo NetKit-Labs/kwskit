@@ -1,5 +1,6 @@
 #pragma once
 #include "kws_config.h"
+#include <cstdint>
 #include "audio_queue.h"
 #include <array>
 
@@ -7,18 +8,22 @@
 class AudioCapture {
 public:
     struct Snapshot {
-        uint32_t receivedSamples, droppedSamples, missedBuffers, highWater, gapMaxUs, lastAudioUs;
+        std::uint32_t receivedSamples, droppedSamples, missedBuffers, highWater, gapMaxUs,
+            lastAudioUs;
     };
     using Notification = void (*)(void *);
 
     AudioCapture() = default;
+    ~AudioCapture() {
+        end();
+    }
     AudioCapture(const AudioCapture &) = delete;
     AudioCapture &operator=(const AudioCapture &) = delete;
     // This object must outlive capture. The application gives it static lifetime.
     bool begin(Notification notify = nullptr, void *context = nullptr);
     void end();
-    bool readHop(int16_t *samples, uint32_t &captureEndUs);
-    uint32_t available() const;
+    bool readHop(AudioHop &samples, std::uint32_t &captureEndUs);
+    std::uint32_t available() const;
     Snapshot snapshot() const;
     void discardPending();
 
@@ -29,8 +34,8 @@ private:
     Notification notifyConsumer = nullptr;
     void *notificationContext = nullptr;
     bool running = false;
-    std::array<int16_t, PDM_BUFFER_SIZE> pdmBuffer{};
+    std::array<std::int16_t, PDM_BUFFER_SIZE> pdmBuffer{};
     AudioQueue<8192> audioQueue;
-    volatile uint32_t receivedSamples = 0, missedBuffers = 0, lastAudioUs = 0;
-    volatile uint32_t queueHighWater = 0, callbackGapMaxUs = 0;
+    volatile std::uint32_t receivedSamples = 0, missedBuffers = 0, lastAudioUs = 0;
+    volatile std::uint32_t queueHighWater = 0, callbackGapMaxUs = 0;
 };

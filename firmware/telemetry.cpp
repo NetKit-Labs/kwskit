@@ -1,4 +1,6 @@
 #include "telemetry.h"
+#include <cstddef>
+#include <cstdint>
 #include <Arduino.h>
 #include <USB/PluggableUSBSerial.h>
 #include <algorithm>
@@ -7,16 +9,16 @@
 void Telemetry::pump() {
     if (offset >= length || !_SerialUSB.connected())
         return;
-    uint32_t sent = 0;
-    size_t remaining = length - offset;
-    _SerialUSB.send_nb(reinterpret_cast<uint8_t *>(buffer.data()) + offset,
-        std::min(remaining, size_t(64)), &sent);
+    std::uint32_t sent = 0;
+    std::size_t remaining = length - offset;
+    _SerialUSB.send_nb(reinterpret_cast<std::uint8_t *>(buffer.data()) + offset,
+        std::min(remaining, std::size_t{64}), &sent);
     offset += sent;
 }
 
 void Telemetry::begin() {
     Serial.begin(115200);
-    uint32_t start = millis();
+    std::uint32_t start = millis();
     while (!Serial && millis() - start < 2000) {
     }
 }
@@ -24,9 +26,9 @@ void Telemetry::report(
     const AudioCapture::Snapshot &audio, const PipelineMetrics &metrics, bool deviceOn) {
     if (millis() - lastReport >= 2000 && offset >= length) {
         lastReport = millis();
-        uint32_t samples = audio.receivedSamples, missed = audio.missedBuffers;
-        uint32_t high = audio.highWater, gap = audio.gapMaxUs, arrival = audio.lastAudioUs;
-        uint32_t dropped = audio.droppedSamples;
+        std::uint32_t samples = audio.receivedSamples, missed = audio.missedBuffers;
+        std::uint32_t high = audio.highWater, gap = audio.gapMaxUs, arrival = audio.lastAudioUs;
+        std::uint32_t dropped = audio.droppedSamples;
         const int formattedLength = std::snprintf(buffer.data(), buffer.size(),
             "ms=%lu samples=%lu dropped=%lu missed_buffers=%lu queue_max=%lu gap_max_us=%lu "
             "audio_age_us=%lu "
@@ -47,8 +49,8 @@ void Telemetry::report(
             static_cast<unsigned long>(metrics.responseTiming.maximum),
             static_cast<unsigned long>(metrics.inferenceTiming.count),
             static_cast<unsigned long>(metrics.inferenceErrors),
-            int(metrics.latestProbability * 1000),
-            static_cast<unsigned long>(metrics.confirmedKeywords), int(deviceOn),
+            static_cast<int>(metrics.latestProbability * 1000),
+            static_cast<unsigned long>(metrics.confirmedKeywords), static_cast<int>(deviceOn),
             static_cast<unsigned long>(metrics.eventDrops),
             static_cast<unsigned long>(metrics.staleEvents),
             static_cast<unsigned long>(metrics.notifyErrors),
@@ -57,7 +59,7 @@ void Telemetry::report(
             static_cast<unsigned long>(metrics.audioStackFree),
             static_cast<unsigned long>(metrics.controlStackFree));
         length = formattedLength > 0
-            ? std::min(static_cast<size_t>(formattedLength), buffer.size() - 1)
+            ? std::min(static_cast<std::size_t>(formattedLength), buffer.size() - 1)
             : 0;
         offset = 0;
     }

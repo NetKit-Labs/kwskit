@@ -24,7 +24,7 @@ behavior; [RTOS validation](docs/rtos-validation.md) records the hardware result
 
 Measurements below are from the two-task RTOS firmware on the connected Nano,
 recorded October 20, 2026. Timing uses the final cumulative normal-operation statistics; the deliberate
-stall is documented separately. Memory is from the current periodic-Hann firmware build. These are observed results, not worst-case guarantees.
+stall is documented separately. Memory is from the current C++ firmware build. These are observed results, not worst-case guarantees.
 
 | Measurement | Recorded result |
 |---|---:|
@@ -32,18 +32,18 @@ stall is documented separately. Memory is from the current periodic-Hann firmwar
 | FFT frame / overlap | 512 samples (32 ms) / 50% |
 | Model input | 61 × 20 int8 log-mel features (~1 s context) |
 | Decision cadence after warmup | Every 8 feature hops (~128 ms), when audio backlog is drained |
-| DSP average / observed maximum | 2.479 / 2.639 ms |
-| Inference average / observed maximum | 58.593 / 58.625 ms |
-| Processing iteration observed maximum | 61.227 ms |
+| DSP average / observed maximum | 2.612 / 2.841 ms |
+| Inference average / observed maximum | 59.097 / 60.130 ms |
+| Processing iteration observed maximum | 62.823 ms |
 | Circular audio buffer / observed peak occupancy | 8192 / 768 samples |
-| Flash / static RAM | 331,936 / 209,320 bytes (33% / 79%) |
+| Flash / static RAM | 332,120 / 209,328 bytes (33% / 79%) |
 | Dedicated task stacks | Audio 8192 bytes; control 6144 bytes |
 | RTOS spoken "yes" check | 21 cumulative confirmed actions; physical LED toggling confirmed |
 | Reported sample drops / missed buffers / inference errors | 0 / 0 / 0 in the recorded checks |
 | Normal-operation score drops / stale results | 0 / 0 |
 | Forced 1.5 s control stall | 4 score drops; 9 stale results rejected; 0 reported audio losses |
 
-See [periodic-Hann validation](docs/periodic-hann-validation.md) for current build,
+See [C++ idioms and ownership review](docs/cpp-idioms.md) for current build,
 stress, and spoken-word evidence, and [RTOS validation](docs/rtos-validation.md)
 for the earlier task checks. The [earlier module/refactor record](docs/module-refactor-validation.md)
 and [pre-RTOS build check](docs/build-validation.md) retain historical results.
@@ -53,7 +53,7 @@ speaker/noise dataset and hours-to-days endurance have not been established.
 
 ### Measured memory margins
 
-These high-water measurements come from the periodic-Hann normal and stress
+These high-water measurements come from the current C++ normal and stress
 checks. They describe exercised paths, rather than guaranteed worst-case usage.
 
 | Allocation | Capacity | Observed peak use / remaining |
@@ -69,7 +69,7 @@ overflows in the 1.5 s stall test; dropping scores and rejecting stale evidence
 preserves acquisition but can miss a command during the stall.
 
 The static RAM total already includes both application stacks and the 96 KiB
-tensor arena. The build leaves 52,824 bytes outside static allocations; this is
+tensor arena. The build leaves 52,816 bytes outside static allocations; this is
 not measured free heap. Peak runtime heap, framework/interrupt-stack usage, and
 unused tensor-arena capacity have not been measured. Broader memory headroom
 must be established before substantial expansion.
@@ -164,7 +164,10 @@ Stateful modules use C++ objects: `FeatureExtractor` owns fixed-size DSP buffers
 and `Telemetry` own their respective state. `AudioPipeline` receives its capture,
 extractor, and model dependencies by reference. A private application object owns
 the RTOS resources; the single-model `KeywordModel` encapsulates its fixed TFLite
-runtime. See [C++ ownership and refactor validation](docs/cpp-refactor.md).
+runtime. Fixed-size `AudioHop`/`FeatureTensor` references retain dimensions across
+module boundaries. Scoped guards restore interrupt masks and release metrics
+locks automatically; resource owners are noncopyable. See the
+[C++ idioms and ownership review](docs/cpp-idioms.md).
 
 The `.ino` only delegates startup and idles the existing Arduino main task.
 Application behavior lives in `.cpp`/`.h` modules. The Makefile invokes a pinned
@@ -262,10 +265,11 @@ peripheral failure is future work.
 
 ## Tests and instrumentation
 
-`make test-unit` runs nine component checks. `make test-regression`
-runs the complete thirteen-check suite, including those unit tests plus stream,
+`make test-unit` runs ten component checks. `make test-regression`
+runs the complete fourteen-check suite, including those unit tests plus stream,
 pipeline, RTOS startup, and build-tool checks. `make test` runs the same complete
-regression gate in CI. See the [testing guide](docs/testing.md) for coverage,
+regression gate in CI. Compile-contract probes also verify that invalid buffer
+extents and ownership copies are rejected. See the [testing guide](docs/testing.md) for coverage,
 commands, hardware procedures, and limits.
 
 The suite exercises queue ordering/overflow/wraparound, packed FFT bins/bounds,

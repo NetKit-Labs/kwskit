@@ -1,6 +1,8 @@
 // Inspect the project's single-subgraph TFLite artifact using the pinned schema.
 // This is a host tool; it does not link or execute the inference runtime.
 #include <tensorflow/lite/schema/schema_generated.h>
+#include <cstddef>
+#include <cstdint>
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
@@ -15,27 +17,27 @@ namespace {
         std::cout << '"';
         for (const unsigned char *p = reinterpret_cast<const unsigned char *>(value); *p; ++p) {
             if (*p == '"' || *p == '\\')
-                std::cout << '\\' << char(*p);
+                std::cout << '\\' << static_cast<char>(*p);
             else if (*p < 32)
-                std::cout << "\\u00" << std::hex << std::setw(2) << std::setfill('0') << int(*p)
-                          << std::dec;
+                std::cout << "\\u00" << std::hex << std::setw(2) << std::setfill('0')
+                          << static_cast<int>(*p) << std::dec;
             else
-                std::cout << char(*p);
+                std::cout << static_cast<char>(*p);
         }
         std::cout << '"';
     }
     template <typename T> void array(const flatbuffers::Vector<T> *values) {
         std::cout << '[';
         if (values)
-            for (size_t i = 0; i < values->size(); ++i) {
+            for (std::size_t i = 0; i < values->size(); ++i) {
                 if (i)
                     std::cout << ',';
                 std::cout << values->Get(i);
             }
         std::cout << ']';
     }
-    uint64_t elements(const tflite::Tensor *tensor) {
-        uint64_t count = 1;
+    std::uint64_t elements(const tflite::Tensor *tensor) {
+        std::uint64_t count = 1;
         for (int dim : *tensor->shape())
             count *= dim;
         return count;
@@ -51,7 +53,7 @@ int main(int argc, char **argv) {
         std::ifstream input(argv[1], std::ios::binary);
         if (!input)
             throw std::runtime_error("Cannot open model");
-        std::vector<uint8_t> bytes((std::istreambuf_iterator<char>(input)), {});
+        std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)), {});
         flatbuffers::Verifier verifier(bytes.data(), bytes.size());
         if (!tflite::VerifyModelBuffer(verifier))
             throw std::runtime_error("Invalid TFLite FlatBuffer");
@@ -66,11 +68,12 @@ int main(int argc, char **argv) {
         std::cout << ",\"outputs\":";
         array(graph->outputs());
         std::cout << ",\"operators\":[";
-        for (size_t i = 0; i < graph->operators()->size(); ++i) {
+        for (std::size_t i = 0; i < graph->operators()->size(); ++i) {
             const auto *op = graph->operators()->Get(i);
             const auto *code = model->operator_codes()->Get(op->opcode_index());
             const auto builtin = static_cast<tflite::BuiltinOperator>(
-                std::max(int(code->builtin_code()), int(code->deprecated_builtin_code())));
+                std::max(static_cast<int>(code->builtin_code()),
+                    static_cast<int>(code->deprecated_builtin_code())));
             if (i)
                 std::cout << ',';
             std::cout << "{\"index\":" << i << ",\"operator\":";
@@ -112,19 +115,19 @@ int main(int argc, char **argv) {
                 const auto *axesTensor = graph->tensors()->Get(op->inputs()->Get(1));
                 const auto *axes = model->buffers()->Get(axesTensor->buffer())->data();
                 std::cout << ",\"axes\":[";
-                for (size_t axis = 0; axis < axes->size() / sizeof(int32_t); ++axis) {
+                for (std::size_t axis = 0; axis < axes->size() / sizeof(std::int32_t); ++axis) {
                     if (axis)
                         std::cout << ',';
-                    std::cout << flatbuffers::ReadScalar<int32_t>(
-                        axes->data() + axis * sizeof(int32_t));
+                    std::cout << flatbuffers::ReadScalar<std::int32_t>(
+                        axes->data() + axis * sizeof(std::int32_t));
                 }
                 std::cout << ']';
             }
             std::cout << '}';
         }
-        uint64_t weightCount = 0, biasCount = 0, parameterBytes = 0;
+        std::uint64_t weightCount = 0, biasCount = 0, parameterBytes = 0;
         std::cout << "],\"tensors\":[";
-        for (size_t i = 0; i < graph->tensors()->size(); ++i) {
+        for (std::size_t i = 0; i < graph->tensors()->size(); ++i) {
             const auto *tensor = graph->tensors()->Get(i);
             const auto *buffer = model->buffers()->Get(tensor->buffer());
             const auto size = buffer->data() ? buffer->data()->size() : 0;

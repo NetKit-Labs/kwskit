@@ -1,19 +1,27 @@
 #include "audio_capture.h"
+#include <cstddef>
+#include <cstdint>
 #include <PDM.h>
 #include <array>
 #include <cassert>
 
 PdmFake PDM;
-uint32_t clockUs = 1000000;
-int interruptDepth = 0, notifications = 0;
-uint32_t micros() {
+std::uint32_t clockUs = 1000000;
+int interruptMask = 0, notifications = 0;
+std::uint32_t micros() {
     return clockUs;
 }
 void noInterrupts() {
-    ++interruptDepth;
+    interruptMask = 1;
 }
 void interrupts() {
-    --interruptDepth;
+    interruptMask = 0;
+}
+std::uint32_t __get_PRIMASK() {
+    return interruptMask;
+}
+void __set_PRIMASK(std::uint32_t mask) {
+    interruptMask = static_cast<int>(mask);
 }
 bool PdmFake::begin(int channels, int rate) {
     assert(channels == 1 && rate == 16000);
@@ -28,11 +36,11 @@ void PdmFake::setGain(int gain) {
     assert(gain == 60);
 }
 int PdmFake::available() {
-    return static_cast<int>(pending.size() * sizeof(int16_t));
+    return static_cast<int>(pending.size() * sizeof(std::int16_t));
 }
 int PdmFake::read(void *destination, int bytes) {
-    assert(bytes > 0 && static_cast<size_t>(bytes) <= bufferSize && bytes % 2 == 0);
-    auto *samples = static_cast<int16_t *>(destination);
+    assert(bytes > 0 && static_cast<std::size_t>(bytes) <= bufferSize && bytes % 2 == 0);
+    auto *samples = static_cast<std::int16_t *>(destination);
     for (int i = 0; i < bytes / 2; ++i) {
         samples[i] = pending.front();
         pending.pop_front();
@@ -47,27 +55,33 @@ int main() {
     PDM.startOk = true;
     assert(capture.begin(notify, &notifications));
     assert(!other.begin());
-    assert(PDM.running && PDM.bufferSize == PDM_BUFFER_SIZE * sizeof(int16_t));
+    assert(PDM.running && PDM.bufferSize == PDM_BUFFER_SIZE * sizeof(std::int16_t));
     for (int i = 0; i < 8192 + 168; ++i) {
-        PDM.pending.push_back(static_cast<int16_t>(i));
+        PDM.pending.push_back(static_cast<std::int16_t>(i));
     }
     PDM.callback();
     assert(notifications == 1 && PDM.pending.empty());
     const auto stats = capture.snapshot();
     assert(stats.receivedSamples == 8360 && stats.droppedSamples == 168);
     assert(stats.missedBuffers == 1 && stats.highWater == 8192);
-    assert(interruptDepth == 0);
+    assert(interruptMask == 0);
     other.end();
     assert(PDM.running && PDM.stops == 0); // A non-owner cannot stop this receiver.
-    std::array<int16_t, HOP_SIZE> hop{};
-    uint32_t time;
-    assert(capture.readHop(hop.data(), time));
+    std::array<std::int16_t, HOP_SIZE> hop{};
+    std::uint32_t time;
+    assert(capture.readHop(hop, time));
     for (int i = 0; i < HOP_SIZE; ++i) {
         assert(hop[i] == i); // Overflow did not overwrite unread samples.
     }
-    assert(time == clockUs - (static_cast<uint64_t>(8192 - HOP_SIZE) * 1000000ULL) / SAMPLE_RATE);
+    assert(
+        time == clockUs - (static_cast<std::uint64_t>(8192 - HOP_SIZE) * 1000000ULL) / SAMPLE_RATE);
+    noInterrupts();
+    capture.snapshot();
+    assert(interruptMask == 1); // Nested snapshots must preserve a disabled caller.
+    assert(capture.readHop(hop, time) && interruptMask == 1);
+    interrupts();
     capture.discardPending();
-    assert(capture.available() == 0 && !capture.readHop(hop.data(), time));
+    assert(capture.available() == 0 && !capture.readHop(hop, time));
     PDM.pending.push_back(123);
     clockUs += 16000;
     PDM.callback();
@@ -79,5 +93,12 @@ int main() {
     assert(notifications == 2);
     assert(other.begin(notify, &notifications));
     other.end();
-    assert(!PDM.running && PDM.stops == 2 && interruptDepth == 0);
+    assert(!PDM.running && PDM.stops == 2 && interruptMask == 0);
+    {
+        AudioCapture scopedCapture;
+        assert(scopedCapture.begin(notify, &notifications));
+    }
+    assert(!PDM.running && PDM.stops == 3);
+    PDM.callback(); // Destruction unregisters the former owner.
+    assert(notifications == 2);
 }

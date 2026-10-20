@@ -36,7 +36,7 @@ A successful build prints flash/static RAM usage. Generated firmware is in:
 .build/artifacts/build-manifest.json
 ```
 
-The two-task RTOS build uses 331,936 bytes flash and 209,320 bytes static RAM. Preserve
+The two-task RTOS build uses 332,120 bytes flash and 209,328 bytes static RAM. Preserve
 the manifest beside the binaries when comparing builds. The source remains in
 `firmware/`; do not edit the generated sketch under `.build/`.
 
@@ -137,7 +137,7 @@ record any measured firmware changes before updating performance claims.
 | `make setup` | Install/restore locked dependencies (network required) |
 | `make test` | Complete host regression gate used by CI; includes unit tests |
 | `make test-unit` | Seven isolated component checks; no board or Arduino setup required |
-| `make test-regression` | All thirteen unit/integration/regression checks; equivalent to `make test` |
+| `make test-regression` | All fourteen unit/integration/regression checks; equivalent to `make test` |
 | `make format` | Apply four-space C++/Python style using the optional pinned formatter environment |
 | `make format-check` | Verify C++/Python/notebook formatting; see [source style](source-style.md) for setup |
 | `make build JOBS=2` | Verify dependencies and cross-compile |

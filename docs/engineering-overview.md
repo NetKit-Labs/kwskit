@@ -135,8 +135,8 @@ been quantified. See the [memory assessment](rtos-validation.md#measured-memory-
 | Detection reaches a physical output | [Spoken-word capture](rtos-spoken-yes.json) and physical LED confirmation recorded in [validation](rtos-validation.md#spoken-word-and-physical-led-check) |
 | A clean checkout can test/build without IDE-installed libraries | [Make/CI workflow](../.github/workflows/ci.yml), [build-tool tests](../tests/build_tooling_test.py), and [build guide](build.md) |
 
-Run `make test-unit` for the nine component checks, or `make test-regression`
-for all thirteen checks including integration/build regressions. `make test` is the
+Run `make test-unit` for the ten component checks, or `make test-regression`
+for all fourteen checks including integration/build regressions. `make test` is the
 same complete gate used in CI. The [testing guide](testing.md) details coverage
 and hardware reproduction.
 

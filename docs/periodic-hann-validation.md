@@ -1,6 +1,7 @@
 # Periodic Hann window validation
 
-The firmware uses the training notebook's periodic Hann convention:
+This record describes the periodic-window build before the subsequent
+[C++ idioms review](cpp-idioms.md). The firmware uses the training notebook's periodic Hann convention:
 
 ```text
 w[n] = 0.5 - 0.5 * cos(2*pi*n / FRAME_SIZE)
@@ -65,5 +66,4 @@ The final cumulative trigger count was 21, with alternating logical LED states
 in the recording. The developer repeated spoken "yes" attempts and confirmed
 that the built-in LED toggles. These are functional results, not an accuracy
 measurement or a labeled attempt count. Counters/timing are cumulative since
-boot and can include activity before the host capture. Normal firmware remains
-installed on the Nano.
+boot and can include activity before the host capture. Normal firmware was restored after this run.

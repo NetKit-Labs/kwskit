@@ -1,9 +1,11 @@
 #include "../firmware/keyword_event.h"
-#include <assert.h>
-KeywordEvent score(float p, uint32_t seq, uint32_t ms, uint32_t generation = 0) {
+#include <cstdint>
+#include <cassert>
+KeywordEvent score(float p, std::uint32_t seq, std::uint32_t ms, std::uint32_t generation = 0) {
     return {p, ms * 1000 - 60000, ms * 1000, ms, seq, generation};
 }
-EventResult feed(KeywordEventFilter &f, float p, uint32_t seq, uint32_t ms, uint32_t gen = 0) {
+EventResult feed(
+    KeywordEventFilter &f, float p, std::uint32_t seq, std::uint32_t ms, std::uint32_t gen = 0) {
     return f.consume(score(p, seq, ms, gen), gen, ms * 1000 + 8000, ms + 8);
 }
 int main() {

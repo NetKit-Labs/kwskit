@@ -1,5 +1,6 @@
 #include "../firmware/keyword_filter.h"
-#include <assert.h>
+#include <cstdint>
+#include <cassert>
 int main() {
     KeywordFilter f;
     assert(!f.update(1, 0));
@@ -25,13 +26,13 @@ int main() {
     assert(g.update(1, 1800));
     // Millisecond wrap must not prematurely expire the 1500 ms cooldown.
     KeywordFilter wrap;
-    const uint32_t trigger = 0xffffff00u;
+    const std::uint32_t trigger = 0xffffff00u;
     assert(!wrap.update(1, trigger - 256));
     assert(!wrap.update(1, trigger - 128));
     assert(wrap.update(1, trigger));
     assert(!wrap.update(0, trigger + 128));
     assert(!wrap.update(0, trigger + 256));
-    for (uint32_t elapsed = 384; elapsed < 1500; elapsed += 128)
+    for (std::uint32_t elapsed = 384; elapsed < 1500; elapsed += 128)
         assert(!wrap.update(1, trigger + elapsed));
     assert(!wrap.update(1, trigger + 1499));
     assert(wrap.update(1, trigger + 1500));

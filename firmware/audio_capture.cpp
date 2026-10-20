@@ -1,6 +1,9 @@
 #include "audio_capture.h"
+#include <cstdint>
 #include <Arduino.h>
 #include <PDM.h>
+#include "interrupt_lock.h"
+#include <algorithm>
 
 AudioCapture *AudioCapture::activeReceiver = nullptr;
 
@@ -11,17 +14,18 @@ void AudioCapture::receiveCallback() {
 }
 
 void AudioCapture::receive() {
-    uint32_t now = micros();
+    std::uint32_t now = micros();
     if (lastAudioUs) {
-        uint32_t gap = now - lastAudioUs;
+        std::uint32_t gap = now - lastAudioUs;
         if (gap > callbackGapMaxUs)
             callbackGapMaxUs = gap;
     }
     lastAudioUs = now;
     bool missed = false;
     while (PDM.available() > 0) {
-        int bytes = min(PDM.available(), static_cast<int>(sizeof(pdmBuffer)));
-        int received = PDM.read(pdmBuffer.data(), bytes);
+        const int bytes =
+            std::min(PDM.available(), static_cast<int>(pdmBuffer.size() * sizeof(pdmBuffer[0])));
+        const int received = PDM.read(pdmBuffer.data(), bytes);
         if (received <= 0)
             break;
         receivedSamples += received / 2;
@@ -31,7 +35,7 @@ void AudioCapture::receive() {
     }
     if (missed)
         ++missedBuffers;
-    uint32_t depth = audioQueue.available();
+    std::uint32_t depth = audioQueue.available();
     if (depth > queueHighWater)
         queueHighWater = depth;
     if (notifyConsumer)
@@ -46,7 +50,7 @@ bool AudioCapture::begin(Notification notify, void *context) {
     notificationContext = context;
     activeReceiver = this;
     PDM.onReceive(receiveCallback);
-    PDM.setBufferSize(sizeof(pdmBuffer));
+    PDM.setBufferSize(pdmBuffer.size() * sizeof(pdmBuffer[0]));
     if (!PDM.begin(1, SAMPLE_RATE)) {
         activeReceiver = nullptr;
         notifyConsumer = nullptr;
@@ -70,29 +74,26 @@ void AudioCapture::end() {
     notificationContext = nullptr;
 }
 
-uint32_t AudioCapture::available() const {
+std::uint32_t AudioCapture::available() const {
     return audioQueue.available();
 }
 AudioCapture::Snapshot AudioCapture::snapshot() const {
-    noInterrupts();
-    Snapshot result{receivedSamples, audioQueue.droppedSamples, missedBuffers, queueHighWater,
+    const InterruptLock lock;
+    return Snapshot{receivedSamples, audioQueue.droppedSamples(), missedBuffers, queueHighWater,
         callbackGapMaxUs, lastAudioUs};
-    interrupts();
-    return result;
 }
-bool AudioCapture::readHop(int16_t *samples, uint32_t &captureEndUs) {
-    if (!audioQueue.pop(samples, HOP_SIZE))
+bool AudioCapture::readHop(AudioHop &samples, std::uint32_t &captureEndUs) {
+    if (!audioQueue.pop(samples))
         return false;
-    noInterrupts();
-    uint32_t arrival = lastAudioUs, backlog = audioQueue.available();
-    interrupts();
-    captureEndUs = arrival - (static_cast<uint64_t>(backlog) * 1000000ULL) / SAMPLE_RATE;
+    std::uint32_t arrival, backlog;
+    {
+        const InterruptLock lock;
+        arrival = lastAudioUs;
+        backlog = audioQueue.available();
+    }
+    captureEndUs = arrival - (static_cast<std::uint64_t>(backlog) * 1000000ULL) / SAMPLE_RATE;
     return true;
 }
 void AudioCapture::discardPending() {
-    int16_t discarded[HOP_SIZE];
-    while (audioQueue.pop(discarded, HOP_SIZE)) {
-    }
-    while (audioQueue.pop(discarded, 1)) {
-    }
+    audioQueue.discardPending();
 }

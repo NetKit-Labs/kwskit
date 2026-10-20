@@ -1,4 +1,5 @@
 #include "kws_pipeline.h"
+#include <cstdint>
 #include "audio_pipeline.h"
 #include "audio_capture.h"
 #include "feature_extractor.h"
@@ -9,30 +10,34 @@
 #include <cmsis_os2.h>
 #include <rtx_os.h>
 #include <atomic>
+#include <array>
+#include "mutex_lock.h"
 
 namespace {
     class Application {
     private:
-        static constexpr uint32_t runFlag = 1, audioFlag = 2;
-        static constexpr uint32_t eventCapacity = 8;
-        alignas(8) uint8_t audioStack[8192], controlStack[6144];
-        osRtxThread_t audioControlBlock, deviceControlBlock;
-        osRtxMessageQueue_t queueControlBlock;
-        alignas(
-            8) uint8_t queueStorage[osRtxMessageQueueMemSize(eventCapacity, sizeof(KeywordEvent))];
-        osRtxMutex_t metricsControlBlock;
+        static constexpr std::uint32_t runFlag = 1, audioFlag = 2;
+        static constexpr std::uint32_t eventCapacity = 8;
+        alignas(8) std::array<std::uint8_t, 8192> audioStack{};
+        alignas(8) std::array<std::uint8_t, 6144> controlStack{};
+        osRtxThread_t audioControlBlock{}, deviceControlBlock{};
+        osRtxMessageQueue_t queueControlBlock{};
+        alignas(8) std::array<std::uint8_t,
+            osRtxMessageQueueMemSize(eventCapacity, sizeof(KeywordEvent))> queueStorage{};
+        osRtxMutex_t metricsControlBlock{};
         osThreadId_t audioThread = nullptr, controlThread = nullptr;
         osMessageQueueId_t events = nullptr;
         osMutexId_t metricsMutex = nullptr;
-        std::atomic<uint32_t> generation{0}, eventDrops{0}, notifyErrors{0};
+        std::atomic<std::uint32_t> generation{0}, eventDrops{0}, notifyErrors{0};
         PipelineMetrics sharedAudio;
+        bool started = false;
         AudioCapture capture;
         FeatureExtractor features;
         DeviceControl device;
         Telemetry telemetry;
         AudioPipeline audioPipeline{capture, features, KeywordModel::instance()};
 
-        uint32_t ticksForMs(uint32_t ms) {
+        std::uint32_t ticksForMs(std::uint32_t ms) {
             return (ms * osKernelGetTickFreq() + 999) / 1000;
         }
         void notifyAudio() {
@@ -40,13 +45,12 @@ namespace {
                 ++notifyErrors;
         }
         void publishAudio() {
-            osMutexAcquire(metricsMutex, osWaitForever);
+            const MutexLock lock(metricsMutex);
             sharedAudio = audioPipeline.statistics();
-            osMutexRelease(metricsMutex);
         }
         void processAudio() {
             osThreadFlagsWait(runFlag, osFlagsWaitAny, osWaitForever);
-            uint32_t sequence = 0;
+            std::uint32_t sequence = 0;
             while (true) {
                 // Flags coalesce; drain the ring completely before waiting again.
                 osThreadFlagsWait(audioFlag, osFlagsWaitAny, ticksForMs(100));
@@ -74,7 +78,7 @@ namespace {
             osThreadFlagsWait(runFlag, osFlagsWaitAny, osWaitForever);
             KeywordEventFilter filter;
             TimingStats response, queueLatency;
-            uint32_t triggers = 0, staleEvents = 0;
+            std::uint32_t triggers = 0, staleEvents = 0;
 #ifdef KWS_RTOS_STRESS_TEST
             bool stressDone = false;
 #endif
@@ -88,7 +92,7 @@ namespace {
                         osDelay(ticksForMs(1500));
                     }
 #endif
-                    uint32_t now = micros();
+                    std::uint32_t now = micros();
                     queueLatency.record(now - event.decisionUs);
                     auto result = filter.consume(event, generation.load(), now, millis());
                     if (result.discarded)
@@ -97,13 +101,15 @@ namespace {
                         device.applyKeywordAction();
                         ++triggers;
                         if (result.detection.hasResponse)
-                            response.record(result.detection.responseUs + uint32_t(micros() - now));
+                            response.record(result.detection.responseUs +
+                                static_cast<std::uint32_t>(micros() - now));
                     }
                 }
                 PipelineMetrics snapshot;
-                osMutexAcquire(metricsMutex, osWaitForever);
-                snapshot = sharedAudio;
-                osMutexRelease(metricsMutex);
+                {
+                    const MutexLock lock(metricsMutex);
+                    snapshot = sharedAudio;
+                }
                 snapshot.confirmedKeywords = triggers;
                 snapshot.responseTiming = response;
                 snapshot.eventLatency = queueLatency;
@@ -129,18 +135,29 @@ namespace {
             audioThread = controlThread = nullptr;
             events = nullptr;
             metricsMutex = nullptr;
+            started = false;
         }
 
     public:
+        Application() = default;
+        Application(const Application &) = delete;
+        Application &operator=(const Application &) = delete;
+        ~Application() {
+            cleanup();
+        }
+
         bool begin() {
+            if (started) {
+                return true;
+            }
             device.begin();
             telemetry.begin();
-            if (!KeywordModel::instance().begin()) {
+            auto &model = KeywordModel::instance();
+            if (!model.begin()) {
                 Serial.println("Model initialization failed");
                 return false;
             }
-            if (!features.begin(KeywordModel::instance().inputScale(),
-                    KeywordModel::instance().inputZeroPoint())) {
+            if (!features.begin(model.inputScale(), model.inputZeroPoint())) {
                 Serial.println("DSP initialization failed");
                 return false;
             }
@@ -154,8 +171,8 @@ namespace {
             queueAttrs.name = "kws-scores";
             queueAttrs.cb_mem = &queueControlBlock;
             queueAttrs.cb_size = sizeof(queueControlBlock);
-            queueAttrs.mq_mem = queueStorage;
-            queueAttrs.mq_size = sizeof(queueStorage);
+            queueAttrs.mq_mem = queueStorage.data();
+            queueAttrs.mq_size = queueStorage.size();
             events = osMessageQueueNew(eventCapacity, sizeof(KeywordEvent), &queueAttrs);
             if (!metricsMutex || !events) {
                 cleanup();
@@ -167,8 +184,8 @@ namespace {
             attrs.priority = osPriorityAboveNormal;
             attrs.cb_mem = &audioControlBlock;
             attrs.cb_size = sizeof(audioControlBlock);
-            attrs.stack_mem = audioStack;
-            attrs.stack_size = sizeof(audioStack);
+            attrs.stack_mem = audioStack.data();
+            attrs.stack_size = audioStack.size();
             audioThread = osThreadNew(
                 [](void *context) { static_cast<Application *>(context)->processAudio(); }, this,
                 &attrs);
@@ -176,8 +193,8 @@ namespace {
             attrs.priority = osPriorityNormal;
             attrs.cb_mem = &deviceControlBlock;
             attrs.cb_size = sizeof(deviceControlBlock);
-            attrs.stack_mem = controlStack;
-            attrs.stack_size = sizeof(controlStack);
+            attrs.stack_mem = controlStack.data();
+            attrs.stack_size = controlStack.size();
             controlThread = osThreadNew(
                 [](void *context) { static_cast<Application *>(context)->controlDevice(); }, this,
                 &attrs);
@@ -193,6 +210,7 @@ namespace {
                 Serial.println("PDM failed");
                 return false;
             }
+            started = true;
             Serial.println("Setup complete. RTOS audio/control tasks started.");
             osThreadFlagsSet(controlThread, runFlag);
             osThreadFlagsSet(audioThread, runFlag);
@@ -204,14 +222,18 @@ namespace {
         }
     };
 
-    Application application;
+    Application &application() {
+        // Construct after board globals; task/driver owners are destroyed before them.
+        static Application instance;
+        return instance;
+    }
 } // namespace
 
 namespace KwsPipeline {
     bool begin() {
-        return application.begin();
+        return application().begin();
     }
     void poll() {
-        application.poll();
+        application().poll();
     }
 } // namespace KwsPipeline

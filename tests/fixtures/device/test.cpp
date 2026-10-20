@@ -1,5 +1,5 @@
 #include "device_control.h"
-#include <assert.h>
+#include <cassert>
 int pin = -1, level = -1, mode = -1;
 void pinMode(int p, int m) {
     pin = p;

@@ -1,22 +1,23 @@
 #include "audio_pipeline.h"
+#include <cstdint>
 #include "keyword_event.h"
 #include "audio_capture.h"
 #include "feature_extractor.h"
 #include "keyword_model.h"
 #include <Arduino.h>
-#include <assert.h>
-uint32_t clockUs = 0;
-uint32_t micros() {
+#include <cassert>
+std::uint32_t clockUs = 0;
+std::uint32_t micros() {
     return clockUs;
 }
-uint32_t millis() {
+std::uint32_t millis() {
     return clockUs / 1000;
 }
 bool predictOk = true, hop = true, due = true;
 int queued = 0, predictions = 0, resets = 0, discards = 0;
 AudioCapture::Snapshot audio{};
 
-bool AudioCapture::readHop(int16_t *, uint32_t &time) {
+bool AudioCapture::readHop(AudioHop &, std::uint32_t &time) {
     (void)notificationContext;
     (void)notifyConsumer;
     (void)running;
@@ -29,12 +30,13 @@ bool AudioCapture::readHop(int16_t *, uint32_t &time) {
     time = clockUs;
     return hop;
 }
-uint32_t AudioCapture::available() const {
+std::uint32_t AudioCapture::available() const {
     return queued;
 }
 AudioCapture::Snapshot AudioCapture::snapshot() const {
     return audio;
 }
+void AudioCapture::end() {}
 void AudioCapture::discardPending() {
     ++discards;
 }
@@ -47,19 +49,18 @@ void FeatureExtractor::reset() {
     (void)firstFrame;
     ++resets;
 }
-void FeatureExtractor::consume(const int16_t *) {
+void FeatureExtractor::consume(const AudioHop &) {
     clockUs += 2000;
 }
 bool FeatureExtractor::inferenceDue() const {
     return due;
 }
 void FeatureExtractor::markInferred() {}
-const int8_t *FeatureExtractor::data() const {
-    static int8_t features[NUM_FRAMES * NUM_MEL];
-    return features;
+const FeatureTensor &FeatureExtractor::features() const {
+    return featureBuffer;
 }
 
-bool KeywordModel::predict(const int8_t *, float &p) {
+bool KeywordModel::predict(const FeatureTensor &, float &p) {
     (void)runtime;
     ++predictions;
     clockUs += 59000;
