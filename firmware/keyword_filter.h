@@ -6,6 +6,12 @@ class KeywordFilter {
   bool armed = true, triggered = false;
   uint32_t lastTrigger = 0;
 public:
+  // Discard temporal evidence without erasing cooldown or a latched detection.
+  void resetEvidence() {
+    hits = 0;
+    // A latched detection retains its release EMA: a gap is not silence.
+    if (armed) smoothed = 0;
+  }
   // Scores arrive every ~128 ms. Require sustained evidence and release below 0.4.
   bool update(float probability, uint32_t now) {
     smoothed += 0.5f * (probability - smoothed);

@@ -101,9 +101,9 @@ def export():
             code = token.content.rstrip()
             if token.info.strip() == 'mermaid':
                 code = ('PDM / DMA -> interrupt -> circular audio buffer\n'
-                        '  -> frame overlap / FFT / log-mel -> int8 model\n'
-                        '  -> confidence filter -> confirmed event -> LED\n'
-                        'Main loop: scheduling, recovery, nonblocking telemetry')
+                        'Audio task: frame overlap / FFT / log-mel -> int8 model\n'
+                        '  -> eight-entry RTOS value queue -> control task\n'
+                        'Control task: confidence filter -> LED; USB telemetry')
             story.append(KeepTogether([Preformatted(ascii_text(code), STYLES['CodeKWS'], maxLineLength=99)]))
         elif token.type == 'table_open':
             rows = []

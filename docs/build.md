@@ -36,7 +36,7 @@ A successful build prints flash/static RAM usage. Generated firmware is in:
 .build/artifacts/build-manifest.json
 ```
 
-The checked build used 328,880 bytes flash and 194,112 bytes static RAM. Preserve
+The two-task RTOS build uses 331,440 bytes flash and 209,320 bytes static RAM. Preserve
 the manifest beside the binaries when comparing builds. The source remains in
 `firmware/`; do not edit the generated sketch under `.build/`.
 
@@ -165,3 +165,7 @@ python3 -m venv .build/docs-venv
 The PDF contains the same overview, architecture, measurements, and build entry
 points as the README. This Markdown build guide remains the detailed procedure.
 The export command writes `docs/README.pdf` and does not build or flash firmware.
+
+
+The two-task implementation uses the same build targets. See [RTOS design](rtos-design.md)
+for priorities, static memory ownership, and the hardware backpressure test.

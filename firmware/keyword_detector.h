@@ -8,6 +8,7 @@ class KeywordDetector {
   bool evidenceActive = false;
 public:
   void reset() { filter = KeywordFilter(); evidenceActive = false; }
+  void resetEvidence() { filter.resetEvidence(); evidenceActive = false; }
   DetectionResult update(float probability, uint32_t captureEndUs,
                          uint32_t nowUs, uint32_t nowMs) {
     if (probability >= 0.8f && !evidenceActive) {

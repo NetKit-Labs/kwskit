@@ -4,6 +4,8 @@
 #include <PDM.h>
 namespace AudioCapture {
 namespace {
+void (*notifyConsumer)() = nullptr;
+bool running = false;
 int16_t pdmBuffer[PDM_BUFFER_SIZE];
 AudioQueue<8192> audioQueue;
 volatile uint32_t receivedSamples = 0, missedBuffers = 0, lastAudioUs = 0;
@@ -27,15 +29,23 @@ void onPDMData() {
   if (missed) ++missedBuffers;
   uint32_t depth = audioQueue.available();
   if (depth > queueHighWater) queueHighWater = depth;
+  if (notifyConsumer) notifyConsumer();
 }
 
 }
-bool begin() {
+bool begin(void (*notify)()) {
+  notifyConsumer = notify;
   PDM.onReceive(onPDMData);
   PDM.setBufferSize(sizeof(pdmBuffer));
-  if (!PDM.begin(1, SAMPLE_RATE)) return false;
+  if (!PDM.begin(1, SAMPLE_RATE)) { notifyConsumer = nullptr; return false; }
+  running = true;
   PDM.setGain(60);
   return true;
+}
+void end() {
+  if (running) PDM.end();
+  running = false;
+  notifyConsumer = nullptr;
 }
 uint32_t available() { return audioQueue.available(); }
 Snapshot snapshot() {

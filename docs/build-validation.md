@@ -51,3 +51,7 @@ provenance are available through the run's `nano33ble-firmware` artifact.
 
 Hosted checks verify fresh-checkout tests/compilation; microphone and physical
 LED behavior are verified by the separately recorded hardware sessions.
+
+
+The later [RTOS design](rtos-design.md) and [RTOS validation](rtos-validation.md)
+supersede this record for current task ownership, memory, and runtime results.

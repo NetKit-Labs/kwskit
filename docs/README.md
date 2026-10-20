@@ -5,6 +5,10 @@ fields are documented in the [project README](../README.md).
 
 | Record | Contents |
 |---|---|
+| [RTOS design](rtos-design.md) | Audio/control task ownership, priorities, static memory, ISR notifications, event overload rules |
+| [RTOS validation](rtos-validation.md) | Current host, build, live scheduling, backpressure, and speech test evidence |
+| [RTOS spoken "yes" telemetry](rtos-spoken-yes.json) | Raw current-task speech detections and LED transitions |
+| [RTOS stress telemetry](rtos-stress-telemetry.json) | Raw deliberate control-stall and score-queue overflow results |
 | [Locked-build validation](build-validation.md) | Clean setup, Make targets, host checks, upload and live telemetry validation |
 | [Build and CI](build.md) | Locked command-line tools, dependency provenance, Make targets, CI artifacts, and reproducibility limits |
 | [Initial improvements validation](validation.md) | Ordered testing of the six improvements, Nano build/upload, and initial hardware measurements |

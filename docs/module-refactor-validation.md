@@ -76,3 +76,7 @@ Recorded high-confidence-window-to-action delays ranged from about 190 to
 Raw evidence: [module-refactor-spoken-yes.json](module-refactor-spoken-yes.json).
 This confirms the refactored application's speech-to-LED path in this session;
 it does not measure detection accuracy across a controlled speech/noise dataset.
+
+
+The later [RTOS design](rtos-design.md) and [RTOS validation](rtos-validation.md)
+supersede this record for current task ownership, memory, and runtime results.

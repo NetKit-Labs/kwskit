@@ -4,7 +4,8 @@
 
 Continuous single-keyword spotting on an **Arduino Nano 33 BLE / nRF52840**
 (64 MHz Cortex-M4F). Interrupt-driven PDM acquisition feeds CMSIS-DSP feature
-extraction and an int8 TensorFlow Lite Micro model. Confirmed **“yes”** detections
+extraction and an int8 TensorFlow Lite Micro model in a dedicated audio task.
+A second task filters queued scores and controls the device. Confirmed **“yes”** detections
 toggle the built-in LED. The application runs continuously while powered.
 
 The implementation focuses on bounded buffering, preserved sample/frame order,
@@ -13,8 +14,9 @@ The primary workflow is command-line Make and C++; Arduino IDE is optional.
 
 ## Measured results
 
-Measurements below are from the refactored firmware on the connected Nano,
-recorded October 20, 2026. Timing summarizes the recorded checks; memory is from
+Measurements below are from the two-task RTOS firmware on the connected Nano,
+recorded October 20, 2026. Timing summarizes normal-operation checks; the deliberate stall is documented
+separately. Memory is from
 the locked CLI build. These are observed results, not worst-case guarantees.
 
 | Measurement | Recorded result |
@@ -23,18 +25,20 @@ the locked CLI build. These are observed results, not worst-case guarantees.
 | FFT frame / overlap | 512 samples (32 ms) / 50% |
 | Model input | 61 × 20 int8 log-mel features (~1 s context) |
 | Decision cadence after warmup | Every 8 feature hops (~128 ms), when audio backlog is drained |
-| DSP average / observed maximum | 2.48 / 3.04 ms |
-| Inference average / observed maximum | 59.09 / 60.10 ms |
-| Processing iteration observed maximum | 62.87 ms |
+| DSP average / observed maximum | 2.63 / 2.86 ms |
+| Inference average / observed maximum | 59.13 / 59.65 ms |
+| Processing iteration observed maximum | 62.23 ms |
 | Circular audio buffer / observed peak occupancy | 8192 / 768 samples |
-| Flash / static RAM | 328,880 / 194,112 bytes (33% / 74%) |
-| 60-second spoken “yes” check | 12 confirmed detections; physical LED toggling confirmed |
+| Flash / static RAM | 331,440 / 209,320 bytes (33% / 79%) |
+| Dedicated task stacks | Audio 8192 bytes; control 6144 bytes |
+| RTOS spoken "yes" check | 11 confirmed detections; physical LED toggling confirmed |
 | Reported sample drops / missed buffers / inference errors | 0 / 0 / 0 in the recorded checks |
 
-See [speech/refactor validation](docs/module-refactor-validation.md) and the
-[locked-build check](docs/build-validation.md). Response
-measurements start at a high-confidence window's estimated end; they do not
-measure acoustic word-onset latency. Detection accuracy across a controlled
+See [RTOS validation](docs/rtos-validation.md) for current task, stress, and
+speech-test evidence. The [earlier module/refactor record](docs/module-refactor-validation.md)
+and [pre-RTOS build check](docs/build-validation.md) retain historical results.
+Response measurements start at a high-confidence window's estimated end; they
+do not measure acoustic word-onset latency. Detection accuracy across a controlled
 speaker/noise dataset and hours-to-days endurance have not been established.
 
 ## Build, test, and flash
@@ -84,38 +88,45 @@ artifacts. Physical microphone/LED testing remains a hardware check.
 ```mermaid
 flowchart LR
     PDM["PDM peripheral / DMA"] --> ISR["PDM interrupt callback"]
-    ISR --> Q["8192-sample SPSC ring"]
-    Q --> DSP["Frame overlap + FFT + log-mel"]
-    DSP --> NN["int8 TFLite Micro inference"]
-    NN --> FILTER["EMA + confidence + hysteresis + cooldown"]
-    FILTER --> LED["Confirmed event → LED toggle"]
-    PIPE["Main-loop coordinator"] -. schedules .-> DSP
-    PIPE -. schedules .-> NN
-    PIPE -. snapshots .-> USB["Nonblocking USB telemetry"]
+    ISR --> RING["8192-sample SPSC ring"]
+    ISR -. thread flag .-> AUDIO["Audio task: DSP + NN inference"]
+    RING --> AUDIO
+    AUDIO --> QUEUE["CMSIS queue: 8 score values"]
+    QUEUE --> CONTROL["Control task: smoothing + hysteresis + cooldown"]
+    CONTROL --> LED["Confirmed event -> LED toggle"]
+    CONTROL --> USB["Nonblocking USB telemetry"]
 ```
 
 | Module | Owned state and responsibility | Execution context |
 |---|---|---|
-| `audio_capture` | PDM staging, ring, acquisition counters, complete-hop reads | Interrupt producer; main-loop consumer |
-| `feature_extractor` | Hann/FFT workspace, overlap, quantization, rolling features, readiness | Main loop |
-| `keyword_model` | Interpreter, 96 KiB tensor arena, tensor validation, class-0 probability | Main loop |
-| `keyword_detector` | Confidence filter, rearming/cooldown, response evidence | Main loop; hardware independent |
-| `device_control` | Built-in LED state and confirmed-event action | Main loop |
-| `telemetry` | Output staging and nonblocking USB transmission | Main loop |
-| `kws_pipeline` | Scheduling, overflow recovery, timing and event routing | Main loop |
+| `audio_capture` | PDM staging, ring, acquisition counters, complete-hop reads | Interrupt producer; audio-task consumer |
+| `audio_pipeline` | Hop processing, readiness, backlog deferral, DSP/inference timing | Audio task |
+| `feature_extractor` | Hann/FFT workspace, overlap, quantization, rolling features | Audio task |
+| `keyword_model` | Interpreter, 96 KiB tensor arena, class-0 probability | Audio task |
+| `keyword_event` / `keyword_detector` | Event freshness, confidence filtering, cooldown, response evidence | Control task |
+| `device_control` | Built-in LED state and confirmed-event action | Control task after initialization |
+| `telemetry` | Output staging and nonblocking USB transmission | Control task after initialization |
+| `kws_pipeline` | Task/queue startup, transport, generations, metrics synchronization | Startup plus two task entry points |
 | `kws_config` | Shared dimensions and inference cadence | Compile-time configuration |
 
-The `.ino` contains only `setup()`/`loop()` delegation. Application code is in
-`.cpp`/`.h` modules. The board's Arduino mbed core supplies the underlying RTOS;
-this application creates no separate tasks. The modules currently have one
-main-loop owner. A future task split needs explicit queue/snapshot lifetimes and
-synchronization; it cannot call these stateful APIs concurrently without changes.
+The `.ino` only delegates startup and idles the existing Arduino main task.
+Two application tasks use the board's built-in CMSIS-RTOS2/RTX kernel: audio at
+`AboveNormal` priority with an 8 KiB stack, control at `Normal` with a 6 KiB stack.
+Stacks, thread control blocks, queue storage, and mutex storage are static.
+The callback sets an ISR-safe thread flag after publishing audio. Flags may
+coalesce; the audio task drains complete hops before waiting again.
+
+The queue copies timestamped score values, including low scores needed to rearm
+the detector. No audio buffers, feature windows, or tensor pointers cross tasks.
+A priority-inheriting mutex protects only a short metrics copy. The interrupt
+callback never takes that mutex. Audio never waits for room in the event queue.
+See [RTOS design](docs/rtos-design.md) for scheduling, ownership, and overload rules.
 
 ## Real-time behavior and design choices
 
 **Acquisition.** The PDM callback drains bounded reads into a single-producer,
 single-consumer circular buffer using lock-free atomic publication. It does no
-DSP, inference, GPIO action, or USB printing. The main loop consumes complete
+DSP, inference, GPIO action, or USB printing. The audio task consumes complete
 256-sample hops. The 8192-sample capacity provides 512 ms of nominal buffering
 at 16 kHz; it absorbs bounded stalls rather than sustained overload.
 
@@ -139,20 +150,24 @@ speech/noise validation, rather than an established false-positive guarantee.
 
 **Failure behavior.** A full ring rejects new samples, counts dropped samples
 and affected callbacks, and preserves unread samples. On observing a loss, the
-coordinator discards pending audio, resets feature/detection state, and waits for
-a fresh feature window. Failed inference increments an error counter and resets
-detection state. Startup validates FFT initialization, tensor type/size/scales,
-and PDM startup; failures are reported and halt setup. Automatic recovery from
+audio task discards pending audio, resets features, invalidates older queued
+scores, and waits for a fresh feature window. Failed inference increments an
+error counter and invalidates detection evidence. A full event queue drops a
+score and advances a generation counter rather than blocking audio. The control
+task rejects old generations and scores older than 250 ms; sequence/cadence gaps
+reset temporal evidence while retaining latch/cooldown history. Startup checks
+DSP/model/PDM and RTOS objects/tasks, cleaning up tasks on partial failure. Automatic recovery from
 peripheral failure is future work.
 
 ## Tests and instrumentation
 
 `make test` exercises queue ordering/overflow/wraparound, packed FFT bins/bounds,
 simulated inference stalls, temporal filtering and cooldown, detection-response
-timing and timer wraparound, actual GPIO-module logic with fake pins, and actual
-coordinator logic with fake capture/model/telemetry modules. Pipeline tests cover
-startup failures, readiness, backlog deferral, confirmed actions, inference
-errors, overflow reset, and statistics routing. Build-tool tests check archive
+timing and timer wraparound, actual GPIO-module logic with fake pins, and the actual
+audio pipeline with fake capture/features/model modules. RTOS startup tests
+check static storage, priority/stack configuration, callback notification, and
+cleanup after initialization failures. Event tests cover stale generations,
+queue gaps, duplicate scores, timestamp wraparound, and cooldown retention. Build-tool tests check archive
 checksums, extraction boundaries, library/lock drift, and environment isolation.
 
 At 115200 baud, USB telemetry is emitted every two seconds without waiting for a
@@ -166,6 +181,9 @@ host. A two-second startup timeout allows standalone operation.
 | `response_us` | Last/maximum estimated high-confidence-window-to-action delay |
 | `inferences`, `errors`, `p_milli` | Model calls, failures, class-0 confidence × 1000 |
 | `triggers`, `led` | Confirmed actions and current logical LED state |
+| `event_drops`, `stale_events`, `notify_errors` | Nonblocking queue send failures, discarded stale scores, ISR flag errors |
+| `event_us` | Average/maximum inference-result transport delay |
+| `stack_free` | Minimum unused stack bytes: audio/control, from the RTX watermark |
 
 For a live capture, install `pyserial` in a host virtual environment and run:
 
@@ -188,6 +206,6 @@ The host recording ends after the requested interval; firmware keeps running.
 ## Next engineering work
 
 Evaluate false accepts/rejects across speakers, noise, distance, and silence;
-run longer endurance tests; add peripheral fault recovery; and introduce explicit
-RTOS tasks when expansion provides a useful concurrent workload. Threshold
+run longer endurance tests; add peripheral fault recovery; and extend the control
+task with communications or additional device functionality. Threshold
 refinement and multi-keyword training are separate from the build/runtime work.
