@@ -5,12 +5,12 @@
 #include <atomic>
 #include <array>
 #include <limits>
+#include <bit>
 
 // Single interrupt producer, single audio-task consumer. Never overwrite unread audio.
 static_assert(ATOMIC_INT_LOCK_FREE == 2, "ISR queue requires lock-free atomics");
 template <std::size_t Capacity> class AudioQueue {
-    static_assert(
-        Capacity > 0 && (Capacity & (Capacity - 1)) == 0, "Nonzero power-of-two capacity required");
+    static_assert(std::has_single_bit(Capacity), "Nonzero power-of-two capacity required");
     static_assert(
         Capacity <= std::numeric_limits<std::uint32_t>::max(), "Capacity must fit ring indices");
     std::array<std::int16_t, Capacity> samples{};

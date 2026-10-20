@@ -49,6 +49,7 @@ int osMutexRelease(osMutexId_t) {
 osMessageQueueId_t osMessageQueueNew(
     std::uint32_t n, std::uint32_t size, const osMessageQueueAttr_t *a) {
     assert(n == 8 && size == sizeof(KeywordEvent));
+    assert(a->attr_bits == 0);
     assert(a->cb_mem && a->mq_mem && a->mq_size >= n * size);
     if (failure == 2) {
         return nullptr;
@@ -69,6 +70,7 @@ int osMessageQueueGet(osMessageQueueId_t, void *, std::uint8_t *, std::uint32_t)
 }
 osThreadId_t osThreadNew(void (*entry)(void *), void *context, const osThreadAttr_t *a) {
     assert(context);
+    assert(a->attr_bits == 0 && a->tz_module == 0 && a->reserved == 0);
     assert(entry && a->stack_mem && a->cb_mem && (std::uintptr_t(a->stack_mem) % 8) == 0);
     int call = threadCalls++;
     attrs[call % 2] = *a;

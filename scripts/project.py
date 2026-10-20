@@ -22,7 +22,7 @@ CONFIG = BUILD / "arduino-cli.json"
 SKETCH = BUILD / "sketch" / "KWS_Arm_CortexM4F"
 LIBRARIES = BUILD / "arduino-user" / "libraries"
 OUTPUT = BUILD / "artifacts"
-CPP_STANDARD = "gnu++17"
+CPP_STANDARD = "gnu++20"
 
 
 def sha256(path):
@@ -151,6 +151,70 @@ def tree_manifest(directory):
     }
 
 
+def toolchain_asset():
+    key = platform.system() + "-" + platform.machine().lower()
+    asset = LOCK["toolchain"]["archives"].get(key)
+    if not asset:
+        raise RuntimeError("Unsupported compiler host: " + key)
+    return asset
+
+
+def toolchain_directory():
+    return BUILD / "toolchain" / toolchain_asset()["file"].removesuffix(".tar.xz")
+
+
+def verify_toolchain():
+    directory = toolchain_directory()
+    stamp = directory / ".kws-manifest.json"
+    if not stamp.exists():
+        raise RuntimeError("Pinned C++20 compiler missing; run make setup")
+    manifest = json.loads(stamp.read_text())
+    if manifest["source"] != LOCK["toolchain"] or tree_manifest(directory) != manifest["files"]:
+        raise RuntimeError("Compiler files changed; run make setup")
+    version = subprocess.check_output(
+        [str(directory / "bin/arm-none-eabi-g++"), "-dumpfullversion"], text=True
+    ).strip()
+    if version != LOCK["toolchain"]["gcc_version"]:
+        raise RuntimeError("Compiler version differs from dependencies.lock.json")
+
+
+def install_toolchain():
+    destination = toolchain_directory()
+    if (destination / ".kws-manifest.json").exists():
+        try:
+            verify_toolchain()
+            return
+        except RuntimeError:
+            pass
+    asset = toolchain_asset()
+    archive = download(LOCK["toolchain"]["base_url"] + asset["file"], asset["sha256"])
+    with tempfile.TemporaryDirectory(dir=BUILD) as scratch:
+        scratch = Path(scratch)
+        with tarfile.open(archive) as source:
+            for member in source.getmembers():
+                path = scratch / member.name
+                if not path.resolve().is_relative_to(scratch.resolve()):
+                    raise RuntimeError("Invalid compiler archive path")
+                if member.issym() or member.islnk():
+                    target = (path.parent if member.issym() else scratch) / member.linkname
+                    if not target.resolve().is_relative_to(scratch.resolve()):
+                        raise RuntimeError("Invalid compiler archive link")
+            source.extractall(scratch)
+        staged = scratch / destination.name
+        if not (staged / "bin/arm-none-eabi-g++").is_file():
+            raise RuntimeError("Compiler archive has no expected toolchain root")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if destination.exists():
+            shutil.rmtree(destination)
+        shutil.move(str(staged), destination)
+    (destination / ".kws-manifest.json").write_text(
+        json.dumps(
+            {"source": LOCK["toolchain"], "files": tree_manifest(destination)}, sort_keys=True
+        )
+    )
+    verify_toolchain()
+
+
 def verify_libraries():
     for library in LOCK["libraries"]:
         directory = LIBRARIES / library["name"]
@@ -225,6 +289,7 @@ def setup():
     restore_core_archive()
     for library in LOCK["libraries"]:
         install_library(library)
+    install_toolchain()
     verify_core()
     verify_libraries()
 
@@ -243,6 +308,8 @@ def compile_sketch(jobs, output):
         "default",
         "--build-property",
         "compiler.cpp.extra_flags=" + cpp_flags,
+        "--build-property",
+        "compiler.path=" + str(toolchain_directory() / "bin") + "/",
         "--build-path",
         BUILD / "objects",
         "--output-dir",
@@ -255,6 +322,7 @@ def build(jobs):
     require_cli()
     verify_core()
     verify_libraries()
+    verify_toolchain()
     SKETCH.mkdir(parents=True, exist_ok=True)
     expected = {
         path.name for path in (ROOT / "firmware").iterdir() if path.suffix in (".ino", ".cpp", ".h")

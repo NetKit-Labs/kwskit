@@ -161,49 +161,54 @@ namespace {
                 Serial.println("DSP initialization failed");
                 return false;
             }
-            osMutexAttr_t mutexAttrs{};
-            mutexAttrs.name = "kws-metrics";
-            mutexAttrs.attr_bits = osMutexPrioInherit;
-            mutexAttrs.cb_mem = &metricsControlBlock;
-            mutexAttrs.cb_size = sizeof(metricsControlBlock);
+            const osMutexAttr_t mutexAttrs{
+                .name = "kws-metrics",
+                .attr_bits = osMutexPrioInherit,
+                .cb_mem = &metricsControlBlock,
+                .cb_size = sizeof(metricsControlBlock),
+            };
             metricsMutex = osMutexNew(&mutexAttrs);
-            osMessageQueueAttr_t queueAttrs{};
-            queueAttrs.name = "kws-scores";
-            queueAttrs.cb_mem = &queueControlBlock;
-            queueAttrs.cb_size = sizeof(queueControlBlock);
-            queueAttrs.mq_mem = queueStorage.data();
-            queueAttrs.mq_size = queueStorage.size();
+            const osMessageQueueAttr_t queueAttrs{
+                .name = "kws-scores",
+                .cb_mem = &queueControlBlock,
+                .cb_size = sizeof(queueControlBlock),
+                .mq_mem = queueStorage.data(),
+                .mq_size = sizeof(queueStorage),
+            };
             events = osMessageQueueNew(eventCapacity, sizeof(KeywordEvent), &queueAttrs);
             if (!metricsMutex || !events) {
                 cleanup();
                 Serial.println("RTOS objects failed");
                 return false;
             }
-            osThreadAttr_t attrs{};
-            attrs.name = "kws-audio";
-            attrs.priority = osPriorityAboveNormal;
-            attrs.cb_mem = &audioControlBlock;
-            attrs.cb_size = sizeof(audioControlBlock);
-            attrs.stack_mem = audioStack.data();
-            attrs.stack_size = audioStack.size();
+            const osThreadAttr_t audioAttrs{
+                .name = "kws-audio",
+                .cb_mem = &audioControlBlock,
+                .cb_size = sizeof(audioControlBlock),
+                .stack_mem = audioStack.data(),
+                .stack_size = sizeof(audioStack),
+                .priority = osPriorityAboveNormal,
+            };
             audioThread = osThreadNew(
                 [](void *context) {
                     auto &application = *static_cast<Application *>(context);
                     application.processAudio();
                 },
-                this, &attrs);
-            attrs.name = "kws-control";
-            attrs.priority = osPriorityNormal;
-            attrs.cb_mem = &deviceControlBlock;
-            attrs.cb_size = sizeof(deviceControlBlock);
-            attrs.stack_mem = controlStack.data();
-            attrs.stack_size = controlStack.size();
+                this, &audioAttrs);
+            const osThreadAttr_t controlAttrs{
+                .name = "kws-control",
+                .cb_mem = &deviceControlBlock,
+                .cb_size = sizeof(deviceControlBlock),
+                .stack_mem = controlStack.data(),
+                .stack_size = sizeof(controlStack),
+                .priority = osPriorityNormal,
+            };
             controlThread = osThreadNew(
                 [](void *context) {
                     auto &application = *static_cast<Application *>(context);
                     application.controlDevice();
                 },
-                this, &attrs);
+                this, &controlAttrs);
             if (!audioThread || !controlThread) {
                 cleanup();
                 Serial.println("RTOS tasks failed");

@@ -5,16 +5,18 @@ fields are documented in the [project README](../README.md).
 For current scheduling and API use, see [RTOS design](rtos-design.md), including
 [why two tasks are used](rtos-design.md#why-two-application-tasks) and
 [the API source map](rtos-design.md#rtos-api-source-map). Latest build and hardware
-measurements are in the [C++17 verification](cpp17-modernization.md#verification),
-with the latest source check in its [reference cleanup follow-up](cpp17-modernization.md#reference-cleanup-follow-up).
+measurements are in the [C++20 verification](cpp20-modernization.md#verification).
 Earlier validation records and captures retain their original results as history.
 
 | Record | Contents |
 |---|---|
+| [C++20 normal telemetry](cpp20-normal.json) | Current C++20 audio/inference and spoken-word regression |
+| [C++20 stress telemetry](cpp20-stress.json) | Current C++20 control-stall and normal restoration record |
+| [C++20 modernization](cpp20-modernization.md) | Designated initialization, focused C++20 facilities, pinned compiler, and verification |
 | [Reference-cleanup normal telemetry](reference-cleanup-normal.json) | 30-second audio/inference regression after local object-reference cleanup |
-| [C++17 normal telemetry](cpp17-normal.json) | Current C++17 normal-operation acquisition/inference and spoken-word check |
-| [C++17 stress telemetry](cpp17-stress.json) | Current C++17 control-stall regression and normal restoration |
-| [C++17 baseline and references](cpp17-modernization.md) | Minimum language mode, reference interfaces, build compatibility, regression and hardware evidence |
+| [C++17 normal telemetry](cpp17-normal.json) | Historical C++17 normal-operation acquisition/inference and spoken-word check |
+| [C++17 stress telemetry](cpp17-stress.json) | Historical C++17 control-stall regression and normal restoration |
+| [C++17 baseline and references](cpp17-modernization.md) | Historical C++17 language mode, reference interfaces, and regression/hardware evidence |
 | [C++ idioms normal telemetry](cpp-idioms-normal.json) | One-minute normal-operation regression and developer-confirmed spoken-word LED check |
 | [C++ idioms stress telemetry](cpp-idioms-stress.json) | Live control-stall regression after typed interfaces and scoped ownership changes |
 | [C++ idioms and ownership review](cpp-idioms.md) | Typed buffer/FFT contracts, RAII critical sections and resource lifetimes, source audit, and regression evidence |

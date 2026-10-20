@@ -3,9 +3,9 @@
 ## Language audit
 
 The maintained native firmware, host model inspector, and native unit/regression
-tests require C++17 or later. Host tests and the model inspector use `-std=c++17`;
-the project overrides the pinned Arduino Mbed core default with `-std=gnu++17`
-for firmware. `cpp_standard.h` rejects older modes. The build preincludes that
+tests require C++20 or later. Host tests and the model inspector use `-std=c++20`;
+firmware uses pinned Arm GNU Toolchain 13.3.Rel1 with `-std=gnu++20`,
+overriding the Arduino core's older bundled compiler. `cpp_standard.h` rejects older modes. The build preincludes that
 header to load `<chrono>` before Arduino defines its conflicting `abs` macro.
 There are no project-owned `.c` translation units to convert.
 Headers are included by C++ sources; the Arduino `.ino` is compiled as C++ and
@@ -38,9 +38,11 @@ optional FlatBuffer fields, inactive capture ownership) and for the PDM/CMSIS/US
 API signatures and raw byte buffers they require. A reference is not a replacement
 for an optional value, a reseatable handle, or an array extent.
 
-The [C++17 update](cpp17-modernization.md) records the modern library facilities,
-compile-mode regression checks, and hardware verification. C++20 is not needed
-by the current implementation or selected by the pinned firmware toolchain.
+The [C++20 update](cpp20-modernization.md) records designated initializers, the
+modern library facilities, compiler selection, regression checks, and hardware
+verification. CMSIS configuration uses separate const designated aggregates in
+declaration order. Omitted fields are zero-initialized; constructors and empty
+buffer initialization remain appropriate elsewhere.
 
 ## Four-space policy
 

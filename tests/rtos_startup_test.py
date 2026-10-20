@@ -11,10 +11,11 @@ with tempfile.TemporaryDirectory(prefix="kws-rtos-") as directory:
     subprocess.run(
         [
             "c++",
-            "-std=c++17",
+            "-std=c++20",
             "-Wall",
             "-Wextra",
             "-Werror",
+            "-Wno-missing-field-initializers",
             "-fsanitize=address,undefined",
             "-I" + directory,
             "-Ifirmware",

@@ -15,6 +15,8 @@ struct osThreadAttr_t {
     void *stack_mem;
     std::uint32_t stack_size;
     int priority;
+    std::uint32_t tz_module;
+    std::uint32_t reserved;
 };
 struct osMessageQueueAttr_t {
     const char *name;

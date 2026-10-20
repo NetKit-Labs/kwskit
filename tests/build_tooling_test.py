@@ -110,7 +110,7 @@ class BuildToolingTests(unittest.TestCase):
             self.assertIn("--config-file", command)
             self.assertIn(str(project.CONFIG), command)
 
-    def test_normal_and_stress_compiler_require_cpp17(self):
+    def test_normal_and_stress_compiler_require_cpp20(self):
         with mock.patch.object(project, "cli") as cli:
             for output in (self.root / "artifacts", self.root / "stress-artifacts"):
                 project.compile_sketch(4, output)
@@ -118,11 +118,14 @@ class BuildToolingTests(unittest.TestCase):
                 self.assertEqual(args[0], "compile")
                 self.assertEqual(
                     args[args.index("--build-property") + 1],
-                    'compiler.cpp.extra_flags=-std=gnu++17 -include "'
+                    'compiler.cpp.extra_flags=-std=gnu++20 -include "'
                     + str(project.SKETCH / "cpp_standard.h")
                     + '"',
                 )
                 self.assertEqual(args[args.index("--output-dir") + 1], output)
+                self.assertIn(
+                    "compiler.path=" + str(project.toolchain_directory() / "bin") + "/", args
+                )
 
     def test_build_manifest_records_language_and_staged_sources(self):
         sketch = self.root / "sketch"
@@ -134,12 +137,13 @@ class BuildToolingTests(unittest.TestCase):
             mock.patch.object(project, "require_cli"),
             mock.patch.object(project, "verify_core"),
             mock.patch.object(project, "verify_libraries"),
+            mock.patch.object(project, "verify_toolchain"),
             mock.patch.object(project, "compile_sketch") as compile_sketch,
         ):
             project.build(2)
             compile_sketch.assert_called_once_with(2, output)
             manifest = json.loads((output / "build-manifest.json").read_text())
-            self.assertEqual(manifest["cpp_standard"], "gnu++17")
+            self.assertEqual(manifest["cpp_standard"], "gnu++20")
             self.assertEqual(manifest["firmware"], project.tree_manifest(sketch))
             self.assertIn("cpp_standard.h", manifest["firmware"])
             header = sketch / "cpp_standard.h"
@@ -151,6 +155,57 @@ class BuildToolingTests(unittest.TestCase):
             self.assertEqual(
                 header.read_bytes(), (project.ROOT / "firmware/cpp_standard.h").read_bytes()
             )
+
+    def compiler_archive(self, entries):
+        archive = self.root / "compiler.tar.xz"
+        root = project.toolchain_directory().name
+        with tarfile.open(archive, "w:xz") as output:
+            for name, content, link in entries:
+                info = tarfile.TarInfo(root + "/" + name)
+                if link:
+                    info.type = tarfile.SYMTYPE
+                    info.linkname = content
+                    output.addfile(info)
+                else:
+                    info.size = len(content)
+                    info.mode = 0o755 if name.startswith("bin/") else 0o644
+                    output.addfile(info, io.BytesIO(content))
+        return archive
+
+    def test_toolchain_integrity_version_and_restoration(self):
+        archive = self.compiler_archive(
+            [
+                ("bin/arm-none-eabi-g++", b"compiler", False),
+                ("include/example.h", b"original", False),
+            ]
+        )
+        with (
+            mock.patch.object(project, "download", return_value=archive),
+            mock.patch.object(project.subprocess, "check_output", return_value="13.3.1\n"),
+        ):
+            project.install_toolchain()
+            project.verify_toolchain()
+            header = project.toolchain_directory() / "include/example.h"
+            stamp = header.stat().st_mtime_ns
+            project.install_toolchain()
+            self.assertEqual(header.stat().st_mtime_ns, stamp)
+            header.write_text("changed")
+            with self.assertRaisesRegex(RuntimeError, "Compiler files changed"):
+                project.verify_toolchain()
+            project.install_toolchain()
+            self.assertEqual(header.read_bytes(), b"original")
+            with mock.patch.object(project.subprocess, "check_output", return_value="7.2.1\n"):
+                with self.assertRaisesRegex(RuntimeError, "Compiler version differs"):
+                    project.verify_toolchain()
+
+    def test_toolchain_archive_rejects_path_and_link_escape(self):
+        for entry in (("../../escape", b"bad", False), ("bin/escape", "../../../escape", True)):
+            with self.subTest(entry=entry):
+                archive = self.compiler_archive([entry])
+                with mock.patch.object(project, "download", return_value=archive):
+                    with self.assertRaisesRegex(RuntimeError, "Invalid compiler archive"):
+                        project.install_toolchain()
+                self.assertFalse((self.root / "escape").exists())
 
 
 if __name__ == "__main__":

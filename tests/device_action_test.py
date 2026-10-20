@@ -11,7 +11,7 @@ with tempfile.TemporaryDirectory(prefix="kws-device-") as directory:
     subprocess.run(
         [
             "c++",
-            "-std=c++17",
+            "-std=c++20",
             "-Wall",
             "-Wextra",
             "-Werror",

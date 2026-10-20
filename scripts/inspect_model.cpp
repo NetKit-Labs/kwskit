@@ -134,11 +134,11 @@ int main(int argc, char **argv) {
             const auto &tensor = *graph.tensors()->Get(i);
             const auto &buffer = *model.buffers()->Get(tensor.buffer());
             const auto size = buffer.data() ? buffer.data()->size() : 0;
-            if (weights.count(i)) {
+            if (weights.contains(i)) {
                 weightCount += elements(tensor);
                 parameterBytes += size;
             }
-            if (biases.count(i)) {
+            if (biases.contains(i)) {
                 biasCount += elements(tensor);
                 parameterBytes += size;
             }

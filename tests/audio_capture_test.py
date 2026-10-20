@@ -9,7 +9,7 @@ with tempfile.TemporaryDirectory(prefix="kws-capture-") as directory:
     subprocess.run(
         [
             "c++",
-            "-std=c++17",
+            "-std=c++20",
             "-Wall",
             "-Wextra",
             "-Werror",

@@ -30,7 +30,14 @@ AudioStep AudioPipeline::process(KeywordEvent &event) {
             ++metrics.inferenceErrors;
             result.reset = true;
         } else {
-            event = {metrics.latestProbability, captureEndUs, micros(), millis(), 0, 0};
+            event = {
+                .probability = metrics.latestProbability,
+                .captureEndUs = captureEndUs,
+                .decisionUs = micros(),
+                .decisionMs = millis(),
+                .sequence = 0,
+                .generation = 0,
+            };
             result.hasEvent = true;
         }
     }

@@ -2,12 +2,12 @@
 
 ## Fresh checkout
 
-Install GNU Make, Python 3.9 or newer, and a host C++ compiler (`c++`) supporting
+Install GNU Make, Python 3.9 or newer, and a host C++ compiler (`c++`) supporting C++20,
 AddressSanitizer and UndefinedBehaviorSanitizer. macOS Command Line Tools and
 Ubuntu 24.04's default C++ compiler are suitable host environments. Firmware
 cross-compilation uses the downloaded Arm toolchain, not the host C++ compiler.
-On Apple Silicon, the core supplies an Intel macOS compiler, so Rosetta 2 must
-already be available to run it. The Arduino CLI itself is native ARM64.
+On Apple Silicon, the active compiler and Arduino CLI are native ARM64. The
+board package's Intel `bossac` uploader still needs Rosetta 2 for flashing.
 
 ## Clone, test, build, and upload
 
@@ -22,7 +22,7 @@ make build
 ```
 
 Setup uses Python's standard library and requires HTTPS access to GitHub and
-Arduino's download servers. Allow roughly 1-2 GB for core sources, compiler,
+Arduino/Arm download servers. Allow roughly 3-4 GB for core sources, compilers,
 libraries, objects, and downloads. Installation is project local; nothing is
 installed into the IDE's sketchbook, global package directory, or executable
 path. A Nano is not required for testing or compilation.
@@ -36,7 +36,7 @@ A successful build prints flash/static RAM usage. Generated firmware is in:
 .build/artifacts/build-manifest.json
 ```
 
-The two-task RTOS build uses 331,616 bytes flash and 209,328 bytes static RAM. Preserve
+The two-task RTOS build uses 331,488 bytes flash and 208,888 bytes static RAM. Preserve
 the manifest beside the binaries when comparing builds. The source remains in
 `firmware/`; do not edit the generated sketch under `.build/`.
 
@@ -75,7 +75,8 @@ correspondence require observation. Ending the capture does not stop firmware.
 |---|---|
 | Arduino CLI | 1.5.1; SHA-256 for each supported macOS/Linux host archive |
 | Arduino board core | `arduino:mbed_nano@4.6.0`; package manager checksums |
-| Arm compiler | `arm-none-eabi-gcc@7-2017q4`, selected by that core's package dependencies |
+| Active Arm compiler | Arm GNU Toolchain 13.3.Rel1 / GCC 13.3.1; vendor-published SHA-256 archive pins and installed-file/version checks |
+| Core-bundled compiler | `arm-none-eabi-gcc@7-2017q4`, installed by the board package but overridden for compilation/linking |
 | CMSIS-DSP | Arduino_CMSIS-DSP 5.7.0; SHA-256-verified official library ZIP |
 | TFLite Micro Arduino sources | `7948b85e020470a30a83bf00e10fc43b486bfcba`; SHA-256-verified upstream ZIP |
 | TFLite compatibility headers | Reviewed, tracked files under `build-support/tflm-compat/` |
@@ -94,7 +95,9 @@ The core archive also has an explicit SHA-256 pin. Setup verifies every regular
 file against that archive and restores any missing files: a clean local CLI
 installation omitted CMSIS/other headers that were present in the official
 archive. This restores original upstream files without patching their content.
-Build checks the recorded core file hashes as well as library hashes.
+Build checks the recorded core, library, and active-compiler file hashes. Setup
+installs the pinned C++20 compiler under `.build/toolchain/`; both normal and
+stress builds explicitly override `compiler.path` with its `bin/` directory.
 Setup records a per-file library manifest; build rejects missing/modified library
 files and changed compatibility overlays until setup is rerun.
 
@@ -136,7 +139,7 @@ record any measured firmware changes before updating performance claims.
 |---|---|
 | `make setup` | Install/restore locked dependencies (network required) |
 | `make test` | Complete host regression gate used by CI; includes unit tests |
-| `make test-unit` | Seven isolated component checks; no board or Arduino setup required |
+| `make test-unit` | Ten isolated component checks; no board or Arduino setup required |
 | `make test-regression` | All fourteen unit/integration/regression checks; equivalent to `make test` |
 | `make format` | Apply four-space C++/Python style using the optional pinned formatter environment |
 | `make format-check` | Verify C++/Python/notebook formatting; see [source style](source-style.md) for setup |
@@ -151,34 +154,37 @@ The [testing guide](testing.md) maps each automated check to its covered behavio
 and distinguishes host regressions from physical hardware validation.
 
 
-## C++17 compiler configuration
+## C++20 compiler configuration
 
-`make build` and the stress/restoration script explicitly select `-std=gnu++17`.
-Host tests and the model inspector use `-std=c++17`. The shared project header
-`firmware/cpp_standard.h` rejects older modes. No C++20 features are required.
-The pinned GCC 7.2.1 toolchain supports the C++17 facilities used here; this is not
-a claim that it implements every later language/library feature.
+`make build` and the stress/restoration script explicitly select `-std=gnu++20`.
+Host tests and the model inspector use `-std=c++20`. The shared project header
+`firmware/cpp_standard.h` rejects older modes. The core's bundled GCC 7.2.1 cannot
+compile this standard; `make setup` installs the separately pinned Arm GNU
+Toolchain 13.3.Rel1 (GCC 13.3.1). Supported archives cover native Apple Silicon,
+Intel macOS, and Linux x86-64/AArch64 hosts.
 
-The CLI passes `compiler.cpp.extra_flags` with the standard and a forced include
-of the staged `cpp_standard.h`. That header includes `<chrono>` before Arduino's
-`abs` macro can interfere with C++17 `std::chrono::abs`. All compiled upstream
-C++ translation units receive those flags too; upstream source files and the
-precompiled Mbed archive are unchanged. Imported `.c` files retain their C recipe.
-Both normal and stress manifests record `cpp_standard: gnu++17`.
+The CLI passes both `compiler.path=<project-toolchain>/bin/` and
+`compiler.cpp.extra_flags` with the standard and forced include of the staged
+`cpp_standard.h`. That header loads `<chrono>` before Arduino's conflicting
+`abs` macro. Compiled upstream C++ translation units receive those settings;
+imported C sources still use C recipes. The supplied precompiled Mbed/RTX archive
+is retained. Both normal and stress manifests record `cpp_standard: gnu++20` and
+the complete compiler/dependency pins. See [C++20 verification](cpp20-modernization.md).
 
-For an optional Arduino IDE build, use the pinned Nano core and matching library
-versions, then add this setting to a `platform.local.txt` beside that IDE core's
-`platform.txt`, substituting the absolute checkout path:
+For an optional Arduino IDE build, first run `make setup` and use the pinned Nano
+core and matching library versions. In a `platform.local.txt` beside that IDE
+core's `platform.txt`, set both properties, substituting your absolute checkout
+path and the installed host-specific toolchain directory shown by `make build`:
 
 ```text
-compiler.cpp.extra_flags=-std=gnu++17 -include "/absolute/path/to/KWS_Arm_CortexM4F/firmware/cpp_standard.h"
+compiler.path=/absolute/path/to/KWS_Arm_CortexM4F/.build/toolchain/arm-gnu-toolchain-13.3.rel1-darwin-arm64-arm-none-eabi/bin/
+compiler.cpp.extra_flags=-std=gnu++20 -include "/absolute/path/to/KWS_Arm_CortexM4F/firmware/cpp_standard.h"
 ```
 
 Restart the IDE and open `firmware/KWS_Arm_CortexM4F.ino`. Inspect verbose build
-output to confirm the extra flags; the project guard fails clearly if the older
-core default is still active. Board-package reinstalls may remove the local
-configuration. The Make workflow supplies these settings automatically and is
-the tested reproducible path; this change was not tested through the IDE UI.
+output for GCC 13.3.1 and the extra flags. Board-package reinstalls may remove
+that local configuration. Make supplies these settings automatically and is the
+tested reproducible path; this update was not tested through the IDE UI.
 
 ## Troubleshooting
 
@@ -187,7 +193,7 @@ the tested reproducible path; this change was not tested through the IDE UI.
 | `make`, `python3`, or `c++` missing | Install the host prerequisites; macOS Command Line Tools supply Make/Clang, and Linux needs a C++ development toolchain. Confirm Python is 3.9+. |
 | Missing/modified dependency or changed lock | Rerun `make setup` before `make build`; setup restores the pinned sources. |
 | SHA-256 mismatch or interrupted download | Check the network and rerun `make setup`. Do not bypass checksum verification. |
-| Apple Silicon cannot execute the Arm compiler | Ensure Rosetta 2 is installed; the pinned compiler is an Intel macOS executable. |
+| Apple Silicon cannot execute the uploader | Ensure Rosetta 2 is installed for the board package's Intel `bossac`; the active Arm compiler is native ARM64. |
 | Serial port absent or busy | Check the USB data cable, close other monitors, and rerun `make boards`. |
 | Upload requires bootloader recovery | Double-press the Nano's reset button, rerun `make boards`, and use the bootloader port shown for the retry. |
 | Upstream warnings / unavailable TFLite precompiled library | The pinned library builds from source; inspect the final build exit status rather than treating these notices as failures. |

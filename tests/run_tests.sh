@@ -12,7 +12,7 @@ case "$suite" in
 esac
 test_dir=$(mktemp -d /tmp/kws-tests.XXXXXX)
 for test in audio_queue fft_power keyword_filter keyword_detector keyword_event timing_stats; do
-    c++ -std=c++17 -Wall -Wextra -Werror -fsanitize=address,undefined "tests/${test}_test.cpp" -o "$test_dir/$test"
+    c++ -std=c++20 -Wall -Wextra -Werror -fsanitize=address,undefined "tests/${test}_test.cpp" -o "$test_dir/$test"
     "$test_dir/$test"
     echo "PASS: $test"
 done
@@ -28,7 +28,7 @@ echo 'PASS: unit suite (10 checks)'
 if [ "$suite" = unit ]; then
     exit 0
 fi
-c++ -std=c++17 -Wall -Wextra -Werror -fsanitize=address,undefined tests/stream_test.cpp -o "$test_dir/stream"
+c++ -std=c++20 -Wall -Wextra -Werror -fsanitize=address,undefined tests/stream_test.cpp -o "$test_dir/stream"
 "$test_dir/stream"
 echo 'PASS: stream'
 python3 tests/pipeline_test.py

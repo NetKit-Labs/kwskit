@@ -41,11 +41,11 @@ message path. The 96 KiB tensor arena and feature/DSP workspaces remain static.
 Unused task stack watermarks are reported through `stack_free`; they measure the
 observed high-water usage, not a proof against every future execution path.
 
-The current locked build reserves 209,328 bytes of static RAM, including both
-stacks, the 16 KiB audio ring, and the 96 KiB tensor arena. Its remaining 52,816 bytes are
+The current locked build reserves 208,888 bytes of static RAM, including both
+stacks, the 16 KiB audio ring, and the 96 KiB tensor arena. Its remaining 53,256 bytes are
 outside static allocations, not a free-heap measurement. The recorded stack
 watermarks and ring occupancy are summarized in
-[current validation](cpp17-modernization.md#verification). Heap peak,
+[current validation](cpp20-modernization.md#verification). Heap peak,
 framework/interrupt-stack usage, and actual arena consumption remain unmeasured.
 
 ## Ownership and synchronization

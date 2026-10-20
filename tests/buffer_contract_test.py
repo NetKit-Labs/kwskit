@@ -8,7 +8,7 @@ assert any(p.name.startswith("accept_") for p in probes)
 assert any(p.name.startswith("reject_") for p in probes)
 
 
-def compile_probe(source, standard="c++17"):
+def compile_probe(source, standard="c++20"):
     return subprocess.run(
         [
             "c++",
@@ -38,9 +38,9 @@ for source in probes:
     )
 print(f"PASS: {len(probes)} buffer/ownership compile contracts")
 
-for standard in ("c++11", "c++14"):
+for standard in ("c++11", "c++14", "c++17"):
     result = compile_probe(
         Path(__file__).parent / "fixtures/contracts/accept_valid_buffers.cpp", standard
     )
-    assert result.returncode != 0 and "Project code requires C++17" in result.stderr, result.stderr
-print("PASS: C++11/C++14 rejected by the project language guard")
+    assert result.returncode != 0 and "Project code requires C++20" in result.stderr, result.stderr
+print("PASS: C++11/C++14/C++17 rejected by the project language guard")

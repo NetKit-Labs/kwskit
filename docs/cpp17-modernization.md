@@ -1,5 +1,9 @@
 # C++17 baseline and reference interfaces
 
+This is a historical record superseded by the [C++20 update](cpp20-modernization.md).
+Its compiler settings, footprints, binary hashes, and captures describe the builds
+identified below.
+
 The maintained native application, tests, and host model inspector require C++17
 or later. Firmware builds select GNU++17, host checks use C++17, and the formatter
 uses its C++17 grammar. No current feature requires C++20, and no C++20 firmware
@@ -17,7 +21,7 @@ The downloaded board, CMSIS, and TFLite sources are unchanged. Their compiled
 C++ translation units receive the same mode and include-order fix; imported C
 translation units still use the C recipe, and the existing Mbed archive remains
 precompiled. Both normal and stress manifests record `cpp_standard: gnu++17`.
-See [the build guide](build.md#c17-compiler-configuration) for automatic Make
+See [the build guide](build.md#c20-compiler-configuration) for automatic Make
 settings and the equivalent optional Arduino IDE configuration.
 
 ## Code changes

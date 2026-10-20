@@ -5,7 +5,7 @@
 #include "interrupt_lock.h"
 #include <algorithm>
 
-AudioCapture *AudioCapture::activeReceiver = nullptr;
+constinit AudioCapture *AudioCapture::activeReceiver = nullptr;
 
 void AudioCapture::receiveCallback() {
     if (activeReceiver) {
@@ -29,13 +29,13 @@ void AudioCapture::receive() {
         const int received = PDM.read(pdmBuffer.data(), bytes);
         if (received <= 0)
             break;
-        receivedSamples += received / 2;
+        receivedSamples = receivedSamples + received / 2;
         for (int i = 0; i < received / 2; ++i)
             if (!audioQueue.push(pdmBuffer[i]))
                 missed = true;
     }
     if (missed)
-        ++missedBuffers;
+        missedBuffers = missedBuffers + 1;
     std::uint32_t depth = audioQueue.available();
     if (depth > queueHighWater)
         queueHighWater = depth;
@@ -80,8 +80,14 @@ std::uint32_t AudioCapture::available() const {
 }
 AudioCapture::Snapshot AudioCapture::snapshot() const {
     const InterruptLock lock;
-    return Snapshot{receivedSamples, audioQueue.droppedSamples(), missedBuffers, queueHighWater,
-        callbackGapMaxUs, lastAudioUs};
+    return Snapshot{
+        .receivedSamples = receivedSamples,
+        .droppedSamples = audioQueue.droppedSamples(),
+        .missedBuffers = missedBuffers,
+        .highWater = queueHighWater,
+        .gapMaxUs = callbackGapMaxUs,
+        .lastAudioUs = lastAudioUs,
+    };
 }
 bool AudioCapture::readHop(AudioHop &samples, std::uint32_t &captureEndUs) {
     if (!audioQueue.pop(samples))

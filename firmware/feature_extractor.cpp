@@ -5,9 +5,10 @@
 #include "mel_filter_coefs.h"
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 void FeatureExtractor::computeHannWindow() {
-    constexpr double pi = 3.1415926535897932384626433832795;
+    constexpr double pi = std::numbers::pi_v<double>;
     for (std::size_t n = 0; n < hannWindow.size(); ++n) {
         // Periodic Hann convention used by the training notebook.
         const auto angle = static_cast<float>(2.0f * pi * n / FRAME_SIZE);
