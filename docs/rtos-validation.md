@@ -86,3 +86,77 @@ has no stress-test define.
 
 Final-code evidence: [stress repeat](rtos-stress-final.json) and
 [normal restoration](rtos-final-normal.json).
+
+## Interpreting the stress result
+
+The four score drops and nine stale-result rejections are expected outcomes of
+this deliberate overload. At the nominal 128 ms decision cadence, the eight-slot
+queue holds roughly one second of results, less than the 1500 ms injected stall.
+Its producer never waits for room. Queue overflow advances the stream generation,
+and control rejects old generations or scores older than 250 ms. The nine rejected
+results include the score held by the stalled consumer and the older queued
+scores. Increasing queue depth alone would not make delayed results fresh.
+
+These counters refer to classification scores, not raw microphone samples.
+Zero reported audio loss and continuing inferences show that the control stall
+did not block the acquisition/processing path in this experiment. It does not
+prove that every spoken command would be detected during a stall. Drops or stale
+results in normal expected workloads would warrant investigation; neither was
+observed in the normal captures.
+
+## Measured memory margins
+
+The lowest unused stack values across the recorded checks are 6784/4984 bytes
+(audio/control), including the spoken-word and final normal captures. RTX reports
+the unused stack watermark; used bytes below are allocation minus that watermark.
+
+| Allocation | Capacity | Observed peak use | Remaining at that peak |
+|---|---:|---:|---:|
+| Audio-task stack | 8192 bytes | 1408 bytes | 6784 bytes (82.8%) |
+| Control-task stack | 6144 bytes | 1160 bytes | 4984 bytes (81.1%) |
+| Audio ring | 8192 samples | 768 samples | 7424 samples (90.6%) |
+
+The ring has 512 ms nominal capacity at 16 kHz; its observed peak backlog is
+48 ms, leaving 464 ms of capacity at that point. That margin absorbs bounded
+processing delays, not sustained overload. The control-stall result measures a
+different condition: the audio task continues running while control is blocked.
+
+The 209,320-byte static RAM total already includes the application stacks and
+96 KiB tensor arena. Do not subtract them again from the 52,824-byte remainder.
+Successful model initialization verifies that tensor allocation fits its arena;
+it does not quantify unused arena capacity. Runtime free/peak heap and
+framework/interrupt-stack margins were not instrumented. These checks therefore
+support the current application-stack/audio-buffer margins, not a complete
+runtime memory budget or a guarantee for additional functionality.
+
+## Scope of the evidence
+
+All timings are observed measurements on the connected Nano, not established
+worst-case execution times. JSON counters are cumulative since boot and may
+include operation before the host capture begins; startup records can also be
+buffered. Do not infer capture duration or a command success rate from the final
+cumulative inference/trigger counts alone.
+
+The spoken-word check establishes end-to-end microphone-to-LED operation, with
+11 confirmed actions and physical observation. It does not establish false-accept
+or false-reject rates: no labeled attempt count, controlled speaker/noise corpus,
+or acoustic onset reference was recorded. The later latch-preservation correction
+was host-regression/stress/normal tested as described above; a further physical
+speech capture after that correction is not recorded here. Long-duration
+endurance and automatic peripheral-failure recovery also remain future work.
+
+## Developer-reported informal recognition
+
+In the project discussion on October 20, 2026, the developer estimated roughly
+**95% keyword-recognition success during informal use** and expressed satisfaction
+with the current model. The inspected deployed model has **1075 parameter values**
+(992 int8 weights and 83 int32 biases). A labeled attempt count and false-trigger
+rate were not supplied with this estimate, so no statistical confidence or
+generalized speaker/noise accuracy is established by it. The raw speech capture
+records confirmed actions but has no labeled attempt denominator from which to
+derive this percentage.
+
+The suggestion that increased model capacity could raise recognition into the
+**upper 90% range** is an untested hypothesis, not an additional hardware result.
+Its rationale, limits, and proposed comparison are documented in
+[TinyML inference](tinyml-inference.md#informal-recognition-and-possible-model-expansion).

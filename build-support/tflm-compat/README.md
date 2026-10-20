@@ -14,6 +14,10 @@ related bridge implementations; its Arduino package needs these declarations at
 inside the project-local dependency installation. No global library is patched.
 
 The headers retain their original TensorFlow copyright and Apache-2.0 notices.
+Their declarations use the repository's four-space C++ formatting; this is a
+presentation change to the tracked overlay, with no API changes. Rerun
+`make setup` after an overlay update so dependency hashes include the maintained
+headers. Downloaded upstream source is otherwise preserved.
 The accompanying `LICENSE` is the upstream Apache License, Version 2.0. Review
 this overlay whenever changing the TFLite source revision; it is specific to the
 locked version, rather than a general compatibility layer for newer releases.

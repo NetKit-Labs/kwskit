@@ -1,0 +1,880 @@
+{
+    "model_bytes": 8496,
+    "schema_version": 3,
+    "inputs": [
+        0
+    ],
+    "outputs": [
+        21
+    ],
+    "operators": [
+        {
+            "index": 0,
+            "operator": "CONV_2D",
+            "version": 3,
+            "inputs": [
+                0,
+                13,
+                12
+            ],
+            "outputs": [
+                14
+            ],
+            "stride_hw": [
+                2,
+                2
+            ],
+            "padding": "SAME",
+            "activation": "RELU"
+        },
+        {
+            "index": 1,
+            "operator": "DEPTHWISE_CONV_2D",
+            "version": 3,
+            "inputs": [
+                14,
+                11,
+                10
+            ],
+            "outputs": [
+                15
+            ],
+            "depth_multiplier": 1,
+            "stride_hw": [
+                1,
+                1
+            ],
+            "padding": "SAME",
+            "activation": "RELU"
+        },
+        {
+            "index": 2,
+            "operator": "CONV_2D",
+            "version": 3,
+            "inputs": [
+                15,
+                9,
+                8
+            ],
+            "outputs": [
+                16
+            ],
+            "stride_hw": [
+                1,
+                1
+            ],
+            "padding": "VALID",
+            "activation": "RELU"
+        },
+        {
+            "index": 3,
+            "operator": "DEPTHWISE_CONV_2D",
+            "version": 3,
+            "inputs": [
+                16,
+                7,
+                6
+            ],
+            "outputs": [
+                17
+            ],
+            "depth_multiplier": 1,
+            "stride_hw": [
+                1,
+                1
+            ],
+            "padding": "SAME",
+            "activation": "RELU"
+        },
+        {
+            "index": 4,
+            "operator": "CONV_2D",
+            "version": 3,
+            "inputs": [
+                17,
+                5,
+                4
+            ],
+            "outputs": [
+                18
+            ],
+            "stride_hw": [
+                1,
+                1
+            ],
+            "padding": "VALID",
+            "activation": "RELU"
+        },
+        {
+            "index": 5,
+            "operator": "CONV_2D",
+            "version": 3,
+            "inputs": [
+                18,
+                3,
+                2
+            ],
+            "outputs": [
+                19
+            ],
+            "stride_hw": [
+                1,
+                1
+            ],
+            "padding": "SAME",
+            "activation": "NONE"
+        },
+        {
+            "index": 6,
+            "operator": "MEAN",
+            "version": 2,
+            "inputs": [
+                19,
+                1
+            ],
+            "outputs": [
+                20
+            ],
+            "keep_dims": false,
+            "axes": [
+                1,
+                2
+            ]
+        },
+        {
+            "index": 7,
+            "operator": "SOFTMAX",
+            "version": 2,
+            "inputs": [
+                20
+            ],
+            "outputs": [
+                21
+            ]
+        }
+    ],
+    "tensors": [
+        {
+            "index": 0,
+            "name": "serving_default_keras_tensor:0",
+            "type": "INT8",
+            "shape": [
+                1,
+                61,
+                20,
+                1
+            ],
+            "constant_bytes": 0,
+            "variable": false,
+            "scales": [
+                0.09529872239
+            ],
+            "zero_points": [
+                17
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 1,
+            "name": "arith.constant",
+            "type": "INT32",
+            "shape": [
+                2
+            ],
+            "constant_bytes": 8,
+            "variable": false,
+            "scales": [],
+            "zero_points": [],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 2,
+            "name": "tfl.pseudo_qconst",
+            "type": "INT32",
+            "shape": [
+                3
+            ],
+            "constant_bytes": 12,
+            "variable": false,
+            "scales": [
+                0.001429424039,
+                0.00118052098,
+                0.001782576088
+            ],
+            "zero_points": [
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 3,
+            "name": "tfl.pseudo_qconst1",
+            "type": "INT8",
+            "shape": [
+                3,
+                1,
+                1,
+                16
+            ],
+            "constant_bytes": 48,
+            "variable": false,
+            "scales": [
+                0.01054883841,
+                0.008711988106,
+                0.01315502357
+            ],
+            "zero_points": [
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 4,
+            "name": "tfl.pseudo_qconst2",
+            "type": "INT32",
+            "shape": [
+                16
+            ],
+            "constant_bytes": 64,
+            "variable": false,
+            "scales": [
+                0.0005192765384,
+                0.001720156753,
+                0.0004633114731,
+                0.001247033942,
+                0.0004928548005,
+                0.0004631421471,
+                0.000640599872,
+                0.0006103501073,
+                0.0005738369073,
+                0.0004989129375,
+                0.001456573955,
+                0.000590550073,
+                0.0009667092818,
+                0.0004854333529,
+                0.0008289226098,
+                0.0007262471481
+            ],
+            "zero_points": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 5,
+            "name": "tfl.pseudo_qconst3",
+            "type": "INT8",
+            "shape": [
+                16,
+                1,
+                1,
+                16
+            ],
+            "constant_bytes": 256,
+            "variable": false,
+            "scales": [
+                0.01073064096,
+                0.0355463475,
+                0.009574145079,
+                0.02576945536,
+                0.01018464658,
+                0.0095706461,
+                0.01323773805,
+                0.012612639,
+                0.01185810845,
+                0.01030983496,
+                0.03009951487,
+                0.01220347919,
+                0.01997665875,
+                0.01003128476,
+                0.01712935232,
+                0.01500760484
+            ],
+            "zero_points": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 6,
+            "name": "tfl.pseudo_qconst4",
+            "type": "INT32",
+            "shape": [
+                16
+            ],
+            "constant_bytes": 64,
+            "variable": false,
+            "scales": [
+                0.0003387734178,
+                0.0001575969072,
+                0.001009942847,
+                0.0001129653028,
+                0.0001681140566,
+                0.000308628747,
+                0.0006284040282,
+                0.0002791235456,
+                0.0003214157769,
+                0.0002346473048,
+                0.000230124977,
+                0.000256546773,
+                0.0001397649612,
+                0.0001775840792,
+                0.0004848541867,
+                0.0002213484404
+            ],
+            "zero_points": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 7,
+            "name": "tfl.pseudo_qconst5",
+            "type": "INT8",
+            "shape": [
+                1,
+                3,
+                3,
+                16
+            ],
+            "constant_bytes": 144,
+            "variable": false,
+            "scales": [
+                0.01017220877,
+                0.004732097033,
+                0.03032513522,
+                0.003391962266,
+                0.005047891289,
+                0.009267067537,
+                0.01886882819,
+                0.00838112738,
+                0.009651018307,
+                0.007045657374,
+                0.006909867283,
+                0.007703223731,
+                0.004196664784,
+                0.005332243629,
+                0.01455851551,
+                0.006646337919
+            ],
+            "zero_points": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 3
+        },
+        {
+            "index": 8,
+            "name": "tfl.pseudo_qconst6",
+            "type": "INT32",
+            "shape": [
+                16
+            ],
+            "constant_bytes": 64,
+            "variable": false,
+            "scales": [
+                0.0004020704946,
+                0.0003252940951,
+                0.000208815356,
+                0.0005081190611,
+                0.0002783251985,
+                0.0003976322478,
+                0.000255809864,
+                0.0003014201357,
+                0.0003454966936,
+                0.0002908762253,
+                0.0006015638937,
+                0.0004538552312,
+                0.0003369178739,
+                0.0005002385005,
+                0.0003036997223,
+                0.0003348871251
+            ],
+            "zero_points": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 9,
+            "name": "tfl.pseudo_qconst7",
+            "type": "INT8",
+            "shape": [
+                16,
+                1,
+                1,
+                16
+            ],
+            "constant_bytes": 256,
+            "variable": false,
+            "scales": [
+                0.007443401497,
+                0.006022064947,
+                0.003865731414,
+                0.009406644851,
+                0.005152544938,
+                0.007361237891,
+                0.004735725466,
+                0.005580093712,
+                0.006396068726,
+                0.005384897813,
+                0.01113655884,
+                0.008402075619,
+                0.00623725215,
+                0.009260754101,
+                0.005622295197,
+                0.006199657451
+            ],
+            "zero_points": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 10,
+            "name": "tfl.pseudo_qconst8",
+            "type": "INT32",
+            "shape": [
+                16
+            ],
+            "constant_bytes": 64,
+            "variable": false,
+            "scales": [
+                0.00021404172,
+                0.0001827633387,
+                0.0002925890731,
+                0.0002163758618,
+                9.819814295e-05,
+                0.0001596411312,
+                0.0002076244418,
+                0.0003709993034,
+                0.0003228528658,
+                0.0002236205182,
+                0.000195401255,
+                0.0002160025615,
+                0.0001575732749,
+                0.0001550048764,
+                0.0003132499405,
+                0.0004067380796
+            ],
+            "zero_points": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 11,
+            "name": "tfl.pseudo_qconst9",
+            "type": "INT8",
+            "shape": [
+                1,
+                3,
+                3,
+                16
+            ],
+            "constant_bytes": 144,
+            "variable": false,
+            "scales": [
+                0.009268545546,
+                0.007914112881,
+                0.01266984455,
+                0.009369620122,
+                0.004252227023,
+                0.006912863348,
+                0.008990661241,
+                0.01606520452,
+                0.01398034301,
+                0.009683331475,
+                0.008461366408,
+                0.009353455156,
+                0.006823319476,
+                0.0067121014,
+                0.01356451213,
+                0.01761278324
+            ],
+            "zero_points": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 3
+        },
+        {
+            "index": 12,
+            "name": "tfl.pseudo_qconst10",
+            "type": "INT32",
+            "shape": [
+                16
+            ],
+            "constant_bytes": 64,
+            "variable": false,
+            "scales": [
+                0.0001190080075,
+                5.810975927e-05,
+                5.056792361e-05,
+                9.257438069e-05,
+                0.0001011277782,
+                8.287724631e-05,
+                0.0001188432798,
+                5.521043568e-05,
+                9.739886445e-05,
+                6.692102761e-05,
+                0.0001420320768,
+                0.0001898397895,
+                4.276885011e-05,
+                4.276751133e-05,
+                6.356007361e-05,
+                0.0001192994459
+            ],
+            "zero_points": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 13,
+            "name": "tfl.pseudo_qconst11",
+            "type": "INT8",
+            "shape": [
+                16,
+                3,
+                3,
+                1
+            ],
+            "constant_bytes": 144,
+            "variable": false,
+            "scales": [
+                0.001248789136,
+                0.0006097643054,
+                0.0005306254025,
+                0.0009714126354,
+                0.001061166171,
+                0.0008696574951,
+                0.001247060602,
+                0.0005793407909,
+                0.001022037468,
+                0.0007022237405,
+                0.001490388066,
+                0.001992049627,
+                0.0004487872357,
+                0.0004487731785,
+                0.0006669561844,
+                0.00125184725
+            ],
+            "zero_points": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 14,
+            "name": "functional_1/re_lu_1/Relu;functional_1/batch_normalization_1/batchnorm/add_1;functional_1/conv2d_1/convolution;functional_1/batch_normalization_1/batchnorm/sub1",
+            "type": "INT8",
+            "shape": [
+                1,
+                31,
+                10,
+                16
+            ],
+            "constant_bytes": 0,
+            "variable": false,
+            "scales": [
+                0.02309334464
+            ],
+            "zero_points": [
+                -128
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 15,
+            "name": "functional_1/re_lu_1_2/Relu;functional_1/batch_normalization_1_2/batchnorm/add_1;functional_1/batch_normalization_1_2/batchnorm/mul_1;functional_1/depthwise_conv2d_1/depthwise;functional_1/batch_normalization_1_2/batchnorm/mul;functional_1/batch_normalization_1_2/batchnorm/sub",
+            "type": "INT8",
+            "shape": [
+                1,
+                31,
+                10,
+                16
+            ],
+            "constant_bytes": 0,
+            "variable": false,
+            "scales": [
+                0.05401703715
+            ],
+            "zero_points": [
+                -128
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 16,
+            "name": "functional_1/re_lu_2_1/Relu;functional_1/batch_normalization_2_1/batchnorm/add_1;functional_1/conv2d_1_2/convolution;functional_1/batch_normalization_2_1/batchnorm/sub",
+            "type": "INT8",
+            "shape": [
+                1,
+                31,
+                10,
+                16
+            ],
+            "constant_bytes": 0,
+            "variable": false,
+            "scales": [
+                0.0333038196
+            ],
+            "zero_points": [
+                -128
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 17,
+            "name": "functional_1/re_lu_3_1/Relu;functional_1/batch_normalization_3_1/batchnorm/add_1;functional_1/batch_normalization_3_1/batchnorm/mul_1;functional_1/depthwise_conv2d_1_2/depthwise;functional_1/batch_normalization_3_1/batchnorm/mul;functional_1/batch_normalization_3_1/batchnorm/sub",
+            "type": "INT8",
+            "shape": [
+                1,
+                31,
+                10,
+                16
+            ],
+            "constant_bytes": 0,
+            "variable": false,
+            "scales": [
+                0.04839194193
+            ],
+            "zero_points": [
+                -128
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 18,
+            "name": "functional_1/re_lu_4_1/Relu;functional_1/batch_normalization_4_1/batchnorm/add_1;functional_1/conv2d_2_1/convolution;functional_1/batch_normalization_4_1/batchnorm/sub",
+            "type": "INT8",
+            "shape": [
+                1,
+                31,
+                10,
+                16
+            ],
+            "constant_bytes": 0,
+            "variable": false,
+            "scales": [
+                0.1355053484
+            ],
+            "zero_points": [
+                -128
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 19,
+            "name": "functional_1/conv2d_3_1/BiasAdd;functional_1/conv2d_3_1/convolution;functional_1/conv2d_3_1/Squeeze",
+            "type": "INT8",
+            "shape": [
+                1,
+                31,
+                10,
+                3
+            ],
+            "constant_bytes": 0,
+            "variable": false,
+            "scales": [
+                1.202166677
+            ],
+            "zero_points": [
+                -6
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 20,
+            "name": "functional_1/global_average_pooling2d_1/Mean",
+            "type": "INT8",
+            "shape": [
+                1,
+                3
+            ],
+            "constant_bytes": 0,
+            "variable": false,
+            "scales": [
+                0.1217504218
+            ],
+            "zero_points": [
+                25
+            ],
+            "quantized_dimension": 0
+        },
+        {
+            "index": 21,
+            "name": "StatefulPartitionedCall_1:0",
+            "type": "INT8",
+            "shape": [
+                1,
+                3
+            ],
+            "constant_bytes": 0,
+            "variable": false,
+            "scales": [
+                0.00390625
+            ],
+            "zero_points": [
+                -128
+            ],
+            "quantized_dimension": 0
+        }
+    ],
+    "convolution_weight_elements": 992,
+    "convolution_bias_elements": 83,
+    "convolution_parameter_bytes": 1324
+}

@@ -1,5 +1,5 @@
 #pragma once
 namespace KwsPipeline {
-bool begin();
-void poll();
-}
+    bool begin();
+    void poll();
+} // namespace KwsPipeline

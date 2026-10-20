@@ -21,18 +21,17 @@ limitations under the License.
 
 namespace tflite {
 
-// Forward declaration of the classes and structs used here.
-struct OperatorCode;
+    // Forward declaration of the classes and structs used here.
+    struct OperatorCode;
 
-using TfLiteBridgeOpResolver = OpResolver;
+    using TfLiteBridgeOpResolver = OpResolver;
 
-// Handles the logic for converting between an OperatorCode structure extracted
-// from a flatbuffer and information about a registered operator
-// implementation.
-TfLiteStatus GetRegistrationFromOpCode(const OperatorCode* opcode,
-                                       const OpResolver& op_resolver,
-                                       const TfLiteRegistration** registration);
+    // Handles the logic for converting between an OperatorCode structure extracted
+    // from a flatbuffer and information about a registered operator
+    // implementation.
+    TfLiteStatus GetRegistrationFromOpCode(const OperatorCode *opcode,
+        const OpResolver &op_resolver, const TfLiteRegistration **registration);
 
-}  // namespace tflite
+} // namespace tflite
 
-#endif  // TENSORFLOW_LITE_MICRO_TFLITE_BRIDGE_OP_RESOLVER_BRIDGE_H_
+#endif // TENSORFLOW_LITE_MICRO_TFLITE_BRIDGE_OP_RESOLVER_BRIDGE_H_

@@ -23,6 +23,13 @@ message path. The 96 KiB tensor arena and feature/DSP workspaces remain static.
 Unused task stack watermarks are reported through `stack_free`; they measure the
 observed high-water usage, not a proof against every future execution path.
 
+The locked build reserves 209,320 bytes of static RAM, including the two stacks,
+the 16 KiB audio ring, and the 96 KiB tensor arena. Its remaining 52,824 bytes are
+outside static allocations, not a free-heap measurement. The recorded stack
+watermarks and ring occupancy are summarized in
+[RTOS validation](rtos-validation.md#measured-memory-margins). Heap peak,
+framework/interrupt-stack usage, and actual arena consumption remain unmeasured.
+
 ## Ownership and synchronization
 
 After initialization, only the audio task calls feature extraction and the model.
@@ -91,7 +98,8 @@ Speech/LED behavior is a separate physical check; see [RTOS validation](rtos-val
 
 `process_us` measures one audio pipeline step (hop handling, DSP and any
 inference). It excludes queue dispatch, the metrics copy, and control-task work.
-`event_us` measures time from inference completion to queue consumption, while
+`event_us` measures time from inference completion to control-side validation
+(including the injected delay after dequeue in the stress build), while
 `response_us` includes filtering and control action delay from the first
 high-confidence input-window end. Counters and timers are snapshots, not proofs
 of hard worst-case execution times.

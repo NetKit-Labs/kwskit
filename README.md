@@ -8,9 +8,17 @@ extraction and an int8 TensorFlow Lite Micro model in a dedicated audio task.
 A second task filters queued scores and controls the device. Confirmed **“yes”** detections
 toggle the built-in LED. The application runs continuously while powered.
 
-The implementation focuses on bounded buffering, preserved sample/frame order,
-measured execution time, explicit module ownership, and tested failure paths.
+The engineering work covers interrupt/task synchronization, bounded buffering,
+CMSIS packed-FFT correctness, int8 inference, and detection filtering across
+queue overloads. Two application tasks separate audio processing from device
+actions; task separation uses preemption on one core rather than parallel CPUs.
 The primary workflow is command-line Make and C++; Arduino IDE is optional.
+
+For a review of the implementation, start with the
+[engineering overview](docs/engineering-overview.md): requirements, design
+tradeoffs, source entry points, and a mapping from claims to test evidence.
+The [RTOS design](docs/rtos-design.md) explains synchronization and failure
+behavior; [RTOS validation](docs/rtos-validation.md) records the hardware results.
 
 ## Measured results
 
@@ -33,6 +41,8 @@ the locked CLI build. These are observed results, not worst-case guarantees.
 | Dedicated task stacks | Audio 8192 bytes; control 6144 bytes |
 | RTOS spoken "yes" check | 11 confirmed detections; physical LED toggling confirmed |
 | Reported sample drops / missed buffers / inference errors | 0 / 0 / 0 in the recorded checks |
+| Normal-operation score drops / stale results | 0 / 0 |
+| Forced 1.5 s control stall | 4 score drops; 9 stale results rejected; 0 reported audio losses |
 
 See [RTOS validation](docs/rtos-validation.md) for current task, stress, and
 speech-test evidence. The [earlier module/refactor record](docs/module-refactor-validation.md)
@@ -40,6 +50,29 @@ and [pre-RTOS build check](docs/build-validation.md) retain historical results.
 Response measurements start at a high-confidence window's estimated end; they
 do not measure acoustic word-onset latency. Detection accuracy across a controlled
 speaker/noise dataset and hours-to-days endurance have not been established.
+
+### Measured memory margins
+
+These high-water measurements come from the recorded normal, speech, and stress
+checks. They describe exercised paths, rather than guaranteed worst-case usage.
+
+| Allocation | Capacity | Observed peak use / remaining |
+|---|---|---|
+| Audio-task stack | 8192 bytes | 1408 used / 6784 unused (83%) |
+| Control-task stack | 6144 bytes | 1160 used / 4984 unused (81%) |
+| Audio ring | 8192 samples | 768 queued / 7424 spare (91%) |
+
+At peak observed ring occupancy, the remaining capacity represents about 464 ms
+of additional audio at 16 kHz. This is buffer capacity, not permission to block
+audio processing indefinitely. The eight-score control queue intentionally
+overflows in the 1.5 s stall test; dropping scores and rejecting stale evidence
+preserves acquisition but can miss a command during the stall.
+
+The static RAM total already includes both application stacks and the 96 KiB
+tensor arena. The build leaves 52,824 bytes outside static allocations; this is
+not measured free heap. Peak runtime heap, framework/interrupt-stack usage, and
+unused tensor-arena capacity have not been measured. Broader memory headroom
+must be established before substantial expansion.
 
 ## Build, test, and flash
 
@@ -80,8 +113,25 @@ required TFLite compatibility headers are tracked in `build-support/`.
 See [build reproducibility](docs/build.md) for dependency provenance and limitations.
 
 GitHub Actions runs **the same `make test` and `make setup && make build` paths**
-on pushes and pull requests. Firmware and build manifests are retained as CI
+on pushes and pull requests, plus `make format-check` with pinned formatters.
+Firmware and build manifests are retained as CI
 artifacts. Physical microphone/LED testing remains a hardware check.
+
+## Source language and formatting
+
+All project-owned firmware and native tests are **C++**, including the minimal
+`.ino` entry point and `.h` declarations; there are no project-owned `.c`
+translation units. Host tests compile with C++11; the pinned board core compiles
+firmware with GNU++14. Python supplies host tooling/training, and a shell script
+runs the tests. The downloaded Arduino/Mbed and CMSIS libraries retain their
+upstream C/C++ implementations.
+
+Maintained code uses **four spaces per indentation level**, with `.clang-format`,
+Black configuration, and `.editorconfig` checked into the repository. Makefile
+recipes retain their required tabs. Run `make format` to apply the style and
+`make format-check` to verify it; the [formatting guide](docs/source-style.md)
+documents the project-local formatter setup. Native test fixtures are ordinary
+C++ source/header files under `tests/fixtures/`.
 
 ## Runtime architecture and ownership
 
@@ -110,6 +160,10 @@ flowchart LR
 | `kws_config` | Shared dimensions and inference cadence | Compile-time configuration |
 
 The `.ino` only delegates startup and idles the existing Arduino main task.
+Application behavior lives in `.cpp`/`.h` modules. The Makefile invokes a pinned
+Arduino CLI, which configures the Arm cross-compiler and board framework; it
+still compiles the minimal `.ino`. This is an IDE-independent build using the
+Arduino Mbed core, not a standalone replacement for that framework.
 Two application tasks use the board's built-in CMSIS-RTOS2/RTX kernel: audio at
 `AboveNormal` priority with an 8 KiB stack, control at `Normal` with a 6 KiB stack.
 Stacks, thread control blocks, queue storage, and mutex storage are static.
@@ -121,6 +175,47 @@ the detector. No audio buffers, feature windows, or tensor pointers cross tasks.
 A priority-inheriting mutex protects only a short metrics copy. The interrupt
 callback never takes that mutex. Audio never waits for room in the event queue.
 See [RTOS design](docs/rtos-design.md) for scheduling, ownership, and overload rules.
+
+## DSP pipeline
+
+The audio task scales signed PCM by `1/32768`, forms 512-sample frames with
+256-sample overlap, applies a symmetric Hann window, and computes a CMSIS real
+FFT. Correct packed-bin handling produces 257 power values. A 20-band mel matrix
+(20-4000 Hz) projects the power spectrum; natural log with epsilon `1e-6` and
+model-provided int8 quantization produce each feature row. The rolling 61 x 20
+input spans 992 ms of audio; inference runs nominally every eight new rows
+(128 ms) once ready and caught up.
+
+The [DSP pipeline guide](docs/dsp-pipeline.md) documents stage equations, buffer
+dimensions, startup/reset behavior, model layout, timing boundaries, and an
+existing training/firmware Hann-window convention difference. Full numerical
+feature parity with the training notebook has not been established.
+
+## TinyML neural-network inference
+
+The model is an int8 depthwise-separable CNN with input `[1,61,20,1]` and three
+softmax outputs: `yes`, unknown speech, and silence. The training model has
+**1315 Keras parameters** (1155 trainable); the converted graph contains
+**992 int8 weights and 83 int32 biases**, or 1075 parameter values after
+batch-normalization folding. Six convolutions, spatial mean pooling, and softmax
+form the eight-operator inference graph.
+
+**Roughly low-to-mid 90% keyword-recognition success during informal
+use** with this 1075-parameter deployed model. This is an approximate observation
+under current operating conditions; a labeled trial count and false-trigger rate
+have not been supplied for the estimate. **An untested hypothesis is that a wider
+or deeper model, with suitable training and tuning, could improve recognition
+into the mid-to-high 90% range.** Additional parameters alone do not guarantee that
+improvement; a controlled comparison must also check false triggers, latency,
+and RAM use. See [recognition evidence and hypothesis](docs/tinyml-inference.md#informal-recognition-and-possible-model-expansion).
+
+The **8496-byte model blob and its weights reside in internal flash**, compiled
+from the tracked header. Inference reserves a **96 KiB SRAM tensor arena** for
+activations/scratch/runtime metadata; the current profiler additionally occupies
+20,488 bytes of static SRAM. These allocations are already included in the
+reported firmware memory totals. The [TinyML inference guide](docs/tinyml-inference.md)
+documents layer counts, quantization, model identity, storage placement, runtime
+flow, inspection commands, and the limits of the recorded training accuracy.
 
 ## Real-time behavior and design choices
 
@@ -161,7 +256,13 @@ peripheral failure is future work.
 
 ## Tests and instrumentation
 
-`make test` exercises queue ordering/overflow/wraparound, packed FFT bins/bounds,
+`make test-unit` runs seven isolated component checks. `make test-regression`
+runs the complete eleven-check suite, including those unit tests plus stream,
+pipeline, RTOS startup, and build-tool checks. `make test` runs the same complete
+regression gate in CI. See the [testing guide](docs/testing.md) for coverage,
+commands, hardware procedures, and limits.
+
+The suite exercises queue ordering/overflow/wraparound, packed FFT bins/bounds,
 simulated inference stalls, temporal filtering and cooldown, detection-response
 timing and timer wraparound, actual GPIO-module logic with fake pins, and the actual
 audio pipeline with fake capture/features/model modules. RTOS startup tests
@@ -202,10 +303,12 @@ The host recording ends after the requested interval; firmware keeps running.
 - [Model architecture](kws_1class_depthwise_int8.tflite.png): exported model visualization.
 - [Feature timing diagram](1sec_timing.png): context and overlap illustration.
 - [Documentation index](docs/README.md): initial and refactor validation records with raw telemetry.
+- [Engineering overview](docs/engineering-overview.md): design decisions, source navigation, and evidence for reviewers.
 
 ## Next engineering work
 
 Evaluate false accepts/rejects across speakers, noise, distance, and silence;
-run longer endurance tests; add peripheral fault recovery; and extend the control
+run longer endurance tests; measure runtime heap, framework/interrupt stacks,
+and tensor-arena usage; add peripheral fault recovery; and extend the control
 task with communications or additional device functionality. Threshold
 refinement and multi-keyword training are separate from the build/runtime work.
