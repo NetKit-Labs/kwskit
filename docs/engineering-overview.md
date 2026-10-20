@@ -80,25 +80,25 @@ interrupt/mutex guards, and destruction-based capture/application cleanup.
 
 ## Measured results and their meaning
 
-The current-source records were collected October 20, 2026 after the C++ idioms
-review. Normal timing below uses the final cumulative statistics in
-[cpp-idioms-normal.json](cpp-idioms-normal.json); the deliberate stall is a
-separate [stress capture](cpp-idioms-stress.json). Build identity and procedure
-are in [the verification record](cpp-idioms.md#verification). Earlier captures
+The current-source records were collected October 20, 2026 after the C++17
+update. Normal timing below uses the final cumulative statistics in
+[cpp17-normal.json](cpp17-normal.json); the deliberate stall is a
+separate [stress capture](cpp17-stress.json). Build identity and procedure
+are in [the verification record](cpp17-modernization.md#verification). Earlier captures
 remain in [historical RTOS validation](rtos-validation.md).
 
 | Measurement | Recorded result / interpretation |
 |---|---|
 | Input / features | 16 kHz mono; 256-sample hop; 512-sample FFT; 61 x 20 int8 feature context |
 | Nominal decisions | Every eight new feature hops, about 128 ms after warmup, when backlog permits |
-| Normal DSP average / observed maximum | 2.612 / 2.841 ms per hop |
-| Normal inference average / observed maximum | 59.097 / 60.130 ms |
-| Normal processing-step observed maximum | 62.823 ms; excludes score dispatch, metrics publication, and control work |
-| Normal result delivery average / observed maximum | 11.539 / 12.457 ms, from inference completion to control-side validation |
-| Speech/LED check | 21 cumulative confirmed actions; physical LED toggling confirmed by the developer |
+| Normal DSP average / observed maximum | 2.487 / 2.639 ms per hop |
+| Normal inference average / observed maximum | 59.117 / 60.183 ms |
+| Normal processing-step observed maximum | 62.766 ms; excludes score dispatch, metrics publication, and control work |
+| Normal result delivery average / observed maximum | 11.021 / 11.669 ms, from inference completion to control-side validation |
+| Speech/LED check | 15 cumulative confirmed actions; physical LED toggling confirmed by the developer |
 | Forced control stall | 1500 ms delay; four score drops and nine stale-result rejections; zero reported audio losses |
 | Normal operation | Zero reported audio losses, inference/notification errors, score drops, or stale-result rejections |
-| Firmware footprint | 332,120 bytes flash; 209,328 bytes static RAM, including application stacks and tensor arena |
+| Firmware footprint | 331,616 bytes flash; 209,328 bytes static RAM, including application stacks and tensor arena |
 
 Separately, the developer reports approximately **95% keyword-recognition
 success in informal use** with the current **1075 deployed parameter values**.
@@ -108,8 +108,8 @@ requires suitable training and comparison on shared held-out data, plus timing
 and RAM checks. See [recognition evidence and hypothesis](tinyml-inference.md#informal-recognition-and-possible-model-expansion).
 
 With the final normal averages, eight feature hops plus one inference account
-for approximately `8 x 2.612 + 59.097 = 79.993 ms` of a nominal 128 ms decision
-interval. The difference is about 48.0 ms before other work. This is a useful
+for approximately `8 x 2.487 + 59.117 = 79.013 ms` of a nominal 128 ms decision
+interval. The difference is about 49.0 ms before other work. This is a useful
 processing-budget estimate, not measured total CPU utilization or a worst-case
 deadline guarantee. The hardware captures also verify continuing sample and
 inference progression rather than relying on this estimate alone.
@@ -120,12 +120,12 @@ behavior in that experiment, while the audio task continues. A larger event
 queue would not make results older than the 250 ms freshness limit usable.
 Score loss during routine expected operation would require investigation.
 
-Measured unused stack watermarks were 6776 of 8192 bytes for audio and 4976 of
+Measured unused stack watermarks were 6768 of 8192 bytes for audio and 4976 of
 6144 bytes for control. The ring peaked at 768 of 8192 samples. These exercised
 paths leave about 83%, 81%, and 91% capacity respectively. The remaining 52,816
 bytes outside static RAM allocation are not a measured free-heap value.
 Peak heap, framework/interrupt stacks, and unused tensor-arena capacity have not
-been quantified. See the [current verification](cpp-idioms.md#verification).
+been quantified. See the [current verification](cpp17-modernization.md#verification).
 
 ## Evidence for reviewers
 
@@ -136,9 +136,9 @@ been quantified. See the [current verification](cpp-idioms.md#verification).
 | Real pipeline defers inference under backlog and resets after loss | [Pipeline integration test](../tests/pipeline_test.py), compiling the actual pipeline with fake dependencies |
 | Old/gapped scores do not erase retrigger protection | [Event tests](../tests/keyword_event_test.cpp), [filter tests](../tests/keyword_filter_test.cpp), and [detector tests](../tests/keyword_detector_test.cpp) |
 | Task storage/priorities and partial-startup cleanup are checked | [RTOS startup tests](../tests/rtos_startup_test.py), compiling the actual coordinator against fake CMSIS APIs |
-| Audio continues while control is deliberately stalled | [Current hardware stress capture](cpp-idioms-stress.json) and [stress procedure](rtos-design.md#hardware-backpressure-test) |
-| Normal firmware is restored and runs without reported losses | [Current normal capture](cpp-idioms-normal.json) |
-| Detection reaches a physical output | [Normal spoken-word capture](cpp-idioms-normal.json) and physical LED confirmation recorded in [current verification](cpp-idioms.md#verification) |
+| Audio continues while control is deliberately stalled | [Current hardware stress capture](cpp17-stress.json) and [stress procedure](rtos-design.md#hardware-backpressure-test) |
+| Normal firmware is restored and runs without reported losses | [Current normal capture](cpp17-normal.json) |
+| Detection reaches a physical output | [Normal spoken-word capture](cpp17-normal.json) and physical LED confirmation recorded in [current verification](cpp17-modernization.md#verification) |
 | A clean checkout can test/build without IDE-installed libraries | [Make/CI workflow](../.github/workflows/ci.yml), [build-tool tests](../tests/build_tooling_test.py), and [build guide](build.md) |
 
 Run `make test-unit` for the ten component checks, or `make test-regression`
@@ -150,7 +150,7 @@ Host fakes test logic and failure paths; physical captures test actual schedulin
 and I/O. Neither substitutes for the other. Saved counters are cumulative since
 boot and can include time before capture; trigger counts are not accuracy rates.
 The latest normal capture includes the current filtering, periodic Hann window,
-and C++ ownership changes. Earlier builds and their separate physical checks
+C++ ownership changes, and C++17 build settings. Earlier builds and their separate physical checks
 remain labeled in the validation chronology.
 
 ## Build boundary and remaining validation
@@ -162,8 +162,8 @@ board startup/linking, Mbed core, and drivers. The maintained `.ino` only delega
 startup and idle handling; application logic is C++. Arduino IDE is optional,
 but the firmware still uses the Arduino Mbed platform. This project does not
 claim an independent board-support package or custom RTOS kernel.
-All maintained native application/test sources are C++; host tests use C++11 and
-the pinned board core selects GNU++14 for firmware. The
+All maintained native application/test sources require C++17; host checks use
+`-std=c++17` and the project selects `-std=gnu++17` for firmware. The
 [source-style guide](source-style.md) documents the four-space formatter settings,
 separate C++ test fixtures, upstream dependency boundary, and CI formatting gate.
 

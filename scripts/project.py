@@ -22,6 +22,7 @@ CONFIG = BUILD / "arduino-cli.json"
 SKETCH = BUILD / "sketch" / "KWS_Arm_CortexM4F"
 LIBRARIES = BUILD / "arduino-user" / "libraries"
 OUTPUT = BUILD / "artifacts"
+CPP_STANDARD = "gnu++17"
 
 
 def sha256(path):
@@ -228,6 +229,28 @@ def setup():
     verify_libraries()
 
 
+def compile_sketch(jobs, output):
+    # Last -std flag wins over the core's GNU++14 default; upstream sources stay intact.
+    # Preinclude chrono before Arduino's abs macro, including in upstream C++ sources.
+    cpp_flags = "-std=" + CPP_STANDARD + ' -include "' + str(SKETCH / "cpp_standard.h") + '"'
+    cli(
+        "compile",
+        "--fqbn",
+        LOCK["board"]["fqbn"],
+        "--jobs",
+        str(jobs),
+        "--warnings",
+        "default",
+        "--build-property",
+        "compiler.cpp.extra_flags=" + cpp_flags,
+        "--build-path",
+        BUILD / "objects",
+        "--output-dir",
+        output,
+        SKETCH,
+    )
+
+
 def build(jobs):
     require_cli()
     verify_core()
@@ -240,28 +263,21 @@ def build(jobs):
         if path.is_file() and path.name not in expected:
             path.unlink()
     for name in expected:
-        shutil.copyfile(ROOT / "firmware" / name, SKETCH / name)
+        source = ROOT / "firmware" / name
+        staged = SKETCH / name
+        # A forced-include header must keep its timestamp when unchanged, or every
+        # dependency C++ object would be rebuilt on each normal/stress build.
+        if not staged.exists() or sha256(source) != sha256(staged):
+            shutil.copyfile(source, staged)
     # Hash staged inputs before compiling, not live source files after a long build.
     provenance = {
         "dependencies": LOCK,
         "firmware": tree_manifest(SKETCH),
         "compatibility_headers": tree_manifest(ROOT / "build-support/tflm-compat"),
         "host": platform.platform(),
+        "cpp_standard": CPP_STANDARD,
     }
-    cli(
-        "compile",
-        "--fqbn",
-        LOCK["board"]["fqbn"],
-        "--jobs",
-        str(jobs),
-        "--warnings",
-        "default",
-        "--build-path",
-        BUILD / "objects",
-        "--output-dir",
-        OUTPUT,
-        SKETCH,
-    )
+    compile_sketch(jobs, OUTPUT)
     # Capture the exact inputs beside the ELF/BIN/HEX for review and CI artifacts.
     (OUTPUT / "build-manifest.json").write_text(json.dumps(provenance, indent=2) + "\n")
 

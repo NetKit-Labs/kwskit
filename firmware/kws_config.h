@@ -1,4 +1,5 @@
 #pragma once
+#include "cpp_standard.h"
 #define ARM_MATH_DSP 1
 #define ARM_MATH_LOOPUNROLL
 #define TF_LITE_USE_CMSIS_NN

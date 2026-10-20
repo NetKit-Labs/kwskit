@@ -1,4 +1,5 @@
 #pragma once
+#include "cpp_standard.h"
 #include <cstdint>
 struct TimingStats {
     std::uint32_t last = 0, maximum = 0, count = 0;

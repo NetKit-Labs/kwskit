@@ -32,18 +32,18 @@ stall is documented separately. Memory is from the current C++ firmware build. T
 | FFT frame / overlap | 512 samples (32 ms) / 50% |
 | Model input | 61 × 20 int8 log-mel features (~1 s context) |
 | Decision cadence after warmup | Every 8 feature hops (~128 ms), when audio backlog is drained |
-| DSP average / observed maximum | 2.612 / 2.841 ms |
-| Inference average / observed maximum | 59.097 / 60.130 ms |
-| Processing iteration observed maximum | 62.823 ms |
+| DSP average / observed maximum | 2.487 / 2.639 ms |
+| Inference average / observed maximum | 59.117 / 60.183 ms |
+| Processing iteration observed maximum | 62.766 ms |
 | Circular audio buffer / observed peak occupancy | 8192 / 768 samples |
-| Flash / static RAM | 332,120 / 209,328 bytes (33% / 79%) |
+| Flash / static RAM | 331,616 / 209,328 bytes (33% / 79%) |
 | Dedicated task stacks | Audio 8192 bytes; control 6144 bytes |
-| RTOS spoken "yes" check | 21 cumulative confirmed actions; physical LED toggling confirmed |
+| RTOS spoken "yes" check | 15 cumulative confirmed actions; physical LED toggling confirmed |
 | Reported sample drops / missed buffers / inference errors | 0 / 0 / 0 in the recorded checks |
 | Normal-operation score drops / stale results | 0 / 0 |
 | Forced 1.5 s control stall | 4 score drops; 9 stale results rejected; 0 reported audio losses |
 
-See [C++ idioms and ownership review](docs/cpp-idioms.md) for current build,
+See [C++17 validation](docs/cpp17-modernization.md#verification) for current build,
 stress, and spoken-word evidence, and [RTOS validation](docs/rtos-validation.md)
 for the earlier task checks. The [earlier module/refactor record](docs/module-refactor-validation.md)
 and [pre-RTOS build check](docs/build-validation.md) retain historical results.
@@ -58,7 +58,7 @@ checks. They describe exercised paths, rather than guaranteed worst-case usage.
 
 | Allocation | Capacity | Observed peak use / remaining |
 |---|---|---|
-| Audio-task stack | 8192 bytes | 1416 used / 6776 unused (83%) |
+| Audio-task stack | 8192 bytes | 1424 used / 6768 unused (83%) |
 | Control-task stack | 6144 bytes | 1168 used / 4976 unused (81%) |
 | Audio ring | 8192 samples | 768 queued / 7424 spare (91%) |
 
@@ -121,10 +121,13 @@ artifacts. Physical microphone/LED testing remains a hardware check.
 
 All project-owned firmware and native tests are **C++**, including the minimal
 `.ino` entry point and `.h` declarations; there are no project-owned `.c`
-translation units. Host tests compile with C++11; the pinned board core compiles
-firmware with GNU++14. Python supplies host tooling/training, and a shell script
-runs the tests. The downloaded Arduino/Mbed and CMSIS libraries retain their
-upstream C/C++ implementations.
+translation units. Maintained native code requires **C++17 or later**. Host tests
+and the model inspector compile with C++17; the firmware build explicitly selects
+GNU++17 and rejects older language modes. Python supplies host tooling/training,
+and a shell script runs the tests. The downloaded Arduino/Mbed and CMSIS libraries retain their
+upstream C/C++ implementations. The board's C++ dependencies are rebuilt with
+the selected mode; imported C sources remain C. Arduino IDE builds require the
+[same compiler configuration](docs/build.md#c17-compiler-configuration).
 
 Maintained code uses **four spaces per indentation level**, with `.clang-format`,
 Black configuration, and `.editorconfig` checked into the repository. Makefile
@@ -247,7 +250,7 @@ waits for a full feature window; subsequent decisions require eight new feature
 frames and less than one queued hop. FFT frame overlap continues across model
 calls. DSP and inference leave interrupts enabled; short counter snapshots mask
 interrupts. With the recorded averages, eight DSP hops plus one inference take
-about 80 ms of a nominal 128 ms decision interval, excluding other work.
+about 79 ms of a nominal 128 ms decision interval, excluding other work.
 
 **FFT correctness.** CMSIS fast real FFT packs DC at output index 0 and Nyquist at
 index 1. `fft_power.h` treats both separately and computes interior-bin power

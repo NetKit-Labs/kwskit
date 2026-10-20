@@ -1,4 +1,5 @@
 #pragma once
+#include "cpp_standard.h"
 #include <cstdint>
 class KeywordFilter {
     float smoothed = 0;

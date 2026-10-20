@@ -3,9 +3,11 @@
 ## Language audit
 
 The maintained native firmware, host model inspector, and native unit/regression
-tests use C++. Host tests and the model inspector compile with C++11; the pinned
-Arduino Mbed core selects `-std=gnu++14` for the firmware. There are no
-project-owned `.c` translation units to convert.
+tests require C++17 or later. Host tests and the model inspector use `-std=c++17`;
+the project overrides the pinned Arduino Mbed core default with `-std=gnu++17`
+for firmware. `cpp_standard.h` rejects older modes. The build preincludes that
+header to load `<chrono>` before Arduino defines its conflicting `abs` macro.
+There are no project-owned `.c` translation units to convert.
 Headers are included by C++ sources; the Arduino `.ino` is compiled as C++ and
 only delegates startup/idle handling. C-compatible declarations and C library
 APIs called from a C++ translation unit do not change that unit's language.
@@ -13,11 +15,27 @@ APIs called from a C++ translation unit do not change that unit's language.
 The project also uses Python for build/test/document tools and the training
 notebook, shell for the host test runner, and Make/YAML for build/CI configuration.
 The downloaded Arduino/Mbed board core, CMSIS, and TFLite dependencies include
-upstream C/C++ implementations. Their language/build configuration is retained;
-the project does not claim that the complete dependency stack is exclusively C++.
+upstream C/C++ implementations. Those sources and C interfaces remain intact;
+compiled C++ sources receive the documented language/include flags. The complete
+dependency stack also contains C and a precompiled Mbed archive.
 
 The [C++ idioms review](cpp-idioms.md) records typed buffer contracts, RAII
 critical sections/lifetimes, noncopyable owners, and the native-source review.
+
+## References and pointer boundaries
+
+Use references for required existing objects and array references for owned buffer
+interfaces. The ring's `pop` takes a `std::array` reference and optionally a count,
+rejecting counts larger than its destination before consuming samples. Borrowed
+capture/extractor/model dependencies and model-inspector graph objects also use
+references. Keep pointers when null is meaningful (uninitialized runtime tensors,
+optional FlatBuffer fields, inactive capture ownership) and for the PDM/CMSIS/USB
+API signatures and raw byte buffers they require. A reference is not a replacement
+for an optional value, a reseatable handle, or an array extent.
+
+The [C++17 update](cpp17-modernization.md) records the modern library facilities,
+compile-mode regression checks, and hardware verification. C++20 is not needed
+by the current implementation or selected by the pinned firmware toolchain.
 
 ## Four-space policy
 

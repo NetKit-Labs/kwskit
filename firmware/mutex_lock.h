@@ -1,4 +1,5 @@
 #pragma once
+#include "cpp_standard.h"
 #include <cmsis_os2.h>
 
 // Use with an initialized mutex in task context. Scope exit releases the lock.

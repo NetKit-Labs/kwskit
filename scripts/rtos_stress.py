@@ -21,20 +21,7 @@ def main():
     try:
         header = project.SKETCH / "kws_config.h"
         header.write_text(header.read_text() + "\n#define KWS_RTOS_STRESS_TEST 1\n")
-        project.cli(
-            "compile",
-            "--fqbn",
-            project.LOCK["board"]["fqbn"],
-            "--jobs",
-            args.jobs,
-            "--warnings",
-            "default",
-            "--build-path",
-            project.BUILD / "objects",
-            "--output-dir",
-            stress_output,
-            project.SKETCH,
-        )
+        project.compile_sketch(args.jobs, stress_output)
         (stress_output / "stress-manifest.json").write_text(
             json.dumps(
                 {
@@ -42,6 +29,7 @@ def main():
                     "control_stall_ms": 1500,
                     "firmware": project.tree_manifest(project.SKETCH),
                     "dependencies": project.LOCK,
+                    "cpp_standard": project.CPP_STANDARD,
                 },
                 indent=2,
             )

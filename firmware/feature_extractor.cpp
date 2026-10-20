@@ -25,8 +25,8 @@ void FeatureExtractor::computeLogMel() {
         const float logMel = std::log(melRow[m] + 1e-6f);
         const auto quantized =
             static_cast<std::int32_t>(std::round(logMel / inputScale + inputZeroPoint));
-        quantizedMelRow[m] = static_cast<std::int8_t>(
-            std::max<std::int32_t>(-128, std::min<std::int32_t>(127, quantized)));
+        quantizedMelRow[m] =
+            static_cast<std::int8_t>(std::clamp<std::int32_t>(quantized, -128, 127));
     }
 
     std::copy(featureBuffer.begin() + NUM_MEL, featureBuffer.end(), featureBuffer.begin());

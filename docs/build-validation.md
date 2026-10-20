@@ -2,7 +2,7 @@
 
 This is a historical record from before the two-task RTOS implementation.
 Use the [build guide](build.md) for current commands, [RTOS design](rtos-design.md)
-for task ownership, and [current verification](cpp-idioms.md#verification) for the
+for task ownership, and [current verification](cpp17-modernization.md#verification) for the
 latest build footprint and hardware checks.
 
 The new build was tested using project-local dependencies rather than the IDE's

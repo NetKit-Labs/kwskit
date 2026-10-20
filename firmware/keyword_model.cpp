@@ -1,5 +1,6 @@
 #include "keyword_model.h"
 #include <cstdint>
+#include <cstddef>
 #include <TensorFlowLite.h>
 #include <tensorflow/lite/micro/micro_error_reporter.h>
 #include <tensorflow/lite/micro/micro_interpreter.h>
@@ -10,7 +11,6 @@
 #include <algorithm>
 #include <array>
 #include <new>
-#include <type_traits>
 
 struct KeywordModel::Runtime {
     Runtime() = default;
@@ -20,8 +20,8 @@ struct KeywordModel::Runtime {
     tflite::MicroErrorReporter errorReporter;
     tflite::MicroProfiler profiler;
     tflite::MicroMutableOpResolver<4> resolver;
-    std::aligned_storage<sizeof(tflite::MicroInterpreter), alignof(tflite::MicroInterpreter)>::type
-        interpreterStorage;
+    alignas(tflite::MicroInterpreter)
+        std::array<std::byte, sizeof(tflite::MicroInterpreter)> interpreterStorage{};
     tflite::MicroInterpreter *interpreter = nullptr;
     TfLiteTensor *input = nullptr;
     TfLiteTensor *output = nullptr;
@@ -44,8 +44,8 @@ bool KeywordModel::begin() {
     if (runtime.interpreter) {
         return runtime.ready;
     }
-    const auto *model = tflite::GetModel(kws_1class_depthwise_int8_tflite);
-    if (model->version() != TFLITE_SCHEMA_VERSION) {
+    const auto &model = *tflite::GetModel(kws_1class_depthwise_int8_tflite);
+    if (model.version() != TFLITE_SCHEMA_VERSION) {
         return false;
     }
     if (runtime.resolver.AddConv2D() != kTfLiteOk ||
@@ -56,7 +56,7 @@ bool KeywordModel::begin() {
 
     // Placement construction uses the fixed member storage; it does not allocate from the heap.
     runtime.interpreter =
-        new (&runtime.interpreterStorage) tflite::MicroInterpreter(model, runtime.resolver,
+        new (runtime.interpreterStorage.data()) tflite::MicroInterpreter(&model, runtime.resolver,
             runtime.tensorArena.data(), runtime.tensorArena.size(), nullptr, &runtime.profiler);
     if (runtime.interpreter->AllocateTensors() != kTfLiteOk) {
         static_cast<tflite::ErrorReporter &>(runtime.errorReporter)
@@ -65,9 +65,14 @@ bool KeywordModel::begin() {
     }
     runtime.input = runtime.interpreter->input(0);
     runtime.output = runtime.interpreter->output(0);
-    runtime.ready = runtime.input->type == kTfLiteInt8 && runtime.output->type == kTfLiteInt8 &&
-        runtime.input->bytes == NUM_FRAMES * NUM_MEL && runtime.output->bytes >= 1 &&
-        runtime.input->params.scale > 0 && runtime.output->params.scale > 0;
+    if (!runtime.input || !runtime.output) {
+        return false;
+    }
+    const auto &input = *runtime.input;
+    const auto &output = *runtime.output;
+    runtime.ready = input.type == kTfLiteInt8 && output.type == kTfLiteInt8 &&
+        input.bytes == NUM_FRAMES * NUM_MEL && output.bytes >= 1 && input.params.scale > 0 &&
+        output.params.scale > 0;
     return runtime.ready;
 }
 
@@ -83,11 +88,12 @@ bool KeywordModel::predict(const FeatureTensor &features, float &probability) {
     if (!runtime.ready) {
         return false;
     }
-    std::copy(features.begin(), features.end(), runtime.input->data.int8);
+    auto &input = *runtime.input;
+    const auto &output = *runtime.output;
+    std::copy(features.begin(), features.end(), input.data.int8);
     if (runtime.interpreter->Invoke() != kTfLiteOk) {
         return false;
     }
-    probability = runtime.output->params.scale *
-        (runtime.output->data.int8[0] - runtime.output->params.zero_point);
+    probability = output.params.scale * (output.data.int8[0] - output.params.zero_point);
     return true;
 }

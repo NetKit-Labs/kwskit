@@ -1,5 +1,10 @@
 # C++ idioms and ownership review
 
+This record describes the ownership/buffer review before the subsequent
+[C++17 update](cpp17-modernization.md), which supersedes its language settings,
+ring read API, and current-build measurements. The results below remain evidence
+for the earlier build.
+
 This review covers every maintained native firmware source/header and Arduino
 adapter, the host model inspector, native tests, and their fake driver/RTOS
 interfaces. Generated model/filter data and the three upstream-derived TFLite
@@ -49,7 +54,7 @@ is checked against the saved model inspection.
 These adapters provide ownership/lifetime guarantees while continuing to use
 the existing platform/DSP implementations. No virtual dispatch or new dynamic
 allocation was introduced in capture, DSP, inference, transport, or control.
-The pinned board toolchain uses GNU++14; portable host tests use C++11.
+At this stage the pinned board toolchain used GNU++14 and host tests used C++11.
 
 ## Verification
 
@@ -95,8 +100,8 @@ samples, 1,095 inferences, and 21 confirmed actions; these are cumulative since
 boot, not counts for a controlled accuracy experiment. The first record was
 buffered startup telemetry; the subsequent records span roughly one minute of
 normal operation. Peak audio-ring occupancy was 768 samples and the minimum
-reported unused task stacks were 6776/4976 bytes. The normal firmware remains
-installed on the Nano, and the developer confirmed the physical LED response.
+reported unused task stacks were 6776/4976 bytes. Normal firmware was installed
+after that capture, and the developer confirmed the physical LED response.
 
 The [GitHub Actions run for firmware commit `2f47745`](https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/runs/39504902995)
 passed source formatting, host regressions, and the clean Linux Nano build.

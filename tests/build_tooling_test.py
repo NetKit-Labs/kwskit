@@ -2,6 +2,7 @@
 
 import hashlib
 import io
+import json
 import tarfile
 import importlib.util
 import os
@@ -108,6 +109,48 @@ class BuildToolingTests(unittest.TestCase):
             command = child.call_args.args[0]
             self.assertIn("--config-file", command)
             self.assertIn(str(project.CONFIG), command)
+
+    def test_normal_and_stress_compiler_require_cpp17(self):
+        with mock.patch.object(project, "cli") as cli:
+            for output in (self.root / "artifacts", self.root / "stress-artifacts"):
+                project.compile_sketch(4, output)
+                args = cli.call_args.args
+                self.assertEqual(args[0], "compile")
+                self.assertEqual(
+                    args[args.index("--build-property") + 1],
+                    'compiler.cpp.extra_flags=-std=gnu++17 -include "'
+                    + str(project.SKETCH / "cpp_standard.h")
+                    + '"',
+                )
+                self.assertEqual(args[args.index("--output-dir") + 1], output)
+
+    def test_build_manifest_records_language_and_staged_sources(self):
+        sketch = self.root / "sketch"
+        output = self.root / "artifacts"
+        output.mkdir()
+        with (
+            mock.patch.object(project, "SKETCH", sketch),
+            mock.patch.object(project, "OUTPUT", output),
+            mock.patch.object(project, "require_cli"),
+            mock.patch.object(project, "verify_core"),
+            mock.patch.object(project, "verify_libraries"),
+            mock.patch.object(project, "compile_sketch") as compile_sketch,
+        ):
+            project.build(2)
+            compile_sketch.assert_called_once_with(2, output)
+            manifest = json.loads((output / "build-manifest.json").read_text())
+            self.assertEqual(manifest["cpp_standard"], "gnu++17")
+            self.assertEqual(manifest["firmware"], project.tree_manifest(sketch))
+            self.assertIn("cpp_standard.h", manifest["firmware"])
+            header = sketch / "cpp_standard.h"
+            stamp = header.stat().st_mtime_ns
+            project.build(2)
+            self.assertEqual(header.stat().st_mtime_ns, stamp)
+            header.write_text("outdated staged copy")
+            project.build(2)
+            self.assertEqual(
+                header.read_bytes(), (project.ROOT / "firmware/cpp_standard.h").read_bytes()
+            )
 
 
 if __name__ == "__main__":

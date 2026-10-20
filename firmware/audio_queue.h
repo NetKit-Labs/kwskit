@@ -1,4 +1,5 @@
 #pragma once
+#include "cpp_standard.h"
 #include <cstdint>
 #include <cstddef>
 #include <atomic>
@@ -31,7 +32,10 @@ public:
         head.store(h + 1, std::memory_order_release);
         return true;
     }
-    bool pop(std::int16_t *destination, std::size_t count) {
+    template <std::size_t Count>
+    bool pop(std::array<std::int16_t, Count> &destination, std::size_t count = Count) {
+        if (count > destination.size())
+            return false;
         std::uint32_t t = tail.load(std::memory_order_relaxed);
         if (head.load(std::memory_order_acquire) - t < count)
             return false;
@@ -39,9 +43,6 @@ public:
             destination[i] = samples[(t + i) & (Capacity - 1)];
         tail.store(t + count, std::memory_order_release);
         return true;
-    }
-    template <std::size_t Count> bool pop(std::array<std::int16_t, Count> &destination) {
-        return pop(destination.data(), destination.size());
     }
     void discardPending() {
         // Only the consumer advances tail. Samples published afterward remain available.

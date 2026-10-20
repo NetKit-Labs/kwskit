@@ -8,7 +8,7 @@ therefore includes all unit tests rather than treating the categories as exclusi
 ## Run the automated host checks
 
 From the repository root, with Python 3.9+, Make, and a host C++ compiler supporting
-AddressSanitizer and UndefinedBehaviorSanitizer:
+AddressSanitizer and UndefinedBehaviorSanitizer, with C++17 support:
 
 ```sh
 make test-unit        # Ten component checks
@@ -31,7 +31,7 @@ firmware modules; they no longer embed C++ programs in Python string literals.
 
 | Check | Behavior protected |
 |---|---|
-| [audio_queue](../tests/audio_queue_test.cpp) | Empty/full behavior, rejected writes without overwrite, FIFO order, repeated ring-index wrap, and incomplete reads leaving the queue and destination untouched |
+| [audio_queue](../tests/audio_queue_test.cpp) | Empty/full behavior, rejected writes without overwrite, FIFO order, repeated ring-index wrap, referenced destinations, and incomplete/oversized reads leaving the queue and destination untouched |
 | [fft_power](../tests/fft_power_test.cpp) | Separate DC/Nyquist power, interior complex-bin power, simultaneous first/last complex bins, signed inputs, and exact-size input/output bounds under sanitizers |
 | [keyword_filter](../tests/keyword_filter_test.cpp) | Isolated-score suppression, sustained detection, hysteresis/rearming, held-keyword suppression, cooldown, and its exact expiration across millisecond rollover |
 | [keyword_detector](../tests/keyword_detector_test.cpp) | Confirmation, reset behavior, response evidence, and microsecond timer rollover |
@@ -40,7 +40,7 @@ firmware modules; they no longer embed C++ programs in Python string literals.
 | [device_action](../tests/device_action_test.py) | Actual device-control module initializes the LED off and alternates GPIO state on confirmed actions, using fake GPIO |
 | [audio_capture](../tests/audio_capture_test.py) | Actual receiver with fake PDM: startup failure, exclusive callback ownership/context, bounded reads, overflow accounting without overwrite, complete-hop timestamps, discard, owner destruction, interrupt-mask preservation, late callbacks, and handoff to a new owner |
 | [feature_extractor](../tests/feature_extractor_test.py) | Actual extractor with scalar host DSP backend: initialization failure, priming/warmup, eight-hop inference cadence, reset, independent contexts, clipping, and periodic Hann coefficients and 84,180 frozen quantized feature bytes |
-| [buffer_contract](../tests/buffer_contract_test.py) | Ten compiler probes: valid typed calls compile; invalid audio/feature/FFT extents, odd FFT length, zero/non-power-of-two ring capacity, and copying noncopyable owners fail compilation |
+| [buffer_contract](../tests/buffer_contract_test.py) | Eleven buffer/ownership compiler probes plus C++11/C++14 rejection checks: valid C++17 calls compile; wrong buffer extents, raw-pointer ring reads, invalid FFT lengths/capacities, and owner copies fail |
 
 ## Additional integration and regression coverage
 
@@ -48,7 +48,7 @@ firmware modules; they no longer embed C++ programs in Python string literals.
 |---|---|
 | [stream](../tests/stream_test.cpp) | Ten simulated seconds of ordered 16 kHz audio while the consumer pauses for 60 ms inference intervals; no ring loss in the simulated workload |
 | [pipeline](../tests/pipeline_test.py) | Actual audio pipeline with fake capture/features/model: no-hop/readiness behavior, backlog deferral, event timestamps, DSP/inference timing, inference failure, and loss-triggered feature reset |
-| [build_tooling](../tests/build_tooling_test.py) | Five Python cases for archive checksums/cache, extraction boundaries, library/lock changes, missing/modified core restoration, and isolation from ambient Arduino configuration |
+| [build_tooling](../tests/build_tooling_test.py) | Seven Python cases for C++17 build options/provenance, archive checksums/cache, extraction boundaries, library/lock changes, missing/modified core restoration, and isolation from ambient Arduino configuration |
 | [rtos_startup](../tests/rtos_startup_test.py) | Actual coordinator with fake CMSIS APIs: static stack/queue storage, task priorities, callback notification, idle delay, scoped mutex release, idempotent startup, and cleanup after seven initialization failure modes |
 
 The fourteen checks are suite entries, not a claim of fourteen individual assertions;
@@ -131,9 +131,15 @@ The [C++ idioms review](cpp-idioms.md) adds typed buffer/FFT contracts, scoped
 resource handling, and the compiler-probe entry. The current complete gate is
 fourteen entries: ten component checks plus four integration/build checks.
 Compiler-rejection fixtures are separate `.cpp` files and intentionally do not
-compile when invoked as ordinary programs. The latest normal/stress hardware
+compile when invoked as ordinary programs. That stage's normal/stress hardware
 captures and physical LED confirmation are linked from that review; the earlier
 [RTOS validation](rtos-validation.md) retains its original build measurements.
+
+The [C++17 update](cpp17-modernization.md#verification) selects the new minimum
+language mode in every host harness and both normal/stress cross-builds. It adds
+a raw-pointer ring rejection probe, older-mode rejection checks, destination-size
+regressions, and compiler/provenance tests. Current hardware captures and build
+identity are recorded there; the suite still has fourteen entries.
 
 ## Limits
 

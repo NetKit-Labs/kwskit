@@ -9,7 +9,7 @@ struct KeywordEvent {
     std::uint32_t captureEndUs, decisionUs, decisionMs, sequence, generation;
 };
 static_assert(
-    std::is_trivially_copyable<KeywordEvent>::value, "CMSIS copies event object representations");
+    std::is_trivially_copyable_v<KeywordEvent>, "CMSIS copies event object representations");
 struct EventResult {
     DetectionResult detection;
     bool discarded;

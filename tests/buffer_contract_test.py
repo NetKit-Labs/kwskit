@@ -6,13 +6,13 @@ import subprocess
 probes = sorted((Path(__file__).parent / "fixtures" / "contracts").glob("*.cpp"))
 assert any(p.name.startswith("accept_") for p in probes)
 assert any(p.name.startswith("reject_") for p in probes)
-for source in probes:
-    assert source.name.startswith(("accept_", "reject_")), source
-    should_compile = source.name.startswith("accept_")
-    result = subprocess.run(
+
+
+def compile_probe(source, standard="c++17"):
+    return subprocess.run(
         [
             "c++",
-            "-std=c++11",
+            "-std=" + standard,
             "-Wall",
             "-Wextra",
             "-Werror",
@@ -25,9 +25,22 @@ for source in probes:
         capture_output=True,
         text=True,
     )
+
+
+for source in probes:
+    assert source.name.startswith(("accept_", "reject_")), source
+    should_compile = source.name.startswith("accept_")
+    result = compile_probe(source)
     assert (
         result.returncode == 0
     ) == should_compile, (
         f"{source.name}: expected compile success={should_compile}\n{result.stderr}"
     )
 print(f"PASS: {len(probes)} buffer/ownership compile contracts")
+
+for standard in ("c++11", "c++14"):
+    result = compile_probe(
+        Path(__file__).parent / "fixtures/contracts/accept_valid_buffers.cpp", standard
+    )
+    assert result.returncode != 0 and "Project code requires C++17" in result.stderr, result.stderr
+print("PASS: C++11/C++14 rejected by the project language guard")
