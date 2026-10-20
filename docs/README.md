@@ -6,6 +6,7 @@ fields are documented in the [project README](../README.md).
 | Record | Contents |
 |---|---|
 | [Engineering overview](engineering-overview.md) | Requirements, design tradeoffs, source entry points, measured margins, and claim-to-evidence mapping |
+| [C++ ownership and refactor](cpp-refactor.md) | Object lifetimes, explicit dependencies, fixed storage, callback boundaries, and refactor regression/hardware evidence |
 | [DSP pipeline](dsp-pipeline.md) | PCM scaling, frame overlap, Hann/packed FFT power, mel/log features, int8 layout, cadence/reset, workspace, and training alignment |
 | [TinyML inference](tinyml-inference.md) | CNN layers, training/deployed parameter counts, int8 quantization, model identity, flash/SRAM placement, runtime flow, and inspection commands |
 | [Model metadata](model-metadata.json) | Inspected deployed operator graph, tensor shapes/types/quantization, parameter counts, and constant payload sizes |
@@ -13,6 +14,8 @@ fields are documented in the [project README](../README.md).
 | [Source language and style](source-style.md) | C++ source audit, four-space formatting rules, formatter setup/CI checks, and validation |
 | [RTOS design](rtos-design.md) | Audio/control task ownership, priorities, static memory, ISR notifications, event overload rules |
 | [RTOS validation](rtos-validation.md) | Current host, build, live scheduling, backpressure, and speech test evidence |
+| [C++ refactor normal telemetry](cpp-refactor-normal.json) | One-minute acquisition/inference check after restoring the object-based normal firmware |
+| [C++ refactor stress telemetry](cpp-refactor-stress.json) | Repeated control-stall regression on the object-based firmware |
 | [RTOS spoken "yes" telemetry](rtos-spoken-yes.json) | Raw current-task speech detections and LED transitions |
 | [RTOS stress telemetry](rtos-stress-telemetry.json) | Raw deliberate control-stall and score-queue overflow results |
 | [Final-code normal telemetry](rtos-final-normal.json) | Normal operation after the last regression fix and restoration from stress firmware |

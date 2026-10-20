@@ -18,6 +18,7 @@ with tempfile.TemporaryDirectory(prefix="kws-pipeline-") as directory:
             "-fsanitize=address,undefined",
             "-I" + directory,
             "-Ifirmware",
+            "-Itests/fixtures/support",
             "firmware/audio_pipeline.cpp",
             str(root / "test.cpp"),
             "-o",

@@ -1,6 +1,11 @@
 #pragma once
-namespace DeviceControl {
+
+class DeviceControl {
+public:
     void begin();
     void applyKeywordAction();
-    bool isOn();
-} // namespace DeviceControl
+    bool isOn() const;
+
+private:
+    bool deviceOn = false;
+};

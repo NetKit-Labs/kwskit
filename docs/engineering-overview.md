@@ -64,12 +64,22 @@ The [TinyML inference guide](tinyml-inference.md) describes the deployed CNN,
 distinguishes Keras and folded parameter counts, and verifies the model/arena
 flash/SRAM placements using the artifact and linked firmware.
 
+## C++ state ownership
+
+The [object refactor](cpp-refactor.md) makes the stateful modules ordinary C++
+classes. `FeatureExtractor` owns `std::array` workspaces and is noncopyable because
+CMSIS descriptors point into them. `AudioPipeline` receives its dependencies by
+reference. `AudioCapture` routes the driver's C callback to its active owner;
+RTOS callbacks use an application context pointer. The model has one encapsulated,
+statically reserved runtime. DSP/model state remains exclusive to the audio task.
+
 ## Measured results and their meaning
 
-Hardware records were collected October 20, 2026. The final normal capture
+Hardware records below were collected October 20, 2026 before the C++ object refactor. The final normal capture
 reported the following cumulative timing statistics; the other rows identify
 their separate evidence sources. Raw JSON files and test chronology are in
-[RTOS validation](rtos-validation.md).
+[RTOS validation](rtos-validation.md). Current-build measurements and repeated
+checks are in [C++ refactor validation](cpp-refactor.md#verification).
 
 | Measurement | Recorded result / interpretation |
 |---|---|
@@ -125,8 +135,8 @@ been quantified. See the [memory assessment](rtos-validation.md#measured-memory-
 | Detection reaches a physical output | [Spoken-word capture](rtos-spoken-yes.json) and physical LED confirmation recorded in [validation](rtos-validation.md#spoken-word-and-physical-led-check) |
 | A clean checkout can test/build without IDE-installed libraries | [Make/CI workflow](../.github/workflows/ci.yml), [build-tool tests](../tests/build_tooling_test.py), and [build guide](build.md) |
 
-Run `make test-unit` for the seven component checks, or `make test-regression`
-for all eleven checks including integration/build regressions. `make test` is the
+Run `make test-unit` for the nine component checks, or `make test-regression`
+for all thirteen checks including integration/build regressions. `make test` is the
 same complete gate used in CI. The [testing guide](testing.md) details coverage
 and hardware reproduction.
 

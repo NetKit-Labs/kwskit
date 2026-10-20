@@ -1,86 +1,98 @@
 #include "audio_capture.h"
-#include "audio_queue.h"
 #include <Arduino.h>
 #include <PDM.h>
-namespace AudioCapture {
-    namespace {
-        void (*notifyConsumer)() = nullptr;
-        bool running = false;
-        int16_t pdmBuffer[PDM_BUFFER_SIZE];
-        AudioQueue<8192> audioQueue;
-        volatile uint32_t receivedSamples = 0, missedBuffers = 0, lastAudioUs = 0;
-        volatile uint32_t queueHighWater = 0, callbackGapMaxUs = 0;
-        void onPDMData() {
-            uint32_t now = micros();
-            if (lastAudioUs) {
-                uint32_t gap = now - lastAudioUs;
-                if (gap > callbackGapMaxUs)
-                    callbackGapMaxUs = gap;
-            }
-            lastAudioUs = now;
-            bool missed = false;
-            while (PDM.available() > 0) {
-                int bytes = min(PDM.available(), (int)sizeof(pdmBuffer));
-                int received = PDM.read(pdmBuffer, bytes);
-                if (received <= 0)
-                    break;
-                receivedSamples += received / 2;
-                for (int i = 0; i < received / 2; ++i)
-                    if (!audioQueue.push(pdmBuffer[i]))
-                        missed = true;
-            }
-            if (missed)
-                ++missedBuffers;
-            uint32_t depth = audioQueue.available();
-            if (depth > queueHighWater)
-                queueHighWater = depth;
-            if (notifyConsumer)
-                notifyConsumer();
-        }
 
-    } // namespace
-    bool begin(void (*notify)()) {
-        notifyConsumer = notify;
-        PDM.onReceive(onPDMData);
-        PDM.setBufferSize(sizeof(pdmBuffer));
-        if (!PDM.begin(1, SAMPLE_RATE)) {
-            notifyConsumer = nullptr;
-            return false;
-        }
-        running = true;
-        PDM.setGain(60);
-        return true;
+AudioCapture *AudioCapture::activeReceiver = nullptr;
+
+void AudioCapture::receiveCallback() {
+    if (activeReceiver) {
+        activeReceiver->receive();
     }
-    void end() {
-        if (running)
-            PDM.end();
-        running = false;
+}
+
+void AudioCapture::receive() {
+    uint32_t now = micros();
+    if (lastAudioUs) {
+        uint32_t gap = now - lastAudioUs;
+        if (gap > callbackGapMaxUs)
+            callbackGapMaxUs = gap;
+    }
+    lastAudioUs = now;
+    bool missed = false;
+    while (PDM.available() > 0) {
+        int bytes = min(PDM.available(), static_cast<int>(sizeof(pdmBuffer)));
+        int received = PDM.read(pdmBuffer.data(), bytes);
+        if (received <= 0)
+            break;
+        receivedSamples += received / 2;
+        for (int i = 0; i < received / 2; ++i)
+            if (!audioQueue.push(pdmBuffer[i]))
+                missed = true;
+    }
+    if (missed)
+        ++missedBuffers;
+    uint32_t depth = audioQueue.available();
+    if (depth > queueHighWater)
+        queueHighWater = depth;
+    if (notifyConsumer)
+        notifyConsumer(notificationContext);
+}
+
+bool AudioCapture::begin(Notification notify, void *context) {
+    if (activeReceiver) {
+        return false;
+    }
+    notifyConsumer = notify;
+    notificationContext = context;
+    activeReceiver = this;
+    PDM.onReceive(receiveCallback);
+    PDM.setBufferSize(sizeof(pdmBuffer));
+    if (!PDM.begin(1, SAMPLE_RATE)) {
+        activeReceiver = nullptr;
         notifyConsumer = nullptr;
+        notificationContext = nullptr;
+        return false;
     }
-    uint32_t available() {
-        return audioQueue.available();
+    running = true;
+    PDM.setGain(60);
+    return true;
+}
+
+void AudioCapture::end() {
+    if (running) {
+        PDM.end();
     }
-    Snapshot snapshot() {
-        noInterrupts();
-        Snapshot result{receivedSamples, audioQueue.droppedSamples, missedBuffers, queueHighWater,
-            callbackGapMaxUs, lastAudioUs};
-        interrupts();
-        return result;
+    running = false;
+    if (activeReceiver == this) {
+        activeReceiver = nullptr;
     }
-    bool readHop(int16_t *samples, uint32_t &captureEndUs) {
-        if (!audioQueue.pop(samples, HOP_SIZE))
-            return false;
-        noInterrupts();
-        uint32_t arrival = lastAudioUs, backlog = audioQueue.available();
-        interrupts();
-        captureEndUs = arrival - (backlog * 1000000UL) / SAMPLE_RATE;
-        return true;
+    notifyConsumer = nullptr;
+    notificationContext = nullptr;
+}
+
+uint32_t AudioCapture::available() const {
+    return audioQueue.available();
+}
+AudioCapture::Snapshot AudioCapture::snapshot() const {
+    noInterrupts();
+    Snapshot result{receivedSamples, audioQueue.droppedSamples, missedBuffers, queueHighWater,
+        callbackGapMaxUs, lastAudioUs};
+    interrupts();
+    return result;
+}
+bool AudioCapture::readHop(int16_t *samples, uint32_t &captureEndUs) {
+    if (!audioQueue.pop(samples, HOP_SIZE))
+        return false;
+    noInterrupts();
+    uint32_t arrival = lastAudioUs, backlog = audioQueue.available();
+    interrupts();
+    captureEndUs = arrival - (static_cast<uint64_t>(backlog) * 1000000ULL) / SAMPLE_RATE;
+    return true;
+}
+void AudioCapture::discardPending() {
+    int16_t discarded[HOP_SIZE];
+    while (audioQueue.pop(discarded, HOP_SIZE)) {
     }
-    void discardPending() {
-        int16_t discarded[HOP_SIZE];
-        while (audioQueue.pop(discarded, HOP_SIZE)) {
-        }
-        while (audioQueue.pop(discarded, 1)) {
-        }
+    while (audioQueue.pop(discarded, 1)) {
     }
-} // namespace AudioCapture
+}

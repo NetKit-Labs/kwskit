@@ -103,3 +103,11 @@ inference). It excludes queue dispatch, the metrics copy, and control-task work.
 `response_us` includes filtering and control action delay from the first
 high-confidence input-window end. Counters and timers are snapshots, not proofs
 of hard worst-case execution times.
+
+## C++ object ownership
+
+A private application object owns the RTOS resources and capture/feature/control/telemetry
+objects. `AudioPipeline` borrows its capture, extractor, and single model by reference.
+Thread entry adapters receive the application as their CMSIS context; the PDM
+notification also carries that context. Queue/event ownership and task priorities
+are unchanged. See [C++ refactor](cpp-refactor.md) for storage and validation.

@@ -25,7 +25,7 @@ behavior; [RTOS validation](docs/rtos-validation.md) records the hardware result
 Measurements below are from the two-task RTOS firmware on the connected Nano,
 recorded October 20, 2026. Timing summarizes normal-operation checks; the deliberate stall is documented
 separately. Memory is from
-the locked CLI build. These are observed results, not worst-case guarantees.
+the current object-based C++ firmware build. These are observed results, not worst-case guarantees.
 
 | Measurement | Recorded result |
 |---|---:|
@@ -37,7 +37,7 @@ the locked CLI build. These are observed results, not worst-case guarantees.
 | Inference average / observed maximum | 59.13 / 59.65 ms |
 | Processing iteration observed maximum | 62.23 ms |
 | Circular audio buffer / observed peak occupancy | 8192 / 768 samples |
-| Flash / static RAM | 331,440 / 209,320 bytes (33% / 79%) |
+| Flash / static RAM | 331,936 / 209,320 bytes (33% / 79%) |
 | Dedicated task stacks | Audio 8192 bytes; control 6144 bytes |
 | RTOS spoken "yes" check | 11 confirmed detections; physical LED toggling confirmed |
 | Reported sample drops / missed buffers / inference errors | 0 / 0 / 0 in the recorded checks |
@@ -53,13 +53,13 @@ speaker/noise dataset and hours-to-days endurance have not been established.
 
 ### Measured memory margins
 
-These high-water measurements come from the recorded normal, speech, and stress
+These high-water measurements come from the object-refactor normal and stress
 checks. They describe exercised paths, rather than guaranteed worst-case usage.
 
 | Allocation | Capacity | Observed peak use / remaining |
 |---|---|---|
-| Audio-task stack | 8192 bytes | 1408 used / 6784 unused (83%) |
-| Control-task stack | 6144 bytes | 1160 used / 4984 unused (81%) |
+| Audio-task stack | 8192 bytes | 1416 used / 6776 unused (83%) |
+| Control-task stack | 6144 bytes | 1168 used / 4976 unused (81%) |
 | Audio ring | 8192 samples | 768 queued / 7424 spare (91%) |
 
 At peak observed ring occupancy, the remaining capacity represents about 464 ms
@@ -159,6 +159,13 @@ flowchart LR
 | `kws_pipeline` | Task/queue startup, transport, generations, metrics synchronization | Startup plus two task entry points |
 | `kws_config` | Shared dimensions and inference cadence | Compile-time configuration |
 
+Stateful modules use C++ objects: `FeatureExtractor` owns fixed-size DSP buffers,
+`AudioCapture` owns the microphone ring and callback context, and `DeviceControl`
+and `Telemetry` own their respective state. `AudioPipeline` receives its capture,
+extractor, and model dependencies by reference. A private application object owns
+the RTOS resources; the single-model `KeywordModel` encapsulates its fixed TFLite
+runtime. See [C++ ownership and refactor validation](docs/cpp-refactor.md).
+
 The `.ino` only delegates startup and idles the existing Arduino main task.
 Application behavior lives in `.cpp`/`.h` modules. The Makefile invokes a pinned
 Arduino CLI, which configures the Arm cross-compiler and board framework; it
@@ -256,8 +263,8 @@ peripheral failure is future work.
 
 ## Tests and instrumentation
 
-`make test-unit` runs seven isolated component checks. `make test-regression`
-runs the complete eleven-check suite, including those unit tests plus stream,
+`make test-unit` runs nine component checks. `make test-regression`
+runs the complete thirteen-check suite, including those unit tests plus stream,
 pipeline, RTOS startup, and build-tool checks. `make test` runs the same complete
 regression gate in CI. See the [testing guide](docs/testing.md) for coverage,
 commands, hardware procedures, and limits.
@@ -265,7 +272,9 @@ commands, hardware procedures, and limits.
 The suite exercises queue ordering/overflow/wraparound, packed FFT bins/bounds,
 simulated inference stalls, temporal filtering and cooldown, detection-response
 timing and timer wraparound, actual GPIO-module logic with fake pins, and the actual
-audio pipeline with fake capture/features/model modules. RTOS startup tests
+audio pipeline with fake capture/features/model modules. New checks exercise the actual
+extractor against frozen pre-refactor feature vectors and the actual PDM receiver
+against a deterministic driver fake. RTOS startup tests
 check static storage, priority/stack configuration, callback notification, and
 cleanup after initialization failures. Event tests cover stale generations,
 queue gaps, duplicate scores, timestamp wraparound, and cooldown retention. Build-tool tests check archive

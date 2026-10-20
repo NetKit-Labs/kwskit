@@ -15,47 +15,68 @@ uint32_t millis() {
 bool predictOk = true, hop = true, due = true;
 int queued = 0, predictions = 0, resets = 0, discards = 0;
 AudioCapture::Snapshot audio{};
-namespace AudioCapture {
-    bool readHop(int16_t *, uint32_t &time) {
-        time = clockUs;
-        return hop;
-    }
-    uint32_t available() {
-        return queued;
-    }
-    Snapshot snapshot() {
-        return audio;
-    }
-    void discardPending() {
-        ++discards;
-    }
-} // namespace AudioCapture
-namespace Features {
-    void reset() {
-        ++resets;
-    }
-    void consume(const int16_t *) {
-        clockUs += 2000;
-    }
-    bool inferenceDue() {
-        return due;
-    }
-    void markInferred() {}
-    const int8_t *data() {
-        static int8_t features[NUM_FRAMES * NUM_MEL];
-        return features;
-    }
-} // namespace Features
-namespace KeywordModel {
-    bool predict(const int8_t *, float &p) {
-        ++predictions;
-        clockUs += 59000;
-        p = 1;
-        return predictOk;
-    }
-} // namespace KeywordModel
+
+bool AudioCapture::readHop(int16_t *, uint32_t &time) {
+    (void)notificationContext;
+    (void)notifyConsumer;
+    (void)running;
+    (void)pdmBuffer;
+    (void)receivedSamples;
+    (void)missedBuffers;
+    (void)lastAudioUs;
+    (void)queueHighWater;
+    (void)callbackGapMaxUs;
+    time = clockUs;
+    return hop;
+}
+uint32_t AudioCapture::available() const {
+    return queued;
+}
+AudioCapture::Snapshot AudioCapture::snapshot() const {
+    return audio;
+}
+void AudioCapture::discardPending() {
+    ++discards;
+}
+
+void FeatureExtractor::reset() {
+    (void)inputScale;
+    (void)inputZeroPoint;
+    (void)frameCount;
+    (void)framesSinceInference;
+    (void)firstFrame;
+    ++resets;
+}
+void FeatureExtractor::consume(const int16_t *) {
+    clockUs += 2000;
+}
+bool FeatureExtractor::inferenceDue() const {
+    return due;
+}
+void FeatureExtractor::markInferred() {}
+const int8_t *FeatureExtractor::data() const {
+    static int8_t features[NUM_FRAMES * NUM_MEL];
+    return features;
+}
+
+bool KeywordModel::predict(const int8_t *, float &p) {
+    (void)runtime;
+    ++predictions;
+    clockUs += 59000;
+    p = 1;
+    return predictOk;
+}
+
+struct KeywordModel::Runtime {};
+KeywordModel &KeywordModel::instance() {
+    static Runtime runtime;
+    static KeywordModel model(runtime);
+    return model;
+}
 int main() {
-    AudioPipeline pipeline;
+    AudioCapture capture;
+    FeatureExtractor features;
+    AudioPipeline pipeline(capture, features, KeywordModel::instance());
     KeywordEvent event{};
     hop = false;
     auto step = pipeline.process(event);

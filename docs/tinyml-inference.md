@@ -108,11 +108,11 @@ for row ordering and logarithm/scaling details.
 | Data | Location | Allocation / lifetime |
 |---|---|---|
 | FlatBuffer, weights, biases, serialized graph/quantization data | Internal flash, compiled from the header's `const unsigned char` array | 8496 bytes; persists across resets/reflashing until replaced |
-| Tensor arena | SRAM, static `alignas(16)` array in `keyword_model.cpp` | 96 KiB = 98,304 bytes, reserved for the life of the application |
+| Tensor arena | SRAM, `alignas(16)` array in the private static `KeywordModel::Runtime` | 96 KiB = 98,304 bytes, reserved for the life of the application |
 | Activations, input/output tensors, kernel scratch and prepared runtime metadata | Allocated by TFLite Micro within the arena | Planned/reused according to tensor lifetimes; actual total arena consumption is not reported by this application |
-| Rolling DSP feature context | Separate static SRAM in `feature_extractor.cpp` | 1220 bytes, copied into the arena's input tensor for each invocation |
-| MicroProfiler event storage | Separate static SRAM in `keyword_model.cpp` | 20,488 bytes in the recorded Nano build; 1024 event capacity |
-| Interpreter / four-type operator resolver | Separate static SRAM objects created in `KeywordModel::begin` | 176 / 188 bytes in the recorded build; pointers/scalars and guards add small allocations |
+| Rolling DSP feature context | `FeatureExtractor` member array; application has static lifetime | 1220 bytes, copied into the arena's input tensor for each invocation |
+| MicroProfiler event storage | Member of the private static `KeywordModel::Runtime` | 20,488 bytes in the recorded Nano build; 1024 event capacity |
+| Interpreter / four-type operator resolver | Private runtime members; interpreter constructed in fixed storage during `KeywordModel::begin` | 176 / 188 bytes in the recorded build; pointers/scalars and guards add small allocations |
 
 `tflite::GetModel` maps the compiled FlatBuffer. In the pinned runtime, constant
 tensor payloads reference the model buffers; the complete blob is not copied
@@ -123,7 +123,7 @@ size or quantify spare arena capacity. A typical intermediate activation here
 has 4960 int8 elements; tensor lifetimes and scratch requirements determine the
 working set beyond parameter storage.
 
-The last built normal ELF confirms these placements:
+The recorded pre-object-refactor normal ELF confirmed these placements:
 
 ```text
 Address     Size (hex)   Symbol
@@ -144,9 +144,15 @@ profiling report. Its profiler RAM is separate from the tensor-arena reservation
 
 ## Runtime initialization and invocation
 
-`KeywordModel::begin` runs before capture starts. It maps the compiled model,
+`KeywordModel::instance()` returns the single noncopyable model wrapper. Its
+private runtime holds the arena, resolver, profiler, tensors, and interpreter
+storage with static lifetime; no separate globals expose that state.
+`KeywordModel::begin` is called once during startup before capture starts;
+calls after interpreter construction return the established initialization status.
+It maps the compiled model,
 checks schema version compatibility, registers four operator types (`CONV_2D`,
-`DEPTHWISE_CONV_2D`, `MEAN`, `SOFTMAX`), constructs a static `MicroInterpreter`, and
+`DEPTHWISE_CONV_2D`, `MEAN`, `SOFTMAX`), placement-constructs a `MicroInterpreter`
+in its statically reserved member storage, and
 calls `AllocateTensors`. The eight graph operators reuse those four registrations.
 It obtains tensor quantization metadata and validates int8 input/output types,
 1220 input bytes, at least one output byte, and positive scales. The compiled

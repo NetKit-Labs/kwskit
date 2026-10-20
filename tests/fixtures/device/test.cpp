@@ -10,10 +10,11 @@ void digitalWrite(int p, int v) {
     level = v;
 }
 int main() {
-    DeviceControl::begin();
-    assert(pin == 13 && mode == 1 && level == 0 && !DeviceControl::isOn());
-    DeviceControl::applyKeywordAction();
-    assert(level == 1 && DeviceControl::isOn());
-    DeviceControl::applyKeywordAction();
-    assert(level == 0 && !DeviceControl::isOn());
+    DeviceControl device;
+    device.begin();
+    assert(pin == 13 && mode == 1 && level == 0 && !device.isOn());
+    device.applyKeywordAction();
+    assert(level == 1 && device.isOn());
+    device.applyKeywordAction();
+    assert(level == 0 && !device.isOn());
 }

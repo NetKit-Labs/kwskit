@@ -11,8 +11,8 @@ From the repository root, with Python 3.9+, Make, and a host C++ compiler suppor
 AddressSanitizer and UndefinedBehaviorSanitizer:
 
 ```sh
-make test-unit        # Seven isolated component checks
-make test-regression  # All eleven checks, including the unit tests
+make test-unit        # Nine component checks
+make test-regression  # All thirteen checks, including the unit tests
 make test             # Same complete regression gate used by CI
 ```
 
@@ -38,6 +38,8 @@ firmware modules; they no longer embed C++ programs in Python string literals.
 | [keyword_event](../tests/keyword_event_test.cpp) | Stale timestamps/generations, missing/duplicate sequences, cadence gaps, sequence/timer rollover, and preserving cooldown/latch evidence across gaps |
 | [timing_stats](../tests/timing_stats_test.cpp) | Empty statistics, average/maximum/last values, and unsigned elapsed-time rollover |
 | [device_action](../tests/device_action_test.py) | Actual device-control module initializes the LED off and alternates GPIO state on confirmed actions, using fake GPIO |
+| [audio_capture](../tests/audio_capture_test.py) | Actual receiver with fake PDM: startup failure, exclusive callback ownership/context, bounded reads, overflow accounting without overwrite, complete-hop timestamps, discard, late callbacks, and handoff to a new owner |
+| [feature_extractor](../tests/feature_extractor_test.py) | Actual extractor with scalar host DSP backend: initialization failure, priming/warmup, eight-hop inference cadence, reset, independent contexts, clipping, and 84,180 frozen pre-refactor quantized feature bytes |
 
 ## Additional integration and regression coverage
 
@@ -48,7 +50,7 @@ firmware modules; they no longer embed C++ programs in Python string literals.
 | [build_tooling](../tests/build_tooling_test.py) | Five Python cases for archive checksums/cache, extraction boundaries, library/lock changes, missing/modified core restoration, and isolation from ambient Arduino configuration |
 | [rtos_startup](../tests/rtos_startup_test.py) | Actual coordinator with fake CMSIS APIs: static stack/queue storage, task priorities, callback notification, idle delay, and cleanup after seven initialization failure modes |
 
-The eleven checks are suite entries, not a claim of eleven individual assertions;
+The thirteen checks are suite entries, not a claim of thirteen individual assertions;
 each entry can exercise many cases. In particular, FFT/bin bounds, unread-audio
 preservation, and latch retention guard against the project's earlier defects.
 
@@ -113,12 +115,20 @@ After standardizing four-space indentation and extracting the C++ fixtures,
 `make format-check` and the full eleven-entry `make test` regression suite passed
 again on October 20, 2026. Notebook code was checked for equivalent Python syntax
 trees, and its saved training outputs were preserved. Build/artifact checks for
-this change are recorded in [source-style validation](source-style.md#validation).
+this change are recorded in [source-style validation](source-style.md#formatting-only-validation-before-the-object-refactor).
+
+The subsequent object refactor adds two component checks. `make test` now runs
+thirteen entries (nine component checks plus four integration/build checks).
+See [C++ refactor verification](cpp-refactor.md#verification) for current-build
+host, compile, and hardware evidence. The frozen extractor vectors were captured
+from commit `a2c3c0d` using the same deterministic PCM and scalar host backend;
+the historical implementation is not copied into the maintained source tree.
 
 ## Limits
 
-Host fakes do not execute real PDM interrupts, the CMSIS scheduler, the full DSP
-feature extractor, or the trained model. The stream simulation is deterministic,
+Host checks execute the actual feature extractor with a scalar DSP test backend
+and the actual receiver with a PDM driver fake. They do not execute real PDM
+interrupts, the CMSIS DSP implementation/scheduler, or the trained model. The stream simulation is deterministic,
 not a concurrent interrupt/thread race detector. Sanitizers check the exercised
 host code, not all memory accesses on the Nano. Dataset accuracy, acoustic-onset
 latency, extended endurance, runtime heap/framework-stack margins, and unused

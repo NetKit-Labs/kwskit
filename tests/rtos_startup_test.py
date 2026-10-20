@@ -18,6 +18,7 @@ with tempfile.TemporaryDirectory(prefix="kws-rtos-") as directory:
             "-fsanitize=address,undefined",
             "-I" + directory,
             "-Ifirmware",
+            "-Itests/fixtures/support",
             "firmware/kws_pipeline.cpp",
             str(root / "test.cpp"),
             "-o",

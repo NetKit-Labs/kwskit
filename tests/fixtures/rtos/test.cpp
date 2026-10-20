@@ -18,7 +18,8 @@ uint32_t millis() {
 }
 int failure = 0, mutexes = 0, queues = 0, threads = 0, threadCalls = 0, lastDelay = 0,
     flagCalls = 0;
-void (*notifier)() = nullptr;
+AudioCapture::Notification notifier = nullptr;
+void *notificationContext = nullptr;
 osThreadAttr_t attrs[2];
 osMutexId_t osMutexNew(const osMutexAttr_t *a) {
     assert(a->cb_mem && a->cb_size && a->attr_bits == osMutexPrioInherit);
@@ -58,7 +59,8 @@ int osMessageQueuePut(osMessageQueueId_t, const void *, uint8_t, uint32_t wait) 
 int osMessageQueueGet(osMessageQueueId_t, void *, uint8_t *, uint32_t) {
     return -1;
 }
-osThreadId_t osThreadNew(void (*entry)(void *), void *, const osThreadAttr_t *a) {
+osThreadId_t osThreadNew(void (*entry)(void *), void *context, const osThreadAttr_t *a) {
+    assert(context);
     assert(entry && a->stack_mem && a->cb_mem && (uintptr_t(a->stack_mem) % 8) == 0);
     int call = threadCalls++;
     attrs[call % 2] = *a;
@@ -89,50 +91,62 @@ int osDelay(uint32_t t) {
     lastDelay = t;
     return 0;
 }
-namespace AudioCapture {
-    bool begin(void (*callback)()) {
-        notifier = callback;
-        return failure != 5;
-    }
-    void end() {
-        notifier = nullptr;
-    }
-    Snapshot snapshot() {
-        return {};
-    }
-} // namespace AudioCapture
-namespace KeywordModel {
-    bool begin() {
-        return failure != 6;
-    }
-    float inputScale() {
-        return 0.5f;
-    }
-    int32_t inputZeroPoint() {
-        return 0;
-    }
-} // namespace KeywordModel
-namespace Features {
-    bool begin(float, int32_t) {
-        return failure != 7;
-    }
-} // namespace Features
-namespace DeviceControl {
-    void begin() {}
-    void applyKeywordAction() {}
-    bool isOn() {
-        return false;
-    }
-} // namespace DeviceControl
-namespace Telemetry {
-    void begin() {}
-    void pump() {}
-    void report(const AudioCapture::Snapshot &, const PipelineMetrics &, bool) {}
-} // namespace Telemetry
+
+bool AudioCapture::begin(Notification callback, void *context) {
+    notifier = callback;
+    ::notificationContext = context;
+    return failure != 5;
+}
+void AudioCapture::end() {
+    notifier = nullptr;
+}
+AudioCapture::Snapshot AudioCapture::snapshot() const {
+    return {};
+}
+
+bool KeywordModel::begin() {
+    (void)runtime;
+    return failure != 6;
+}
+float KeywordModel::inputScale() const {
+    return 0.5f;
+}
+int32_t KeywordModel::inputZeroPoint() const {
+    return 0;
+}
+
+bool FeatureExtractor::begin(float, int32_t) {
+    return failure != 7;
+}
+
+void DeviceControl::begin() {
+    deviceOn = false;
+}
+void DeviceControl::applyKeywordAction() {}
+bool DeviceControl::isOn() const {
+    return deviceOn;
+}
+
+void Telemetry::begin() {
+    (void)buffer;
+    length = offset = lastReport = 0;
+}
+void Telemetry::pump() {}
+void Telemetry::report(const AudioCapture::Snapshot &, const PipelineMetrics &, bool) {}
+
 AudioStep AudioPipeline::process(KeywordEvent &) {
+    (void)capture;
+    (void)features;
+    (void)model;
     (void)seenDrops;
     (void)audioHop;
     return {false, false, false};
+}
+struct KeywordModel::Runtime {};
+KeywordModel &KeywordModel::instance() {
+    static Runtime runtime;
+    static KeywordModel model(runtime);
+    return model;
 }
 int main() {
     for (int f = 1; f <= 7; ++f) {
@@ -150,7 +164,7 @@ int main() {
     assert(attrs[0].stack_mem != attrs[1].stack_mem);
     assert(strcmp(attrs[0].name, "kws-audio") == 0 && strcmp(attrs[1].name, "kws-control") == 0);
     flagCalls = 0;
-    notifier();
+    notifier(notificationContext);
     assert(flagCalls == 1);
     KwsPipeline::poll();
     assert(lastDelay == 1000);

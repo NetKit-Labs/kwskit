@@ -119,7 +119,7 @@ uses log-mel features, not MFCCs.
 ## 4. Int8 quantization and model layout
 
 [keyword_model.cpp](../firmware/keyword_model.cpp) reads the model input scale
-and zero point after tensor allocation and passes them to `Features::begin`.
+and zero point after tensor allocation and passes them to `FeatureExtractor::begin`.
 For each band, the firmware uses:
 
 ```text
@@ -172,14 +172,17 @@ invalidates old evidence without blocking audio. See
 
 ## Workspace and measured execution time
 
-Feature-extraction arrays are static and owned by the audio task:
+Feature-extraction arrays are fixed-size `std::array` members of `FeatureExtractor`.
+The application owns the extractor with static lifetime; only the audio task
+changes it after startup. Copy/move is disabled because CMSIS descriptors point
+into the object. No workspace is allocated on the task stack or application heap:
 
 | Workspace | Allocation |
 |---|---:|
-| `audioFrame`, `windowed`, `hannWindow`, `fftOut` | Four x 512 floats = 8192 bytes |
-| `mag` power spectrum | 257 floats = 1028 bytes |
-| `melRowTmp` | 20 floats = 80 bytes |
-| `quantized_mel_row` | 20 int8 values = 20 bytes |
+| `audioFrame`, `windowed`, `hannWindow`, `fftOutput` | Four x 512 floats = 8192 bytes |
+| `powerSpectrum` | 257 floats = 1028 bytes |
+| `melRow` | 20 floats = 80 bytes |
+| `quantizedMelRow` | 20 int8 values = 20 bytes |
 | `featureBuffer` | 61 x 20 int8 values = 1220 bytes |
 | Array subtotal | 10,540 bytes |
 
@@ -189,7 +192,7 @@ workspace budget, not a measured dynamic-memory high-water value.
 
 In the [final normal capture](rtos-final-normal.json), `dsp_us` averaged 2464 us
 with a 2637 us observed maximum; inference averaged 58,630 us with a 59,652 us
-maximum. `dsp_us` wraps `Features::consume`, including the cheap priming hop.
+maximum. `dsp_us` wraps `FeatureExtractor::consume`, including the cheap priming hop.
 It includes frame movement, window/FFT/power, mel/log/quantization, and feature
 movement on later hops. These are whole-step measurements, not per-stage timings
 or established worst-case execution times. `infer_us` includes the input copy
@@ -215,7 +218,12 @@ exact array bounds under sanitizers. The
 [pipeline regression](../tests/pipeline_test.py) verifies readiness, backlog
 deferral, loss reset, and event timing using fake features/model modules. Physical
 captures exercise the real DSP/model path but do not provide known feature
-vectors. Full numerical regression would need shared PCM fixtures and comparison
+vectors. The [extractor regression](../tests/feature_extractor_test.py) now runs
+the actual feature-extraction code on a scalar host DSP backend and checks
+84,180 quantized bytes against pre-refactor results, including warmup, cadence,
+reset, and independent contexts. This checks refactor equivalence on that backend;
+it does not execute CMSIS or establish training parity. Full numerical regression
+would need shared PCM fixtures and comparison
 of the actual firmware window, power, mel/log, and quantized tensors against a
 reference with explicit tolerances and the same window convention. See
 [testing coverage](testing.md#limits).

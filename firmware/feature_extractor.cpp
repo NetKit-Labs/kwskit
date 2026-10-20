@@ -1,108 +1,86 @@
 #include "feature_extractor.h"
 #include "fft_power.h"
-#include <Arduino.h>
-#include <arm_math.h>
 #include "mel_filter_coefs.h"
-namespace Features {
-    namespace {
-        float input_scale;
-        int32_t input_zero_point;
-        int frameCounter = 0, framesSinceInference = 0;
-        bool firstFrame = true;
-        float audioFrame[FRAME_SIZE];
-        float windowed[FRAME_SIZE];
-        float hannWindow[FRAME_SIZE];
-        float fftOut[FRAME_SIZE];
-        float mag[SPECTRUM_BINS];
-        int8_t quantized_mel_row[NUM_MEL];
-        int8_t featureBuffer[NUM_FRAMES * NUM_MEL];
+#include <algorithm>
+#include <cmath>
 
-        // CMSIS-DSP matrix/vector instances
-        arm_matrix_instance_f32 melMat, magVec, melOut;
-        float melRowTmp[NUM_MEL];
+void FeatureExtractor::computeHannWindow() {
+    constexpr double pi = 3.1415926535897932384626433832795;
+    for (size_t n = 0; n < hannWindow.size(); ++n) {
+        // Retain the original Arduino PI / cosf rounding convention.
+        const auto angle = static_cast<float>(2.0f * pi * n / (FRAME_SIZE - 1));
+        hannWindow[n] = 0.5f - 0.5f * std::cos(angle);
+    }
+}
 
-        // FFT instance
-        arm_rfft_fast_instance_f32 fft_inst;
+void FeatureExtractor::computeLogMel() {
+    arm_mult_f32(audioFrame.data(), hannWindow.data(), windowed.data(), FRAME_SIZE);
+    arm_rfft_fast_f32(&fft, windowed.data(), fftOutput.data(), 0);
+    fftPower(fftOutput.data(), powerSpectrum.data(), FRAME_SIZE);
+    arm_mat_mult_f32(&melMatrix, &spectrumVector, &melVector);
 
-        void computeHannWindow() {
-            for (int n = 0; n < FRAME_SIZE; n++)
-                hannWindow[n] = 0.5f - 0.5f * cosf(2.0f * PI * n / (FRAME_SIZE - 1));
+    for (size_t m = 0; m < melRow.size(); ++m) {
+        const float logMel = std::log(melRow[m] + 1e-6f);
+        const auto quantized =
+            static_cast<int32_t>(std::round(logMel / inputScale + inputZeroPoint));
+        quantizedMelRow[m] =
+            static_cast<int8_t>(std::max<int32_t>(-128, std::min<int32_t>(127, quantized)));
+    }
+
+    std::move(featureBuffer.begin() + NUM_MEL, featureBuffer.end(), featureBuffer.begin());
+    std::copy(quantizedMelRow.begin(), quantizedMelRow.end(), featureBuffer.end() - NUM_MEL);
+}
+
+void FeatureExtractor::consume(const int16_t *samples) {
+    if (firstFrame) {
+        audioFrame.fill(0.0f);
+        firstFrame = false;
+        for (int i = 0; i < HOP_SIZE; ++i) {
+            audioFrame[i + HOP_SIZE] = samples[i] / 32768.0f;
         }
-
-        // =======================
-        // Compute log-Mel for one frame
-        // =======================
-        void computeLogMel() {
-            arm_mult_f32(audioFrame, hannWindow, windowed, FRAME_SIZE);
-            arm_rfft_fast_f32(&fft_inst, windowed, fftOut, 0);
-
-            fftPower(fftOut, mag, FRAME_SIZE);
-
-            magVec.pData = mag;
-            melOut.pData = melRowTmp;
-
-            arm_mat_mult_f32(&melMat, &magVec, &melOut);
-
-            for (int m = 0; m < NUM_MEL; m++) {
-                float log_mel = logf(melRowTmp[m] + 1e-6f);
-                int32_t q = (int32_t)roundf(log_mel / input_scale + input_zero_point);
-                quantized_mel_row[m] = (int8_t)constrain(q, -128, 127);
-            }
-
-            memmove(featureBuffer, featureBuffer + NUM_MEL,
-                (NUM_FRAMES - 1) * NUM_MEL * sizeof(int8_t));
-            memcpy(featureBuffer + (NUM_FRAMES - 1) * NUM_MEL, quantized_mel_row,
-                NUM_MEL * sizeof(int8_t));
-        }
-
-        // =======================
-        // Process audio buffer
-        // =======================
-        void consumeInternal(const int16_t *audioBuffer) {
-            if (firstFrame) {
-                memset(audioFrame, 0, sizeof(audioFrame));
-                firstFrame = false;
-                for (int i = 0; i < HOP_SIZE; i++)
-                    audioFrame[i + HOP_SIZE] = audioBuffer[i] / 32768.0f;
-            } else {
-                memmove(audioFrame, audioFrame + HOP_SIZE, HOP_SIZE * sizeof(float));
-                for (int i = 0; i < HOP_SIZE; i++)
-                    audioFrame[i + HOP_SIZE] = audioBuffer[i] / 32768.0f;
-
-                computeLogMel();
-                if (frameCounter < NUM_FRAMES)
-                    ++frameCounter;
-                ++framesSinceInference;
-            }
-        }
-
-    } // namespace
-    bool begin(float scale, int32_t zeroPoint) {
-        input_scale = scale;
-        input_zero_point = zeroPoint;
-        if (scale <= 0 || arm_rfft_fast_init_f32(&fft_inst, FRAME_SIZE) != ARM_MATH_SUCCESS)
-            return false;
-        arm_mat_init_f32(&melMat, NUM_MEL, SPECTRUM_BINS, (float *)melFilterbank);
-        arm_mat_init_f32(&magVec, SPECTRUM_BINS, 1, mag);
-        arm_mat_init_f32(&melOut, NUM_MEL, 1, melRowTmp);
-        computeHannWindow();
-        reset();
-        return true;
+        return;
     }
-    void reset() {
-        firstFrame = true;
-        frameCounter = framesSinceInference = 0;
+
+    std::move(audioFrame.begin() + HOP_SIZE, audioFrame.end(), audioFrame.begin());
+    for (int i = 0; i < HOP_SIZE; ++i) {
+        audioFrame[i + HOP_SIZE] = samples[i] / 32768.0f;
     }
-    void consume(const int16_t *samples) {
-        consumeInternal(samples);
+    computeLogMel();
+    if (frameCount < NUM_FRAMES) {
+        ++frameCount;
     }
-    bool inferenceDue() {
-        return frameCounter >= NUM_FRAMES && framesSinceInference >= INFERENCE_HOP;
+    ++framesSinceInference;
+}
+
+bool FeatureExtractor::begin(float scale, int32_t zeroPoint) {
+    if (scale <= 0 || arm_rfft_fast_init_f32(&fft, FRAME_SIZE) != ARM_MATH_SUCCESS) {
+        return false;
     }
-    void markInferred() {
-        framesSinceInference = 0;
-    }
-    const int8_t *data() {
-        return featureBuffer;
-    }
-} // namespace Features
+    inputScale = scale;
+    inputZeroPoint = zeroPoint;
+    // CMSIS takes a mutable pointer but matrix multiplication only reads these flash coefficients.
+    arm_mat_init_f32(&melMatrix, NUM_MEL, SPECTRUM_BINS, const_cast<float *>(&melFilterbank[0][0]));
+    arm_mat_init_f32(&spectrumVector, SPECTRUM_BINS, 1, powerSpectrum.data());
+    arm_mat_init_f32(&melVector, NUM_MEL, 1, melRow.data());
+    computeHannWindow();
+    reset();
+    return true;
+}
+
+void FeatureExtractor::reset() {
+    firstFrame = true;
+    frameCount = 0;
+    framesSinceInference = 0;
+}
+
+bool FeatureExtractor::inferenceDue() const {
+    return frameCount >= NUM_FRAMES && framesSinceInference >= INFERENCE_HOP;
+}
+
+void FeatureExtractor::markInferred() {
+    framesSinceInference = 0;
+}
+
+const int8_t *FeatureExtractor::data() const {
+    return featureBuffer.data();
+}

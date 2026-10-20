@@ -10,10 +10,11 @@
 #include <rtx_os.h>
 #include <atomic>
 
-namespace KwsPipeline {
-    namespace {
-        constexpr uint32_t runFlag = 1, audioFlag = 2;
-        constexpr uint32_t eventCapacity = 8;
+namespace {
+    class Application {
+    private:
+        static constexpr uint32_t runFlag = 1, audioFlag = 2;
+        static constexpr uint32_t eventCapacity = 8;
         alignas(8) uint8_t audioStack[8192], controlStack[6144];
         osRtxThread_t audioControlBlock, deviceControlBlock;
         osRtxMessageQueue_t queueControlBlock;
@@ -25,7 +26,11 @@ namespace KwsPipeline {
         osMutexId_t metricsMutex = nullptr;
         std::atomic<uint32_t> generation{0}, eventDrops{0}, notifyErrors{0};
         PipelineMetrics sharedAudio;
-        AudioPipeline audioPipeline;
+        AudioCapture capture;
+        FeatureExtractor features;
+        DeviceControl device;
+        Telemetry telemetry;
+        AudioPipeline audioPipeline{capture, features, KeywordModel::instance()};
 
         uint32_t ticksForMs(uint32_t ms) {
             return (ms * osKernelGetTickFreq() + 999) / 1000;
@@ -89,7 +94,7 @@ namespace KwsPipeline {
                     if (result.discarded)
                         ++staleEvents;
                     if (result.detection.confirmed && event.generation == generation.load()) {
-                        DeviceControl::applyKeywordAction();
+                        device.applyKeywordAction();
                         ++triggers;
                         if (result.detection.hasResponse)
                             response.record(result.detection.responseUs + uint32_t(micros() - now));
@@ -107,12 +112,12 @@ namespace KwsPipeline {
                 snapshot.notifyErrors = notifyErrors.load();
                 snapshot.audioStackFree = osThreadGetStackSpace(audioThread);
                 snapshot.controlStackFree = osThreadGetStackSpace(controlThread);
-                Telemetry::pump();
-                Telemetry::report(AudioCapture::snapshot(), snapshot, DeviceControl::isOn());
+                telemetry.pump();
+                telemetry.report(capture.snapshot(), snapshot, device.isOn());
             }
         }
         void cleanup() {
-            AudioCapture::end(); // Stop the interrupt producer before deleting thread IDs.
+            capture.end(); // Stop the interrupt producer before deleting thread IDs.
             if (audioThread)
                 osThreadTerminate(audioThread);
             if (controlThread)
@@ -125,68 +130,88 @@ namespace KwsPipeline {
             events = nullptr;
             metricsMutex = nullptr;
         }
-    } // namespace
+
+    public:
+        bool begin() {
+            device.begin();
+            telemetry.begin();
+            if (!KeywordModel::instance().begin()) {
+                Serial.println("Model initialization failed");
+                return false;
+            }
+            if (!features.begin(KeywordModel::instance().inputScale(),
+                    KeywordModel::instance().inputZeroPoint())) {
+                Serial.println("DSP initialization failed");
+                return false;
+            }
+            osMutexAttr_t mutexAttrs{};
+            mutexAttrs.name = "kws-metrics";
+            mutexAttrs.attr_bits = osMutexPrioInherit;
+            mutexAttrs.cb_mem = &metricsControlBlock;
+            mutexAttrs.cb_size = sizeof(metricsControlBlock);
+            metricsMutex = osMutexNew(&mutexAttrs);
+            osMessageQueueAttr_t queueAttrs{};
+            queueAttrs.name = "kws-scores";
+            queueAttrs.cb_mem = &queueControlBlock;
+            queueAttrs.cb_size = sizeof(queueControlBlock);
+            queueAttrs.mq_mem = queueStorage;
+            queueAttrs.mq_size = sizeof(queueStorage);
+            events = osMessageQueueNew(eventCapacity, sizeof(KeywordEvent), &queueAttrs);
+            if (!metricsMutex || !events) {
+                cleanup();
+                Serial.println("RTOS objects failed");
+                return false;
+            }
+            osThreadAttr_t attrs{};
+            attrs.name = "kws-audio";
+            attrs.priority = osPriorityAboveNormal;
+            attrs.cb_mem = &audioControlBlock;
+            attrs.cb_size = sizeof(audioControlBlock);
+            attrs.stack_mem = audioStack;
+            attrs.stack_size = sizeof(audioStack);
+            audioThread = osThreadNew(
+                [](void *context) { static_cast<Application *>(context)->processAudio(); }, this,
+                &attrs);
+            attrs.name = "kws-control";
+            attrs.priority = osPriorityNormal;
+            attrs.cb_mem = &deviceControlBlock;
+            attrs.cb_size = sizeof(deviceControlBlock);
+            attrs.stack_mem = controlStack;
+            attrs.stack_size = sizeof(controlStack);
+            controlThread = osThreadNew(
+                [](void *context) { static_cast<Application *>(context)->controlDevice(); }, this,
+                &attrs);
+            if (!audioThread || !controlThread) {
+                cleanup();
+                Serial.println("RTOS tasks failed");
+                return false;
+            }
+            if (!capture.begin(
+                    [](void *context) { static_cast<Application *>(context)->notifyAudio(); },
+                    this)) {
+                cleanup();
+                Serial.println("PDM failed");
+                return false;
+            }
+            Serial.println("Setup complete. RTOS audio/control tasks started.");
+            osThreadFlagsSet(controlThread, runFlag);
+            osThreadFlagsSet(audioThread, runFlag);
+            return true;
+        }
+        void poll() {
+            // Arduino's existing main task has no pipeline work; let application tasks run.
+            osDelay(ticksForMs(1000));
+        }
+    };
+
+    Application application;
+} // namespace
+
+namespace KwsPipeline {
     bool begin() {
-        DeviceControl::begin();
-        Telemetry::begin();
-        if (!KeywordModel::begin()) {
-            Serial.println("Model initialization failed");
-            return false;
-        }
-        if (!Features::begin(KeywordModel::inputScale(), KeywordModel::inputZeroPoint())) {
-            Serial.println("DSP initialization failed");
-            return false;
-        }
-        osMutexAttr_t mutexAttrs{};
-        mutexAttrs.name = "kws-metrics";
-        mutexAttrs.attr_bits = osMutexPrioInherit;
-        mutexAttrs.cb_mem = &metricsControlBlock;
-        mutexAttrs.cb_size = sizeof(metricsControlBlock);
-        metricsMutex = osMutexNew(&mutexAttrs);
-        osMessageQueueAttr_t queueAttrs{};
-        queueAttrs.name = "kws-scores";
-        queueAttrs.cb_mem = &queueControlBlock;
-        queueAttrs.cb_size = sizeof(queueControlBlock);
-        queueAttrs.mq_mem = queueStorage;
-        queueAttrs.mq_size = sizeof(queueStorage);
-        events = osMessageQueueNew(eventCapacity, sizeof(KeywordEvent), &queueAttrs);
-        if (!metricsMutex || !events) {
-            cleanup();
-            Serial.println("RTOS objects failed");
-            return false;
-        }
-        osThreadAttr_t attrs{};
-        attrs.name = "kws-audio";
-        attrs.priority = osPriorityAboveNormal;
-        attrs.cb_mem = &audioControlBlock;
-        attrs.cb_size = sizeof(audioControlBlock);
-        attrs.stack_mem = audioStack;
-        attrs.stack_size = sizeof(audioStack);
-        audioThread = osThreadNew([](void *) { processAudio(); }, nullptr, &attrs);
-        attrs.name = "kws-control";
-        attrs.priority = osPriorityNormal;
-        attrs.cb_mem = &deviceControlBlock;
-        attrs.cb_size = sizeof(deviceControlBlock);
-        attrs.stack_mem = controlStack;
-        attrs.stack_size = sizeof(controlStack);
-        controlThread = osThreadNew([](void *) { controlDevice(); }, nullptr, &attrs);
-        if (!audioThread || !controlThread) {
-            cleanup();
-            Serial.println("RTOS tasks failed");
-            return false;
-        }
-        if (!AudioCapture::begin(notifyAudio)) {
-            cleanup();
-            Serial.println("PDM failed");
-            return false;
-        }
-        Serial.println("Setup complete. RTOS audio/control tasks started.");
-        osThreadFlagsSet(controlThread, runFlag);
-        osThreadFlagsSet(audioThread, runFlag);
-        return true;
+        return application.begin();
     }
     void poll() {
-        // Arduino's existing main task has no pipeline work; let application tasks run.
-        osDelay(ticksForMs(1000));
+        application.poll();
     }
 } // namespace KwsPipeline

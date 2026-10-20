@@ -31,8 +31,9 @@ the project does not claim that the complete dependency stack is exclusively C++
 
 The fake Arduino/CMSIS interfaces and test programs are ordinary `.h`/`.cpp`
 fixtures in `tests/fixtures/device`, `tests/fixtures/pipeline`, and
-`tests/fixtures/rtos`. Formatting checks include them directly. The Python
-harnesses copy them to temporary directories for the same native test builds.
+`tests/fixtures/rtos`, plus capture/features fixtures and scalar DSP support.
+Formatting checks include them directly. Harnesses compile fixtures either from
+temporary copies or their maintained paths, with actual firmware modules.
 
 ## Install and run formatters
 
@@ -63,7 +64,12 @@ The source-style CI job installs the pinned formatters and runs
 `make format-check` on pushes and pull requests. Separate jobs run the full host
 regression suite and a clean Nano firmware build, including artifact upload.
 
-## Validation
+The [C++ ownership guide](cpp-refactor.md) describes the subsequent object refactor:
+stateful modules now use private members, fixed-size arrays, const accessors, and
+explicit dependencies. Namespaces continue to group stateless entry points and
+implementation-only types; they are normal C++, not a compiler workaround.
+
+## Formatting-only validation (before the object refactor)
 
 On October 20, 2026, the maintained native-source audit found no `.c` files.
 `make format-check` passed for the formatted C++/Python/notebook sources.
@@ -86,3 +92,7 @@ matched their pre-format equivalents. The full regression suite and formatter
 checks passed again after the final formatting pass. The existing hardware
 records describe the same application binary; this formatting validation did
 not add a new physical microphone/LED session.
+
+The subsequent semantic refactor has its own [verification record](cpp-refactor.md#verification).
+Its binary is different; the byte-identity statement above applies only to the
+earlier formatting change.

@@ -6,24 +6,24 @@
 AudioStep AudioPipeline::process(KeywordEvent &event) {
     uint32_t start = micros();
     AudioStep result{false, false, false};
-    auto audio = AudioCapture::snapshot();
+    auto audio = capture.snapshot();
     if (audio.droppedSamples != seenDrops) {
         seenDrops = audio.droppedSamples;
-        AudioCapture::discardPending();
-        Features::reset();
+        capture.discardPending();
+        features.reset();
         result.reset = true;
     }
     uint32_t captureEndUs;
-    if (!AudioCapture::readHop(audioHop, captureEndUs))
+    if (!capture.readHop(audioHop, captureEndUs))
         return result;
     result.processed = true;
     uint32_t dspStart = micros();
-    Features::consume(audioHop);
+    features.consume(audioHop);
     metrics.dspTiming.record(micros() - dspStart);
-    if (Features::inferenceDue() && AudioCapture::available() < HOP_SIZE) {
-        Features::markInferred();
+    if (features.inferenceDue() && capture.available() < HOP_SIZE) {
+        features.markInferred();
         uint32_t inferenceStart = micros();
-        bool success = KeywordModel::predict(Features::data(), metrics.latestProbability);
+        bool success = model.predict(features.data(), metrics.latestProbability);
         metrics.inferenceTiming.record(micros() - inferenceStart);
         if (!success) {
             ++metrics.inferenceErrors;

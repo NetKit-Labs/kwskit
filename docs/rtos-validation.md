@@ -160,3 +160,10 @@ The suggestion that increased model capacity could raise recognition into the
 **upper 90% range** is an untested hypothesis, not an additional hardware result.
 Its rationale, limits, and proposed comparison are documented in
 [TinyML inference](tinyml-inference.md#informal-recognition-and-possible-model-expansion).
+
+## Object-based C++ refactor
+
+Subsequent class/ownership changes, the expanded thirteen-entry host suite,
+current footprint, and repeated hardware checks are recorded separately in
+[C++ refactor validation](cpp-refactor.md#verification). The earlier measurements
+and captures above remain historical evidence for their stated builds.

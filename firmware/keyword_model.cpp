@@ -1,5 +1,4 @@
 #include "keyword_model.h"
-#include <Arduino.h>
 #include <TensorFlowLite.h>
 #include <tensorflow/lite/micro/micro_error_reporter.h>
 #include <tensorflow/lite/micro/micro_interpreter.h>
@@ -7,75 +6,84 @@
 #include <tensorflow/lite/micro/micro_profiler.h>
 #include <tensorflow/lite/schema/schema_generated.h>
 #include "kws_1class_depthwise_int8.h"
-namespace KeywordModel {
-    namespace {
-        constexpr int kTensorArenaSize = 96 * 1024;
-        alignas(16) uint8_t tensor_arena[kTensorArenaSize];
+#include <algorithm>
+#include <array>
+#include <new>
+#include <type_traits>
 
-        tflite::MicroErrorReporter micro_error_reporter;
-        tflite::ErrorReporter *error_reporter = &micro_error_reporter;
-        const tflite::Model *model = nullptr;
-        tflite::MicroInterpreter *interpreter = nullptr;
-        TfLiteTensor *input = nullptr;
-        TfLiteTensor *output = nullptr;
-        static tflite::MicroProfiler profiler;
+struct KeywordModel::Runtime {
+    alignas(16) std::array<uint8_t, 96 * 1024> tensorArena{};
+    tflite::MicroErrorReporter errorReporter;
+    tflite::MicroProfiler profiler;
+    tflite::MicroMutableOpResolver<4> resolver;
+    std::aligned_storage<sizeof(tflite::MicroInterpreter), alignof(tflite::MicroInterpreter)>::type
+        interpreterStorage;
+    tflite::MicroInterpreter *interpreter = nullptr;
+    TfLiteTensor *input = nullptr;
+    TfLiteTensor *output = nullptr;
+    bool ready = false;
 
-        float input_scale;
-        int32_t input_zero_point;
-        float output_scale;
-        int32_t output_zero_point;
-
-    } // namespace
-    bool begin() {
-        // Load TFLite model
-        model = tflite::GetModel(kws_1class_depthwise_int8_tflite);
-        if (model->version() != TFLITE_SCHEMA_VERSION)
-            return false;
-
-        // =======================
-        // Ops resolver (int8 CMSIS-NN will be used automatically)
-        // =======================
-        static tflite::MicroMutableOpResolver<4> resolver;
-        resolver.AddConv2D();
-        resolver.AddDepthwiseConv2D();
-        resolver.AddSoftmax();
-        resolver.AddMean(); // optional; reference kernel
-
-        // Interpreter
-        static tflite::MicroInterpreter static_interpreter(
-            model, resolver, tensor_arena, kTensorArenaSize, nullptr, &profiler);
-        interpreter = &static_interpreter;
-
-        if (interpreter->AllocateTensors() != kTfLiteOk) {
-            error_reporter->Report("AllocateTensors() failed");
-            return false;
+    ~Runtime() {
+        if (interpreter) {
+            interpreter->~MicroInterpreter();
         }
+    }
+};
 
-        input = interpreter->input(0);
-        output = interpreter->output(0);
+KeywordModel &KeywordModel::instance() {
+    static Runtime storage;
+    static KeywordModel model(storage);
+    return model;
+}
 
-        input_scale = input->params.scale;
-        input_zero_point = input->params.zero_point;
-        output_scale = output->params.scale;
-        output_zero_point = output->params.zero_point;
+bool KeywordModel::begin() {
+    if (runtime.interpreter) {
+        return runtime.ready;
+    }
+    const auto *model = tflite::GetModel(kws_1class_depthwise_int8_tflite);
+    if (model->version() != TFLITE_SCHEMA_VERSION) {
+        return false;
+    }
+    if (runtime.resolver.AddConv2D() != kTfLiteOk ||
+        runtime.resolver.AddDepthwiseConv2D() != kTfLiteOk ||
+        runtime.resolver.AddSoftmax() != kTfLiteOk || runtime.resolver.AddMean() != kTfLiteOk) {
+        return false;
+    }
 
-        if (input->type != kTfLiteInt8 || output->type != kTfLiteInt8 ||
-            input->bytes != NUM_FRAMES * NUM_MEL || output->bytes < 1 || input_scale <= 0 ||
-            output_scale <= 0)
-            return false;
-        return true;
+    // Placement construction uses the fixed member storage; it does not allocate from the heap.
+    runtime.interpreter =
+        new (&runtime.interpreterStorage) tflite::MicroInterpreter(model, runtime.resolver,
+            runtime.tensorArena.data(), runtime.tensorArena.size(), nullptr, &runtime.profiler);
+    if (runtime.interpreter->AllocateTensors() != kTfLiteOk) {
+        static_cast<tflite::ErrorReporter &>(runtime.errorReporter)
+            .Report("AllocateTensors() failed");
+        return false;
     }
-    float inputScale() {
-        return input_scale;
+    runtime.input = runtime.interpreter->input(0);
+    runtime.output = runtime.interpreter->output(0);
+    runtime.ready = runtime.input->type == kTfLiteInt8 && runtime.output->type == kTfLiteInt8 &&
+        runtime.input->bytes == NUM_FRAMES * NUM_MEL && runtime.output->bytes >= 1 &&
+        runtime.input->params.scale > 0 && runtime.output->params.scale > 0;
+    return runtime.ready;
+}
+
+float KeywordModel::inputScale() const {
+    return runtime.input ? runtime.input->params.scale : 0.0f;
+}
+
+int32_t KeywordModel::inputZeroPoint() const {
+    return runtime.input ? runtime.input->params.zero_point : 0;
+}
+
+bool KeywordModel::predict(const int8_t *features, float &probability) {
+    if (!runtime.ready) {
+        return false;
     }
-    int32_t inputZeroPoint() {
-        return input_zero_point;
+    std::copy_n(features, NUM_FRAMES * NUM_MEL, runtime.input->data.int8);
+    if (runtime.interpreter->Invoke() != kTfLiteOk) {
+        return false;
     }
-    bool predict(const int8_t *features, float &probability) {
-        memcpy(input->data.int8, features, NUM_FRAMES * NUM_MEL);
-        if (interpreter->Invoke() != kTfLiteOk)
-            return false;
-        probability = output_scale * (output->data.int8[0] - output_zero_point);
-        return true;
-    }
-} // namespace KeywordModel
+    probability = runtime.output->params.scale *
+        (runtime.output->data.int8[0] - runtime.output->params.zero_point);
+    return true;
+}
