@@ -1,0 +1,2 @@
+reportlab==4.4.3
+markdown-it-py==3.0.0

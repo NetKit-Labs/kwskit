@@ -40,6 +40,14 @@ Raw hardware evidence: [cli-build-telemetry.json](cli-build-telemetry.json).
 Earlier spoken-word and physical LED validation remains in
 [module-refactor-validation.md](module-refactor-validation.md).
 
-The GitHub workflow runs independent host-test and firmware-build jobs on Linux;
-its results are visible in the repository's Actions tab. Local results above do
-not substitute for that hosted run.
+## Hosted CI verification
+
+The [final hosted run](https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/runs/39477538812)
+for commit `cb3ffba` passed both jobs: host tests and a clean Linux Nano firmware
+build, including artifact upload. The workflow uses pinned Node 24 actions.
+The preceding hosted build also reported exactly the same 328,880-byte flash and
+194,112-byte static RAM usage as the local build. Downloadable firmware and build
+provenance are available through the run's `nano33ble-firmware` artifact.
+
+Hosted checks verify fresh-checkout tests/compilation; microphone and physical
+LED behavior are verified by the separately recorded hardware sessions.

@@ -1,5 +1,9 @@
 # Validation — October 20, 2026
 
+This is a historical validation record for the build described below. For the
+current command-line build procedure and measured memory use, see the
+[build guide](build.md) and [locked-build validation](build-validation.md).
+
 Changes were implemented in the requested order. Each item's focused host test
 passed before implementation of the following item began:
 
@@ -73,6 +77,6 @@ observe the built-in LED to check behavior in the deployment environment.
 The application was later separated into capture, features, model, detection,
 control, telemetry, and coordinator modules. The original FFT/buffering fixes
 and detection settings remain in place. See
-[module separation validation](module-refactor-validation.md) for the current
+[module separation validation](module-refactor-validation.md) for the module-refactor
 build and repeated spoken-word/physical LED results, and the
 [documentation index](README.md) for all raw captures.

@@ -46,6 +46,8 @@ for initial setup. Apple Silicon also needs Rosetta 2 for the pinned Intel
 Arm compiler. No Arduino IDE or globally installed Arduino CLI is required.
 
 ```sh
+git clone https://github.com/jameslavrenz/KWS_Arm_CortexM4F.git
+cd KWS_Arm_CortexM4F
 make setup                         # Download and verify pinned tools/libraries
 make test                          # Host unit and integration tests
 make build                         # Cross-compile for Nano 33 BLE
@@ -58,7 +60,13 @@ make flash PORT=/dev/cu.usbmodem11201  # Example macOS port; use your board's po
 `.build/artifacts/`. `make flash` rebuilds before uploading. All downloaded tools,
 board packages, libraries, generated sketch files, and objects stay under the
 ignored `.build/` directory. Existing Arduino IDE libraries are not used.
-Use `JOBS=4` to change firmware compile parallelism.
+Use `JOBS=4` to change firmware compile parallelism. A board is needed only for
+`make boards`, flashing, and physical tests; host tests and compilation can run
+without one. `make help` lists the available targets.
+
+For prerequisite installation, expected output files, serial-port examples,
+troubleshooting, and rebuilding the PDF guide, follow the
+[complete build guide](docs/build.md).
 
 [dependencies.lock.json](dependencies.lock.json) pins Arduino CLI 1.5.1,
 Arduino mbed Nano core 4.6.0 (GCC Arm Embedded 7-2017q4), CMSIS-DSP 5.7.0, and

@@ -1,5 +1,9 @@
 # Module separation validation — October 20, 2026
 
+This is a historical validation record for the build described below. For the
+current command-line build procedure and measured memory use, see the
+[build guide](build.md) and [locked-build validation](build-validation.md).
+
 The firmware now separates capture, feature extraction, TFLite inference,
 detection state, device control, telemetry, and pipeline coordination. Shared
 settings are in `kws_config.h`. Stateful implementation details live inside
