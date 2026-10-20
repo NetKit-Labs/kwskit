@@ -133,10 +133,11 @@ Address     Size (hex)   Symbol
 ```
 
 These are observations from the recorded build, not fixed linker addresses for
-future binaries. Model flash is already included in the 331,440-byte firmware
-flash footprint. The arena, profiler, interpreter, resolver, and DSP context are
-already included in the 209,320-byte static RAM total; do not subtract them again
-from the build's 52,824-byte remainder. That remainder is not measured free heap.
+future binaries. In the current build, model flash is already included in the
+332,120-byte firmware flash footprint. The arena, profiler, interpreter, resolver,
+and DSP context are already included in the 209,328-byte static RAM total; do not
+subtract them again from the build's 52,816-byte remainder. That remainder is not
+measured free heap. See [current build verification](cpp-idioms.md#verification).
 
 The profiler wraps its fixed event storage when full. Normal telemetry reports
 whole-invocation timing; the application does not currently export a per-layer

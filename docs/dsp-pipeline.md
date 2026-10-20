@@ -181,7 +181,7 @@ into the object. No workspace is allocated on the task stack or application heap
 
 | Workspace | Allocation |
 |---|---:|
-| `audioFrame`, `windowed`, `hannWindow`, `fftOutputput` | Four x 512 floats = 8192 bytes |
+| `audioFrame`, `windowed`, `hannWindow`, `fftOutput` | Four x 512 floats = 8192 bytes |
 | `powerSpectrum` | 257 floats = 1028 bytes |
 | `melRow` | 20 floats = 80 bytes |
 | `quantizedMelRow` | 20 int8 values = 20 bytes |
@@ -192,14 +192,14 @@ This subtotal excludes FFT/matrix descriptors, counters, coefficient storage,
 the audio ring/hop buffer, and the model's separate 96 KiB arena. It is a fixed
 workspace budget, not a measured dynamic-memory high-water value.
 
-In the [final normal capture](rtos-final-normal.json), `dsp_us` averaged 2464 us
-with a 2637 us observed maximum; inference averaged 58,630 us with a 59,652 us
+In the [current normal capture](cpp-idioms-normal.json), `dsp_us` averaged 2612 us
+with a 2841 us observed maximum; inference averaged 59,097 us with a 60,130 us
 maximum. `dsp_us` wraps `FeatureExtractor::consume`, including the cheap priming hop.
 It includes frame movement, window/FFT/power, mel/log/quantization, and feature
 movement on later hops. These are whole-step measurements, not per-stage timings
 or established worst-case execution times. `infer_us` includes the input copy
-and model invocation. Definitions and other captures are in
-[RTOS validation](rtos-validation.md).
+and model invocation. Definitions are in [RTOS design](rtos-design.md); current
+build identity and capture results are in [verification](cpp-idioms.md#verification).
 
 ## Training alignment and verification limits
 

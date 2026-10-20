@@ -4,7 +4,10 @@ This project implements continuous, single-keyword voice control on an nRF52840
 at 64 MHz using an Arduino Nano 33 BLE-class board with a PDM microphone. CMSIS-DSP
 extracts log-mel features, an int8 TensorFlow Lite Micro model scores the keyword
 "yes," and confirmed detections toggle the built-in LED. Two CMSIS-RTOS2 application
-tasks run on the board's existing Mbed/RTX kernel.
+tasks run on the board's existing Mbed/RTX kernel. PDM capture runs in an interrupt
+callback outside both tasks. The present workload could also use a cooperative
+main loop; the maintained build deliberately uses two tasks for separate ownership
+and scheduling as device functions expand. See [the RTOS rationale](rtos-design.md#why-two-application-tasks).
 
 The implementation addresses a concrete scheduling problem: microphone samples
 continue arriving every 16 ms while a neural-network inference takes roughly
@@ -72,27 +75,30 @@ CMSIS descriptors point into them. `AudioPipeline` receives its dependencies by
 reference. `AudioCapture` routes the driver's C callback to its active owner;
 RTOS callbacks use an application context pointer. The model has one encapsulated,
 statically reserved runtime. DSP/model state remains exclusive to the audio task.
+The later [C++ idioms review](cpp-idioms.md) adds typed buffer extents, scoped
+interrupt/mutex guards, and destruction-based capture/application cleanup.
 
 ## Measured results and their meaning
 
-Hardware records below were collected October 20, 2026 before the C++ object refactor. The final normal capture
-reported the following cumulative timing statistics; the other rows identify
-their separate evidence sources. Raw JSON files and test chronology are in
-[RTOS validation](rtos-validation.md). Current-build measurements and repeated
-checks are in [C++ refactor validation](cpp-refactor.md#verification).
+The current-source records were collected October 20, 2026 after the C++ idioms
+review. Normal timing below uses the final cumulative statistics in
+[cpp-idioms-normal.json](cpp-idioms-normal.json); the deliberate stall is a
+separate [stress capture](cpp-idioms-stress.json). Build identity and procedure
+are in [the verification record](cpp-idioms.md#verification). Earlier captures
+remain in [historical RTOS validation](rtos-validation.md).
 
 | Measurement | Recorded result / interpretation |
 |---|---|
 | Input / features | 16 kHz mono; 256-sample hop; 512-sample FFT; 61 x 20 int8 feature context |
 | Nominal decisions | Every eight new feature hops, about 128 ms after warmup, when backlog permits |
-| Final normal DSP average / observed maximum | 2.464 / 2.637 ms per hop |
-| Final normal inference average / observed maximum | 58.630 / 59.652 ms |
-| Final normal processing-step observed maximum | 62.234 ms; excludes score dispatch, metrics publication, and control work |
-| Final normal result delivery average / observed maximum | 11.002 / 11.586 ms, from inference completion to control-side validation |
-| Speech/LED check | 11 confirmed actions; physical LED toggling observed during the 60 s host recording |
+| Normal DSP average / observed maximum | 2.612 / 2.841 ms per hop |
+| Normal inference average / observed maximum | 59.097 / 60.130 ms |
+| Normal processing-step observed maximum | 62.823 ms; excludes score dispatch, metrics publication, and control work |
+| Normal result delivery average / observed maximum | 11.539 / 12.457 ms, from inference completion to control-side validation |
+| Speech/LED check | 21 cumulative confirmed actions; physical LED toggling confirmed by the developer |
 | Forced control stall | 1500 ms delay; four score drops and nine stale-result rejections; zero reported audio losses |
 | Normal operation | Zero reported audio losses, inference/notification errors, score drops, or stale-result rejections |
-| Firmware footprint | 331,440 bytes flash; 209,320 bytes static RAM, including application stacks and tensor arena |
+| Firmware footprint | 332,120 bytes flash; 209,328 bytes static RAM, including application stacks and tensor arena |
 
 Separately, the developer reports approximately **95% keyword-recognition
 success in informal use** with the current **1075 deployed parameter values**.
@@ -102,8 +108,8 @@ requires suitable training and comparison on shared held-out data, plus timing
 and RAM checks. See [recognition evidence and hypothesis](tinyml-inference.md#informal-recognition-and-possible-model-expansion).
 
 With the final normal averages, eight feature hops plus one inference account
-for approximately `8 x 2.464 + 58.630 = 78.342 ms` of a nominal 128 ms decision
-interval. The difference is about 49.7 ms before other work. This is a useful
+for approximately `8 x 2.612 + 59.097 = 79.993 ms` of a nominal 128 ms decision
+interval. The difference is about 48.0 ms before other work. This is a useful
 processing-budget estimate, not measured total CPU utilization or a worst-case
 deadline guarantee. The hardware captures also verify continuing sample and
 inference progression rather than relying on this estimate alone.
@@ -114,12 +120,12 @@ behavior in that experiment, while the audio task continues. A larger event
 queue would not make results older than the 250 ms freshness limit usable.
 Score loss during routine expected operation would require investigation.
 
-Measured unused stack watermarks were 6784 of 8192 bytes for audio and 4984 of
+Measured unused stack watermarks were 6776 of 8192 bytes for audio and 4976 of
 6144 bytes for control. The ring peaked at 768 of 8192 samples. These exercised
-paths leave about 83%, 81%, and 91% capacity respectively. The remaining 52,824
+paths leave about 83%, 81%, and 91% capacity respectively. The remaining 52,816
 bytes outside static RAM allocation are not a measured free-heap value.
 Peak heap, framework/interrupt stacks, and unused tensor-arena capacity have not
-been quantified. See the [memory assessment](rtos-validation.md#measured-memory-margins).
+been quantified. See the [current verification](cpp-idioms.md#verification).
 
 ## Evidence for reviewers
 
@@ -130,9 +136,9 @@ been quantified. See the [memory assessment](rtos-validation.md#measured-memory-
 | Real pipeline defers inference under backlog and resets after loss | [Pipeline integration test](../tests/pipeline_test.py), compiling the actual pipeline with fake dependencies |
 | Old/gapped scores do not erase retrigger protection | [Event tests](../tests/keyword_event_test.cpp), [filter tests](../tests/keyword_filter_test.cpp), and [detector tests](../tests/keyword_detector_test.cpp) |
 | Task storage/priorities and partial-startup cleanup are checked | [RTOS startup tests](../tests/rtos_startup_test.py), compiling the actual coordinator against fake CMSIS APIs |
-| Audio continues while control is deliberately stalled | [Final hardware stress capture](rtos-stress-final.json) and [stress procedure](rtos-design.md#hardware-backpressure-test) |
-| Normal firmware is restored and runs without reported losses | [Final normal capture](rtos-final-normal.json) |
-| Detection reaches a physical output | [Spoken-word capture](rtos-spoken-yes.json) and physical LED confirmation recorded in [validation](rtos-validation.md#spoken-word-and-physical-led-check) |
+| Audio continues while control is deliberately stalled | [Current hardware stress capture](cpp-idioms-stress.json) and [stress procedure](rtos-design.md#hardware-backpressure-test) |
+| Normal firmware is restored and runs without reported losses | [Current normal capture](cpp-idioms-normal.json) |
+| Detection reaches a physical output | [Normal spoken-word capture](cpp-idioms-normal.json) and physical LED confirmation recorded in [current verification](cpp-idioms.md#verification) |
 | A clean checkout can test/build without IDE-installed libraries | [Make/CI workflow](../.github/workflows/ci.yml), [build-tool tests](../tests/build_tooling_test.py), and [build guide](build.md) |
 
 Run `make test-unit` for the ten component checks, or `make test-regression`
@@ -143,9 +149,9 @@ and hardware reproduction.
 Host fakes test logic and failure paths; physical captures test actual scheduling
 and I/O. Neither substitutes for the other. Saved counters are cumulative since
 boot and can include time before capture; trigger counts are not accuracy rates.
-The spoken-word capture preceded a small latch-preservation correction; the
-final code subsequently passed host regressions and repeated stress/normal
-checks, as recorded in the validation chronology.
+The latest normal capture includes the current filtering, periodic Hann window,
+and C++ ownership changes. Earlier builds and their separate physical checks
+remain labeled in the validation chronology.
 
 ## Build boundary and remaining validation
 

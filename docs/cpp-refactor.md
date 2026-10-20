@@ -3,7 +3,10 @@
 The procedural module APIs have been replaced by stateful C++ objects. This is
 an ownership refactor: buffers, counters, and hardware state belong to the object
 that manages them. Measurements below describe that build before the subsequent
-[periodic-window update](periodic-hann-validation.md). CMSIS-DSP, PDM, and TFLite keep their existing upstream APIs.
+[periodic-window update](periodic-hann-validation.md) and
+[C++ idioms review](cpp-idioms.md). The latter records current buffer contracts,
+resource cleanup, build footprint, and repeated hardware checks.
+CMSIS-DSP, PDM, and TFLite keep their existing upstream APIs.
 
 ## Objects and lifetimes
 

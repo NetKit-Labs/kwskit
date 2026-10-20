@@ -97,3 +97,9 @@ buffered startup telemetry; the subsequent records span roughly one minute of
 normal operation. Peak audio-ring occupancy was 768 samples and the minimum
 reported unused task stacks were 6776/4976 bytes. The normal firmware remains
 installed on the Nano, and the developer confirmed the physical LED response.
+
+The [GitHub Actions run for firmware commit `2f47745`](https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/runs/39504902995)
+passed source formatting, host regressions, and the clean Linux Nano build.
+A subsequent documentation refresh reran all fourteen host entries successfully
+and checked the build manifest against all 27 maintained firmware files. That
+refresh changed documentation only; it did not add a new hardware capture.

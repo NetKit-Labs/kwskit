@@ -2,6 +2,11 @@
 
 The current firmware architecture, setup, filtering configuration, and telemetry
 fields are documented in the [project README](../README.md).
+For current scheduling and API use, see [RTOS design](rtos-design.md), including
+[why two tasks are used](rtos-design.md#why-two-application-tasks) and
+[the API source map](rtos-design.md#rtos-api-source-map). Latest build and hardware
+measurements are in the [C++ idioms verification](cpp-idioms.md#verification).
+Earlier validation records and captures retain their original results as history.
 
 | Record | Contents |
 |---|---|
@@ -18,14 +23,14 @@ fields are documented in the [project README](../README.md).
 | [Model metadata](model-metadata.json) | Inspected deployed operator graph, tensor shapes/types/quantization, parameter counts, and constant payload sizes |
 | [Unit and regression testing](testing.md) | Test commands, component/integration coverage, CI regression gate, hardware procedures, and limits |
 | [Source language and style](source-style.md) | C++ source audit, four-space formatting rules, formatter setup/CI checks, and validation |
-| [RTOS design](rtos-design.md) | Audio/control task ownership, priorities, static memory, ISR notifications, event overload rules |
-| [RTOS validation](rtos-validation.md) | Current host, build, live scheduling, backpressure, and speech test evidence |
+| [RTOS design](rtos-design.md) | Two-task rationale, interrupt-driven capture, priorities, static memory, synchronization, API source map, startup, overload rules |
+| [RTOS validation](rtos-validation.md) | Current verification summary and historical task-introduction, scheduling, backpressure, and speech evidence |
 | [C++ refactor normal telemetry](cpp-refactor-normal.json) | One-minute acquisition/inference check after restoring the object-based normal firmware |
 | [C++ refactor stress telemetry](cpp-refactor-stress.json) | Repeated control-stall regression on the object-based firmware |
-| [RTOS spoken "yes" telemetry](rtos-spoken-yes.json) | Raw current-task speech detections and LED transitions |
+| [RTOS spoken "yes" telemetry](rtos-spoken-yes.json) | Raw speech detections and LED transitions from the original RTOS implementation |
 | [RTOS stress telemetry](rtos-stress-telemetry.json) | Raw deliberate control-stall and score-queue overflow results |
-| [Final-code normal telemetry](rtos-final-normal.json) | Normal operation after the last regression fix and restoration from stress firmware |
-| [Final-code stress telemetry](rtos-stress-final.json) | Repeated 1.5 s control stall: expected score drops/stale rejection, zero reported audio loss |
+| [RTOS-introduction normal telemetry](rtos-final-normal.json) | Historical normal operation after the latch-preservation fix and stress restoration |
+| [RTOS-introduction stress repeat](rtos-stress-final.json) | Historical repeated 1.5 s control stall: expected score drops/stale rejection, zero reported audio loss |
 | [Locked-build validation](build-validation.md) | Clean setup, Make targets, host checks, upload and live telemetry validation |
 | [Build and CI](build.md) | Locked command-line tools, dependency provenance, Make targets, CI artifacts, and reproducibility limits |
 | [Initial improvements validation](validation.md) | Ordered testing of the six improvements, Nano build/upload, and initial hardware measurements |

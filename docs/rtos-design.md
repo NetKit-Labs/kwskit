@@ -4,6 +4,24 @@ The existing Arduino mbed/RTX kernel now runs two explicit application tasks.
 The existing Arduino main task only waits; framework/USB/kernel threads remain.
 The build and flashing commands in [build.md](build.md) are unchanged.
 
+## Why two application tasks
+
+The current firmware uses both tasks for every normal run. `kws-audio` owns DSP
+and inference; `kws-control` owns score filtering, LED state, and telemetry.
+Microphone acquisition executes in the PDM interrupt callback, outside both
+tasks. It publishes samples and wakes audio processing using an ISR-safe flag.
+Combining a short hardware callback with longer task-context processing is the
+intended design; capture does not need its own application task.
+
+The current keyword/LED workload could also run with interrupt-driven capture
+and a cooperative main loop, as earlier versions did. The two-task structure
+was introduced deliberately for independent scheduling and clearer ownership
+as device functionality expands. The maintained firmware requires its RTOS
+path; no cooperative-mode build option is provided. Two application tasks are
+enough for the present workload, in addition to the existing framework threads.
+Another task would be justified by a new independent timing/blocking requirement,
+such as substantial communications work, and would need renewed budget checks.
+
 ## Scheduling and memory
 
 | Context | Priority / allocation | Responsibility |
@@ -23,11 +41,11 @@ message path. The 96 KiB tensor arena and feature/DSP workspaces remain static.
 Unused task stack watermarks are reported through `stack_free`; they measure the
 observed high-water usage, not a proof against every future execution path.
 
-The locked build reserves 209,320 bytes of static RAM, including the two stacks,
-the 16 KiB audio ring, and the 96 KiB tensor arena. Its remaining 52,824 bytes are
+The current locked build reserves 209,328 bytes of static RAM, including both
+stacks, the 16 KiB audio ring, and the 96 KiB tensor arena. Its remaining 52,816 bytes are
 outside static allocations, not a free-heap measurement. The recorded stack
 watermarks and ring occupancy are summarized in
-[RTOS validation](rtos-validation.md#measured-memory-margins). Heap peak,
+[current validation](cpp-idioms.md#verification). Heap peak,
 framework/interrupt-stack usage, and actual arena consumption remain unmeasured.
 
 ## Ownership and synchronization
@@ -35,9 +53,11 @@ framework/interrupt-stack usage, and actual arena consumption remain unmeasured.
 After initialization, only the audio task calls feature extraction and the model.
 Only the control task mutates the detector, drives the LED, and operates USB
 telemetry. The PDM callback is the ring's sole producer; audio is its sole consumer.
-Acquisition counters are copied with interrupts briefly disabled. A priority-
+Acquisition counters are copied with interrupts briefly disabled; `InterruptLock`
+restores the caller's previous interrupt mask on scope exit. A priority-
 inheriting mutex protects the audio statistics snapshot; it is never held across
 DSP, inference, USB, GPIO, or a queue wait, and is never used by the ISR.
+`MutexLock` releases that initialized mutex automatically when its scope ends.
 
 The callback sets a thread flag after samples are available. Repeated flags can
 coalesce safely because the ring preserves samples and the task drains it before
@@ -75,6 +95,34 @@ then releases the workers. On failure, capture stops before task IDs, queue, or
 mutex are deleted. Setup reports the failure and halts rather than running a
 partially initialized application.
 
+The application is a noncopyable function-local static, constructed after board
+globals. Repeated successful `begin()` calls return without creating duplicate
+resources. Its destructor performs cleanup; `AudioCapture` also releases its
+driver/callback ownership on destruction. Normal operation runs continuously
+while powered and does not terminate after a host recording interval.
+
+## RTOS API source map
+
+The application uses CMSIS-RTOS2 on the board core's existing Mbed/RTX kernel.
+The framework initializes and starts the kernel; the project creates its workers
+through the coordinator in [kws_pipeline.cpp](../firmware/kws_pipeline.cpp).
+
+| API | Application use |
+|---|---|
+| `osThreadNew` | Create the audio and control tasks in `Application::begin` |
+| `osThreadFlagsSet` / `osThreadFlagsWait` | Release workers after startup and notify/wake audio processing |
+| `osMessageQueueNew` / `osMessageQueuePut` / `osMessageQueueGet` | Create the eight-score queue, send without waiting, receive with a 20 ms timeout |
+| `osMutexNew` | Create the priority-inheriting metrics mutex |
+| `osMutexAcquire` / `osMutexRelease` | Scope-based metrics protection in [mutex_lock.h](../firmware/mutex_lock.h) |
+| `osThreadGetStackSpace` | Report unused audio/control stack watermarks |
+| `osKernelGetTickFreq` | Convert milliseconds to scheduler ticks |
+| `osDelay` | Idle the Arduino main task for 1 s; inject the control stall only in the stress build |
+| `osThreadTerminate` / `osMessageQueueDelete` / `osMutexDelete` | Release initialized resources during cleanup |
+
+The interrupt callback never waits on a queue or mutex. Its thread-flag call
+is ISR-safe; task-context waits, DSP, inference, filtering, GPIO actions, and USB
+telemetry stay outside the callback.
+
 ## Hardware backpressure test
 
 With pyserial available in the invoking Python environment, run:
@@ -94,7 +142,6 @@ Make build do not enable the stress flag. Test binaries/manifests are kept apart
 in `.build/stress-artifacts/`.
 
 Speech/LED behavior is a separate physical check; see [RTOS validation](rtos-validation.md).
-
 
 `process_us` measures one audio pipeline step (hop handling, DSP and any
 inference). It excludes queue dispatch, the metrics copy, and control-task work.

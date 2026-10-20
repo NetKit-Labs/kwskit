@@ -1,8 +1,38 @@
 # Two-task RTOS validation - October 20, 2026
 
-The firmware now has explicit audio and control application tasks on the Nano's
-existing CMSIS-RTOS2/RTX kernel. The PDM callback remains interrupt driven.
-See [RTOS design](rtos-design.md) for storage, priorities, and synchronization.
+The firmware uses explicit audio and control application tasks on the Nano's
+existing CMSIS-RTOS2/RTX kernel. The PDM callback remains interrupt driven and
+runs outside both tasks. See [RTOS design](rtos-design.md) for the rationale,
+storage, priorities, synchronization, and API source map.
+
+## Current verification
+
+The latest source and hardware verification is the [C++ idioms review](cpp-idioms.md#verification),
+after the object refactor and periodic Hann update. It records fourteen passing
+host suite entries, formatter checks, Nano build, normal capture, control-stall
+stress, and developer-confirmed physical LED toggling during spoken "yes".
+
+| Current-source measurement | Result |
+|---|---|
+| Flash / static RAM | 332,120 / 209,328 bytes |
+| Outside static allocations | 52,816 bytes; not measured free heap |
+| Normal DSP average / observed maximum | 2.612 / 2.841 ms |
+| Normal inference average / observed maximum | 59.097 / 60.130 ms |
+| Normal processing-step observed maximum | 62.823 ms |
+| Minimum observed unused audio / control stack | 6776 / 4976 bytes |
+| Peak queued audio / capacity | 768 / 8192 samples |
+| Normal reported audio losses, inference/notification errors, score drops, stale results | All zero |
+| Deliberate 1.5 s control stall | Four score drops, nine stale rejections, zero reported audio losses |
+| Spoken-word output check | 21 cumulative confirmed actions; physical LED toggling confirmed |
+
+Raw current-source captures: [normal](cpp-idioms-normal.json) and
+[stress](cpp-idioms-stress.json). Timing and counters are cumulative snapshots;
+the action count is not a labeled accuracy measurement. The memory assessment
+limits below also apply to this build.
+
+The remaining sections preserve the original RTOS introduction and its follow-up
+regressions. Their footprints, counts, timings, and statements about which
+physical checks had occurred describe those earlier builds, not the latest image.
 
 ## Host checks
 
@@ -106,6 +136,10 @@ observed in the normal captures.
 
 ## Measured memory margins
 
+This table describes the original RTOS build's captures. Current-source stack
+watermarks are 6776/4976 bytes and static RAM is 209,328 bytes, as summarized
+above and in [the project README](../README.md#measured-memory-margins).
+
 The lowest unused stack values across the recorded checks are 6784/4984 bytes
 (audio/control), including the spoken-word and final normal captures. RTX reports
 the unused stack watermark; used bytes below are allocation minus that watermark.
@@ -163,7 +197,9 @@ Its rationale, limits, and proposed comparison are documented in
 
 ## Object-based C++ refactor
 
-Subsequent class/ownership changes, the expanded thirteen-entry host suite,
-current footprint, and repeated hardware checks are recorded separately in
+Subsequent class/ownership changes, that stage's thirteen-entry host suite,
+footprint, and repeated hardware checks are recorded separately in
 [C++ refactor validation](cpp-refactor.md#verification). The earlier measurements
 and captures above remain historical evidence for their stated builds.
+The later [C++ idioms review](cpp-idioms.md#verification) adds the fourteenth suite
+entry and records the current-source build and repeated speech/stress checks.

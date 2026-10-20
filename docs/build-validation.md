@@ -1,5 +1,10 @@
 # Locked command-line build validation — October 20, 2026
 
+This is a historical record from before the two-task RTOS implementation.
+Use the [build guide](build.md) for current commands, [RTOS design](rtos-design.md)
+for task ownership, and [current verification](cpp-idioms.md#verification) for the
+latest build footprint and hardware checks.
+
 The new build was tested using project-local dependencies rather than the IDE's
 installed core/libraries. No algorithm, model, queue, filter, or device-control
 behavior was changed. `ARM_MATH_DSP` now has value `1`, matching the CMSIS header

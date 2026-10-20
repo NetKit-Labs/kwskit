@@ -180,6 +180,14 @@ Stacks, thread control blocks, queue storage, and mutex storage are static.
 The callback sets an ISR-safe thread flag after publishing audio. Flags may
 coalesce; the audio task drains complete hops before waiting again.
 
+PDM acquisition runs in the interrupt callback, outside both application tasks.
+The current firmware actively uses both tasks; they were added to separate
+processing and device response and provide room for future functionality. The
+present keyword/LED workload could also be implemented with interrupt-driven
+capture and a cooperative main loop. This build uses the RTOS architecture;
+there is no selectable cooperative application mode. Two application tasks are
+sufficient for the current workload; framework/kernel threads also exist.
+
 The queue copies timestamped score values, including low scores needed to rearm
 the detector. No audio buffers, feature windows, or tensor pointers cross tasks.
 A priority-inheriting mutex protects only a short metrics copy. The interrupt
@@ -239,7 +247,7 @@ waits for a full feature window; subsequent decisions require eight new feature
 frames and less than one queued hop. FFT frame overlap continues across model
 calls. DSP and inference leave interrupts enabled; short counter snapshots mask
 interrupts. With the recorded averages, eight DSP hops plus one inference take
-about 79 ms of a nominal 128 ms decision interval, excluding other work.
+about 80 ms of a nominal 128 ms decision interval, excluding other work.
 
 **FFT correctness.** CMSIS fast real FFT packs DC at output index 0 and Nyquist at
 index 1. `fft_power.h` treats both separately and computes interior-bin power

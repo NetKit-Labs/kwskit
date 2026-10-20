@@ -120,7 +120,7 @@ this change are recorded in [source-style validation](source-style.md#formatting
 
 The earlier object refactor added two component checks, bringing its gate to
 thirteen entries (nine component checks plus four integration/build checks).
-See [C++ refactor verification](cpp-refactor.md#verification) for current-build
+See [C++ refactor verification](cpp-refactor.md#verification) for that build's
 host, compile, and hardware evidence. The current frozen extractor vectors come from the procedural `a2c3c0d`
 reference with periodic Hann applied, using the same deterministic PCM and scalar
 host backend. Window sum and coefficient checks also run independently of that
@@ -131,7 +131,9 @@ The [C++ idioms review](cpp-idioms.md) adds typed buffer/FFT contracts, scoped
 resource handling, and the compiler-probe entry. The current complete gate is
 fourteen entries: ten component checks plus four integration/build checks.
 Compiler-rejection fixtures are separate `.cpp` files and intentionally do not
-compile when invoked as ordinary programs.
+compile when invoked as ordinary programs. The latest normal/stress hardware
+captures and physical LED confirmation are linked from that review; the earlier
+[RTOS validation](rtos-validation.md) retains its original build measurements.
 
 ## Limits
 
