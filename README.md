@@ -1,6 +1,6 @@
 # TinyML Keyword Spotting on ARM Cortex-M
 
-Lightweight keyword spotting (KWS) system for microcontrollers using TensorFlow Lite Micro, CMSIS-DSP, and CMSIS-NN.  
+Keyword spotting (KWS) system for microcontrollers using TensorFlow Lite Micro, CMSIS-DSP, and CMSIS-NN.  
 Detects a single keyword ("yes") from 1-second audio windows with low latency.
 
 ---
