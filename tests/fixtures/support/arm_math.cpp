@@ -6,6 +6,7 @@
 
 // Scalar host backend for the integration test, not the board's CMSIS implementation.
 bool failFftInitialization = false;
+std::array<float, 512> lastAppliedWindow{};
 arm_status arm_rfft_fast_init_f32(arm_rfft_fast_instance_f32 *fft, uint16_t length) {
     if (failFftInitialization || length != 512) {
         return ARM_MATH_ARGUMENT_ERROR;
@@ -15,6 +16,7 @@ arm_status arm_rfft_fast_init_f32(arm_rfft_fast_instance_f32 *fft, uint16_t leng
 }
 void arm_mult_f32(const float *left, const float *right, float *output, uint32_t length) {
     for (uint32_t i = 0; i < length; ++i) {
+        lastAppliedWindow[i] = right[i];
         output[i] = left[i] * right[i];
     }
 }

@@ -59,7 +59,7 @@ pairs. The 512-float transform produces 257 power bins without reading outside
 the transform output. Exact-size-array sanitizer tests exercise this boundary.
 The [DSP pipeline guide](dsp-pipeline.md) follows every stage through mel/log
 projection, quantization, and rolling model context, including startup/reset
-behavior and the existing training/firmware window-convention difference.
+behavior and the periodic Hann convention used by training.
 The [TinyML inference guide](tinyml-inference.md) describes the deployed CNN,
 distinguishes Keras and folded parameter counts, and verifies the model/arena
 flash/SRAM placements using the artifact and linked firmware.

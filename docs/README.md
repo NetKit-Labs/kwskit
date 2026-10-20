@@ -7,6 +7,9 @@ fields are documented in the [project README](../README.md).
 |---|---|
 | [Engineering overview](engineering-overview.md) | Requirements, design tradeoffs, source entry points, measured margins, and claim-to-evidence mapping |
 | [C++ ownership and refactor](cpp-refactor.md) | Object lifetimes, explicit dependencies, fixed storage, callback boundaries, and refactor regression/hardware evidence |
+| [Periodic Hann normal telemetry](periodic-hann-normal.json) | One-minute continuous audio/inference and spoken-word check after loading the updated normal firmware |
+| [Periodic Hann stress telemetry](periodic-hann-stress.json) | Control-stall acquisition/inference regression using the periodic-window firmware |
+| [Periodic Hann validation](periodic-hann-validation.md) | Training-aligned window convention, coefficient checks, feature regression, build and Nano verification |
 | [DSP pipeline](dsp-pipeline.md) | PCM scaling, frame overlap, Hann/packed FFT power, mel/log features, int8 layout, cadence/reset, workspace, and training alignment |
 | [TinyML inference](tinyml-inference.md) | CNN layers, training/deployed parameter counts, int8 quantization, model identity, flash/SRAM placement, runtime flow, and inspection commands |
 | [Model metadata](model-metadata.json) | Inspected deployed operator graph, tensor shapes/types/quantization, parameter counts, and constant payload sizes |

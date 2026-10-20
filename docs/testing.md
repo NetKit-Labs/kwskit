@@ -39,7 +39,7 @@ firmware modules; they no longer embed C++ programs in Python string literals.
 | [timing_stats](../tests/timing_stats_test.cpp) | Empty statistics, average/maximum/last values, and unsigned elapsed-time rollover |
 | [device_action](../tests/device_action_test.py) | Actual device-control module initializes the LED off and alternates GPIO state on confirmed actions, using fake GPIO |
 | [audio_capture](../tests/audio_capture_test.py) | Actual receiver with fake PDM: startup failure, exclusive callback ownership/context, bounded reads, overflow accounting without overwrite, complete-hop timestamps, discard, late callbacks, and handoff to a new owner |
-| [feature_extractor](../tests/feature_extractor_test.py) | Actual extractor with scalar host DSP backend: initialization failure, priming/warmup, eight-hop inference cadence, reset, independent contexts, clipping, and 84,180 frozen pre-refactor quantized feature bytes |
+| [feature_extractor](../tests/feature_extractor_test.py) | Actual extractor with scalar host DSP backend: initialization failure, priming/warmup, eight-hop inference cadence, reset, independent contexts, clipping, and periodic Hann coefficients and 84,180 frozen quantized feature bytes |
 
 ## Additional integration and regression coverage
 
@@ -120,9 +120,11 @@ this change are recorded in [source-style validation](source-style.md#formatting
 The subsequent object refactor adds two component checks. `make test` now runs
 thirteen entries (nine component checks plus four integration/build checks).
 See [C++ refactor verification](cpp-refactor.md#verification) for current-build
-host, compile, and hardware evidence. The frozen extractor vectors were captured
-from commit `a2c3c0d` using the same deterministic PCM and scalar host backend;
-the historical implementation is not copied into the maintained source tree.
+host, compile, and hardware evidence. The current frozen extractor vectors come from the procedural `a2c3c0d`
+reference with periodic Hann applied, using the same deterministic PCM and scalar
+host backend. Window sum and coefficient checks also run independently of that
+feature digest. The historical implementation is not copied into the maintained
+source tree. See [periodic-window validation](periodic-hann-validation.md).
 
 ## Limits
 
@@ -134,8 +136,8 @@ host code, not all memory accesses on the Nano. Dataset accuracy, acoustic-onset
 latency, extended endurance, runtime heap/framework-stack margins, and unused
 tensor-arena capacity remain outside the established test evidence.
 The [DSP pipeline guide](dsp-pipeline.md#training-alignment-and-verification-limits)
-details the existing Hann-window convention difference and the shared-PCM
-feature comparisons still needed for full training/firmware numerical parity.
+details the shared-PCM feature comparisons still needed for full training/firmware
+numerical parity. The window convention is periodic Hann in both implementations.
 The [model inspection procedure](tinyml-inference.md#reproduce-the-artifact-inspection)
 verifies the serialized graph, parameter counts, and tensor metadata using the
 pinned schema headers after `make setup`. This optional host inspection is

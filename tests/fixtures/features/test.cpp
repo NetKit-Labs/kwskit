@@ -1,11 +1,13 @@
 #include "feature_extractor.h"
 #include <array>
 #include <cassert>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
 #include <type_traits>
 
 extern bool failFftInitialization;
+extern std::array<float, FRAME_SIZE> lastAppliedWindow;
 
 int main() {
     FeatureExtractor extractor;
@@ -38,6 +40,18 @@ int main() {
                 assert(!extractor.inferenceDue());
             }
         }
+        // A periodic Hann has mean 1/2, peak 1, and a nonzero final coefficient.
+        // These checks reject a FRAME_SIZE - 1 denominator independently of the feature digest.
+        double windowSum = 0.0;
+        for (const float coefficient : lastAppliedWindow) {
+            windowSum += coefficient;
+        }
+        assert(std::abs(windowSum - FRAME_SIZE / 2.0) < 0.001);
+        assert(lastAppliedWindow[0] == 0.0f);
+        assert(std::abs(lastAppliedWindow[FRAME_SIZE / 4] - 0.5f) < 0.000001f);
+        assert(lastAppliedWindow[FRAME_SIZE / 2] == 1.0f);
+        assert(std::abs(lastAppliedWindow[3 * FRAME_SIZE / 4] - 0.5f) < 0.000001f);
+        assert(std::abs(lastAppliedWindow.back() - 0.00003764908f) < 0.0000001f);
         extractor.reset();
         for (int i = 0; i < NUM_FRAMES; ++i) {
             extractor.consume(samples.data());

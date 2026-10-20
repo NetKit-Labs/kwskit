@@ -14,7 +14,7 @@ flowchart TD
     PCM["16 kHz mono signed int16 PCM"] --> RING["8192-sample audio ring"]
     RING --> HOP["256-sample hop: scale by 1/32768"]
     HOP --> FRAME["512-float frame: 50% overlap"]
-    FRAME --> HANN["Symmetric Hann window"]
+    FRAME --> HANN["Periodic Hann window"]
     HANN --> FFT["512-point CMSIS real FFT: 512 packed floats"]
     FFT --> POWER["257 power bins, including DC and Nyquist"]
     POWER --> MEL["20 x 257 mel matrix: 20 band energies"]
@@ -70,10 +70,10 @@ consumed hop, even while the audio task catches up after inference.
 
 ## 2. Hann window and real FFT
 
-Initialization precomputes the symmetric Hann window:
+Initialization precomputes the periodic Hann window used by the training notebook:
 
 ```text
-w[n] = 0.5 - 0.5 * cos(2*pi*n / 511), n = 0..511
+w[n] = 0.5 - 0.5 * cos(2*pi*n / 512), n = 0..511
 windowed[n] = audioFrame[n] * w[n]
 ```
 
@@ -83,13 +83,13 @@ packed real-FFT layout. It is not a conventional array of 257 complex pairs.
 
 | Frequency bin | Packed representation | Power calculation |
 |---|---|---|
-| DC, k = 0 | `fftOut[0]` | `fftOut[0]^2` |
-| Interior, k = 1..255 | Real `fftOut[2*k]`, imaginary `fftOut[2*k+1]` | Real squared plus imaginary squared |
-| Nyquist, k = 256 | `fftOut[1]` | `fftOut[1]^2` |
+| DC, k = 0 | `fftOutput[0]` | `fftOutput[0]^2` |
+| Interior, k = 1..255 | Real `fftOutput[2*k]`, imaginary `fftOutput[2*k+1]` | Real squared plus imaginary squared |
+| Nyquist, k = 256 | `fftOutput[1]` | `fftOutput[1]^2` |
 
 The final interior bin reads indices 510 and 511. The separate Nyquist case
 avoids reading indices 512/513 outside the transform output. `fftPower` writes
-exactly 257 power values. The workspace named `mag` contains squared magnitudes
+exactly 257 power values. The workspace named `powerSpectrum` contains squared magnitudes
 (power), not square-root magnitudes. The firmware applies no explicit division
 by FFT length, one-sided interior-bin doubling, or window-energy correction.
 
@@ -179,7 +179,7 @@ into the object. No workspace is allocated on the task stack or application heap
 
 | Workspace | Allocation |
 |---|---:|
-| `audioFrame`, `windowed`, `hannWindow`, `fftOutput` | Four x 512 floats = 8192 bytes |
+| `audioFrame`, `windowed`, `hannWindow`, `fftOutputput` | Four x 512 floats = 8192 bytes |
 | `powerSpectrum` | 257 floats = 1028 bytes |
 | `melRow` | 20 floats = 80 bytes |
 | `quantizedMelRow` | 20 int8 values = 20 bytes |
@@ -201,17 +201,10 @@ and model invocation. Definitions and other captures are in
 
 ## Training alignment and verification limits
 
-The firmware and notebook agree on sampling, frame/hop dimensions, power-spectrum
-features, mel coefficients, natural-log epsilon, and feature layout. They have
+The firmware and notebook agree on sampling, frame/hop dimensions, the periodic
+Hann convention, power-spectrum features, mel coefficients, natural-log epsilon,
+and feature layout. They have
 not been shown numerically equivalent end to end on shared PCM fixtures.
-
-There is an existing window convention difference: firmware uses the symmetric
-Hann formula with denominator 511, while the notebook passes
-`tf.signal.hann_window` without overriding its documented `periodic=True`
-default. The resulting 512-point periodic window uses denominator 512. See the
-[TensorFlow API specification](https://www.tensorflow.org/api_docs/python/tf/signal/hann_window).
-This document records the current behavior; its effect on features and accuracy
-has not been quantified in this project.
 
 The [FFT unit tests](../tests/fft_power_test.cpp) verify packed-bin handling and
 exact array bounds under sanitizers. The
@@ -220,8 +213,10 @@ deferral, loss reset, and event timing using fake features/model modules. Physic
 captures exercise the real DSP/model path but do not provide known feature
 vectors. The [extractor regression](../tests/feature_extractor_test.py) now runs
 the actual feature-extraction code on a scalar host DSP backend and checks
-84,180 quantized bytes against pre-refactor results, including warmup, cadence,
-reset, and independent contexts. This checks refactor equivalence on that backend;
+84,180 quantized bytes against a frozen periodic-Hann reference, including
+warmup, cadence, reset, and independent contexts. Window sum, quarter-cycle
+values, midpoint, and the final coefficient are checked independently of the
+feature digest. This checks feature regression on that backend;
 it does not execute CMSIS or establish training parity. Full numerical regression
 would need shared PCM fixtures and comparison
 of the actual firmware window, power, mel/log, and quantized tensors against a

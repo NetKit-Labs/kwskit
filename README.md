@@ -23,9 +23,8 @@ behavior; [RTOS validation](docs/rtos-validation.md) records the hardware result
 ## Measured results
 
 Measurements below are from the two-task RTOS firmware on the connected Nano,
-recorded October 20, 2026. Timing summarizes normal-operation checks; the deliberate stall is documented
-separately. Memory is from
-the current object-based C++ firmware build. These are observed results, not worst-case guarantees.
+recorded October 20, 2026. Timing uses the final cumulative normal-operation statistics; the deliberate
+stall is documented separately. Memory is from the current periodic-Hann firmware build. These are observed results, not worst-case guarantees.
 
 | Measurement | Recorded result |
 |---|---:|
@@ -33,19 +32,20 @@ the current object-based C++ firmware build. These are observed results, not wor
 | FFT frame / overlap | 512 samples (32 ms) / 50% |
 | Model input | 61 × 20 int8 log-mel features (~1 s context) |
 | Decision cadence after warmup | Every 8 feature hops (~128 ms), when audio backlog is drained |
-| DSP average / observed maximum | 2.63 / 2.86 ms |
-| Inference average / observed maximum | 59.13 / 59.65 ms |
-| Processing iteration observed maximum | 62.23 ms |
+| DSP average / observed maximum | 2.479 / 2.639 ms |
+| Inference average / observed maximum | 58.593 / 58.625 ms |
+| Processing iteration observed maximum | 61.227 ms |
 | Circular audio buffer / observed peak occupancy | 8192 / 768 samples |
 | Flash / static RAM | 331,936 / 209,320 bytes (33% / 79%) |
 | Dedicated task stacks | Audio 8192 bytes; control 6144 bytes |
-| RTOS spoken "yes" check | 11 confirmed detections; physical LED toggling confirmed |
+| RTOS spoken "yes" check | 21 cumulative confirmed actions; physical LED toggling confirmed |
 | Reported sample drops / missed buffers / inference errors | 0 / 0 / 0 in the recorded checks |
 | Normal-operation score drops / stale results | 0 / 0 |
 | Forced 1.5 s control stall | 4 score drops; 9 stale results rejected; 0 reported audio losses |
 
-See [RTOS validation](docs/rtos-validation.md) for current task, stress, and
-speech-test evidence. The [earlier module/refactor record](docs/module-refactor-validation.md)
+See [periodic-Hann validation](docs/periodic-hann-validation.md) for current build,
+stress, and spoken-word evidence, and [RTOS validation](docs/rtos-validation.md)
+for the earlier task checks. The [earlier module/refactor record](docs/module-refactor-validation.md)
 and [pre-RTOS build check](docs/build-validation.md) retain historical results.
 Response measurements start at a high-confidence window's estimated end; they
 do not measure acoustic word-onset latency. Detection accuracy across a controlled
@@ -53,7 +53,7 @@ speaker/noise dataset and hours-to-days endurance have not been established.
 
 ### Measured memory margins
 
-These high-water measurements come from the object-refactor normal and stress
+These high-water measurements come from the periodic-Hann normal and stress
 checks. They describe exercised paths, rather than guaranteed worst-case usage.
 
 | Allocation | Capacity | Observed peak use / remaining |
@@ -186,7 +186,7 @@ See [RTOS design](docs/rtos-design.md) for scheduling, ownership, and overload r
 ## DSP pipeline
 
 The audio task scales signed PCM by `1/32768`, forms 512-sample frames with
-256-sample overlap, applies a symmetric Hann window, and computes a CMSIS real
+256-sample overlap, applies a periodic Hann window, and computes a CMSIS real
 FFT. Correct packed-bin handling produces 257 power values. A 20-band mel matrix
 (20-4000 Hz) projects the power spectrum; natural log with epsilon `1e-6` and
 model-provided int8 quantization produce each feature row. The rolling 61 x 20
@@ -194,9 +194,8 @@ input spans 992 ms of audio; inference runs nominally every eight new rows
 (128 ms) once ready and caught up.
 
 The [DSP pipeline guide](docs/dsp-pipeline.md) documents stage equations, buffer
-dimensions, startup/reset behavior, model layout, timing boundaries, and an
-existing training/firmware Hann-window convention difference. Full numerical
-feature parity with the training notebook has not been established.
+dimensions, startup/reset behavior, model layout, and timing boundaries. Full
+numerical feature parity with the training notebook has not been established.
 
 ## TinyML neural-network inference
 
@@ -273,7 +272,7 @@ The suite exercises queue ordering/overflow/wraparound, packed FFT bins/bounds,
 simulated inference stalls, temporal filtering and cooldown, detection-response
 timing and timer wraparound, actual GPIO-module logic with fake pins, and the actual
 audio pipeline with fake capture/features/model modules. New checks exercise the actual
-extractor against frozen pre-refactor feature vectors and the actual PDM receiver
+extractor against frozen periodic-Hann feature vectors and the actual PDM receiver
 against a deterministic driver fake. RTOS startup tests
 check static storage, priority/stack configuration, callback notification, and
 cleanup after initialization failures. Event tests cover stale generations,

@@ -7,8 +7,8 @@
 void FeatureExtractor::computeHannWindow() {
     constexpr double pi = 3.1415926535897932384626433832795;
     for (size_t n = 0; n < hannWindow.size(); ++n) {
-        // Retain the original Arduino PI / cosf rounding convention.
-        const auto angle = static_cast<float>(2.0f * pi * n / (FRAME_SIZE - 1));
+        // Periodic Hann convention used by the training notebook.
+        const auto angle = static_cast<float>(2.0f * pi * n / FRAME_SIZE);
         hannWindow[n] = 0.5f - 0.5f * std::cos(angle);
     }
 }

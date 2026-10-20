@@ -2,7 +2,8 @@
 
 The procedural module APIs have been replaced by stateful C++ objects. This is
 an ownership refactor: buffers, counters, and hardware state belong to the object
-that manages them. CMSIS-DSP, PDM, and TFLite keep their existing upstream APIs.
+that manages them. Measurements below describe that build before the subsequent
+[periodic-window update](periodic-hann-validation.md). CMSIS-DSP, PDM, and TFLite keep their existing upstream APIs.
 
 ## Objects and lifetimes
 
@@ -43,8 +44,6 @@ C++ or bypass compiler checks.
   filtering, smoothing/hysteresis/cooldown, LED actions, and telemetry fields.
 - Fixed-size buffers and no new application heap allocation in capture, DSP,
   inference, event transport, or control.
-- The original Hann-window rounding convention is explicit. Replacing global
-  arrays with members does not change the feature values in the host regression.
 - Backlog-to-time conversion now widens before multiplying by 1,000,000. The old
   32-bit target expression could overflow for more than 4294 queued samples;
   the 8192-sample ring permits that depth. The full-ring timestamp test covers
@@ -75,8 +74,8 @@ Normal firmware was rebuilt and uploaded successfully afterward. The observed
 stress stack-free watermarks were 6776/8192 bytes for audio and 4976/6144 for
 control; the ring peaked at 768/8192 samples.
 The scalar host backend does not execute CMSIS. Its frozen results check refactor
-equivalence, not training/firmware parity or acoustic accuracy. The existing
-Hann convention difference and other [DSP verification limits](dsp-pipeline.md#training-alignment-and-verification-limits)
+equivalence, not training/firmware parity or acoustic accuracy.
+[DSP verification limits](dsp-pipeline.md#training-alignment-and-verification-limits)
 remain documented. Observed stack watermarks and timings describe exercised
 paths rather than established worst-case guarantees.
 
@@ -86,7 +85,7 @@ errors, score drops, and stale rejections remained zero. The final cumulative
 DSP average/maximum was 2627/2853 us, inference 59102/59233 us, and processing-step
 maximum 61997 us. Observed unused stack was 6776 bytes for audio and 4976 for
 control; peak ring occupancy was 768 samples. Counters are cumulative since boot,
-not restricted to the host recording interval. Normal firmware remains installed.
+not restricted to the host recording interval. Normal firmware was restored after that run.
 
 No confirmed keyword actions occurred in the automated normal capture. After
 normal-firmware restoration, the developer separately repeated the spoken
@@ -97,4 +96,4 @@ or accuracy rate is inferred from it. Earlier speech/LED captures remain in
 
 The normal BIN is 332,532 bytes including image layout, with SHA-256
 `89178085786d3ee3de5a38da7b2cdbca22b0d83b6ce79691f680e37e3b70b711`.
-The build manifest matches the current maintained firmware sources.
+That build manifest matched the firmware sources at the time of the object refactor.

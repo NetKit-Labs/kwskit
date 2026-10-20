@@ -195,8 +195,7 @@ No per-class false-accept/false-reject rate is established by that aggregate.
 The physical spoken-word/LED check verifies end-to-end operation. It does not
 establish dataset accuracy. Full quantized-model accuracy, controlled speaker/noise
 coverage, training reproducibility, and numerical feature parity remain separate
-validation work. The existing symmetric/periodic Hann-window difference is
-documented in [DSP training alignment](dsp-pipeline.md#training-alignment-and-verification-limits).
+validation work. See [DSP verification coverage](dsp-pipeline.md#training-alignment-and-verification-limits).
 Retraining is not claimed to reproduce the same bytes; the tracked binary and
 matching header identify the actual deployed model.
 
