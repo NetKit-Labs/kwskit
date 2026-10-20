@@ -131,11 +131,12 @@ TensorFlow Lite Micro automatically invokes CMSIS-NN for optimal performance.
 arm_mult_f32(audioFrame, hannWindow, windowed, FRAME_SIZE);
 arm_rfft_fast_f32(&fft_inst, windowed, fftOut, 0);
 
-for (int i = 0; i < SPECTRUM_BINS; i++) {
-    float real = fftOut[2*i];
-    float imag = fftOut[2*i+1];
-    mag[i] = real*real + imag*imag;
+// CMSIS fast real FFT stores DC and Nyquist in its first two floats.
+mag[0] = fftOut[0] * fftOut[0];
+for (int i = 1; i < FRAME_SIZE / 2; ++i) {
+    mag[i] = fftOut[2*i] * fftOut[2*i] + fftOut[2*i+1] * fftOut[2*i+1];
 }
+mag[FRAME_SIZE / 2] = fftOut[1] * fftOut[1];
 
 arm_mat_mult_f32(&melMat, &magVec, &melOut);
 
@@ -185,7 +186,7 @@ TinyML KWS is ultra-lightweight and maintains real-time operation.
 ## Batch vs Streaming Inference
 
 - Batch mode: ~1 s latency  
-- Streaming mode (future): 30–100 ms latency  
+- Current firmware: rolling ~1 s feature window, decisions every 8 hops (~128 ms), with confidence filtering
 
 Circular buffers can reduce DSP overhead and improve streaming latency.
 
@@ -201,7 +202,7 @@ Solution: augment silence data and retrain.
 
 ## Future Work
 
-1. Streaming audio pipeline (circular buffers)  
+1. Tune streaming detection thresholds using recorded positive and negative examples
 2. Multi-keyword detection (5–10 keywords)  
 3. TinyLLM voice interface with flexible commands:
 
@@ -224,3 +225,44 @@ Generated using Netron:
 ## License
 
 MIT License
+
+
+## Updated firmware and tests
+
+The maintained sketch is `firmware/KWS_Arm_CortexM4F.ino`. For Arduino IDE,
+copy the contents of `firmware/` into a sketch folder named `KWS_Arm_CortexM4F`.
+Select **Arduino Nano 33 BLE**. The empty root-level `.ino` file is not the firmware.
+
+The interrupt callback drains bounded PDM reads into an 8192-sample ring (512 ms).
+The main loop consumes complete 256-sample hops and preserves 50% frame overlap
+across inferences. Acquisition starts after model initialization. Overflow drops
+new samples, counts the loss, and resets the feature window before resuming
+classification. The queue can absorb bounded stalls; it cannot compensate for
+sustained processing slower than acquisition.
+
+Class 0 is `yes`, matching the training notebook. An EMA (weight 0.5) must reach
+0.75 with raw confidence at least 0.8 on two successive decisions. A confirmed
+keyword toggles `LED_BUILTIN` (initially off). The filter rearms below 0.4 and
+requires at least 1500 ms between triggers. These starting thresholds require
+validation with real speech and background noise; host tests do not establish
+false-positive rates.
+
+At 115200 baud, the serial monitor receives telemetry every two seconds:
+
+- `samples`: cumulative samples delivered by PDM; should keep increasing during inference.
+- `dropped`: ring overflow samples; `missed_buffers`: callbacks that lost any samples.
+- `queue_max`: peak queued samples (capacity 8192).
+- `gap_max_us`: largest callback interval; `audio_age_us`: time since the last callback, exposing acquisition stalls that ring counters alone cannot detect.
+- `dsp_us`, `infer_us`, `process_us`: average/maximum execution time in microseconds. Processing includes consumption, DSP, and any inference in that iteration.
+- `response_us`: last/maximum delay from the end of the first high-confidence audio window to the LED action. It includes filtering and processing delay. It is an estimate at callback resolution (~16 ms), not acoustic word-onset latency; measuring that requires a known external audio stimulus.
+- `inferences`, `errors`, `p_milli`, `triggers`, `led`: inference count, failures, confidence multiplied by 1000, confirmed actions, and LED state.
+
+Telemetry uses the Nano mbed USB CDC nonblocking sender. The application starts
+without a serial monitor after a two-second startup timeout. Keep interrupts
+enabled during DSP and inference; only short counter snapshots mask interrupts.
+
+Run `sh tests/run_tests.sh` on a host with Python 3 and a C++ compiler. Tests cover
+queue overflow/order/wraparound, packed FFT bounds and bins, simulated inference
+stalls, filter transitions/cooldown, GPIO toggling with a fake pin, and timing
+accumulation/timer wraparound. Hardware measurements are recorded separately in
+`docs/validation.md`.
