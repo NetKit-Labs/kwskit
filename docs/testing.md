@@ -11,8 +11,8 @@ From the repository root, with Python 3.9+, Make, and a host C++ compiler suppor
 AddressSanitizer and UndefinedBehaviorSanitizer, with C++20 support:
 
 ```sh
-make test-unit        # Ten component checks
-make test-regression  # All fourteen checks, including the unit tests
+make test-unit        # Eleven component checks
+make test-regression  # All fifteen checks, including the unit tests
 make test             # Same complete regression gate used by CI
 ```
 
@@ -40,6 +40,7 @@ firmware modules; they no longer embed C++ programs in Python string literals.
 | [device_action](../tests/device_action_test.py) | Actual device-control module initializes the LED off and alternates GPIO state on confirmed actions, using fake GPIO |
 | [audio_capture](../tests/audio_capture_test.py) | Actual receiver with fake PDM: startup failure, exclusive callback ownership/context, bounded reads, overflow accounting without overwrite, complete-hop timestamps, discard, owner destruction, interrupt-mask preservation, late callbacks, and handoff to a new owner |
 | [feature_extractor](../tests/feature_extractor_test.py) | Actual extractor with scalar host DSP backend: initialization failure, priming/warmup, eight-hop inference cadence, reset, independent contexts, clipping, and periodic Hann coefficients and 84,180 frozen quantized feature bytes |
+| [keyword_model](../tests/keyword_model_test.py) | Actual model adapter with fake TFLite: sixteen process-isolated scenarios for initialization failure, tensor type/size/data/quantization checks, input copy, invocation failure, invalid scores, and preserving the last valid probability |
 | [buffer_contract](../tests/buffer_contract_test.py) | Eleven buffer/ownership compiler probes plus C++11/C++14/C++17 rejection checks: valid C++20 calls compile; wrong buffer extents, raw-pointer ring reads, invalid FFT lengths/capacities, and owner copies fail |
 
 ## Additional integration and regression coverage
@@ -49,9 +50,9 @@ firmware modules; they no longer embed C++ programs in Python string literals.
 | [stream](../tests/stream_test.cpp) | Ten simulated seconds of ordered 16 kHz audio while the consumer pauses for 60 ms inference intervals; no ring loss in the simulated workload |
 | [pipeline](../tests/pipeline_test.py) | Actual audio pipeline with fake capture/features/model: no-hop/readiness behavior, backlog deferral, event timestamps, DSP/inference timing, inference failure, and loss-triggered feature reset |
 | [build_tooling](../tests/build_tooling_test.py) | Nine Python cases for C++20 compiler options/provenance, compiler version/integrity/restoration, archive checksum/cache/path/link boundaries, library/lock changes, core restoration, and ambient Arduino isolation |
-| [rtos_startup](../tests/rtos_startup_test.py) | Actual coordinator with fake CMSIS APIs: static stack/queue storage, task priorities, zero defaults for omitted designated fields, callback notification, idle delay, scoped mutex release, idempotent startup, and cleanup after seven initialization failure modes |
+| [rtos_startup](../tests/rtos_startup_test.py) | Actual coordinator with fake CMSIS APIs: static stack/queue storage, task priorities, zero defaults for omitted designated fields, callback notification, idle delay, scoped mutex release, idempotent startup, and cleanup after nine initialization/start-flag failure modes, nonblocking metrics contention, scheduler-state restoration, final-action invalidation/staleness, and bounded diagnostic scan cadence |
 
-The fourteen checks are suite entries, not a claim of fourteen individual assertions;
+The fifteen checks are suite entries, not a claim of fifteen individual assertions;
 each entry can exercise many cases. In particular, FFT/bin bounds, unread-audio
 preservation, and latch retention guard against the project's earlier defects.
 
@@ -128,8 +129,8 @@ feature digest. The historical implementation is not copied into the maintained
 source tree. See [periodic-window validation](periodic-hann-validation.md).
 
 The [C++ idioms review](cpp-idioms.md) adds typed buffer/FFT contracts, scoped
-resource handling, and the compiler-probe entry. The current complete gate is
-fourteen entries: ten component checks plus four integration/build checks.
+resource handling, and the compiler-probe entry. That stage had fourteen entries:
+ten component checks plus four integration/build checks.
 Compiler-rejection fixtures are separate `.cpp` files and intentionally do not
 compile when invoked as ordinary programs. That stage's normal/stress hardware
 captures and physical LED confirmation are linked from that review; the earlier
@@ -139,7 +140,7 @@ The earlier [C++17 update](cpp17-modernization.md#verification) selected that mi
 language mode in every host harness and both normal/stress cross-builds. It adds
 a raw-pointer ring rejection probe, older-mode rejection checks, destination-size
 regressions, and compiler/provenance tests. Its hardware captures and build
-identity are retained there; the suite still has fourteen entries. The subsequent
+identity are retained there; that stage also had fourteen entries. The subsequent
 [C++20 update](cpp20-modernization.md#verification) adds designated initialization,
 the new pinned compiler, three rejected older modes, and nine build-tool cases.
 
@@ -160,3 +161,10 @@ verifies the serialized graph, parameter counts, and tensor metadata using the
 pinned schema headers after `make setup`. This optional host inspection is
 separate from the dependency-free regression suite and does not execute inference
 or establish quantized-model accuracy.
+
+The [real-time hardening record](realtime-review.md#verification) adds callback
+work-budget/partial-read cases, invalid quantization metadata and float-cast
+overflow sanitizer coverage, dual-clock event expiry, invalid probabilities,
+and the actual coordinator action-path regressions. The complete gate now has
+fifteen entries, including the new model-adapter test; the other cases extend
+existing entries.

@@ -7,26 +7,26 @@ storage, priorities, synchronization, and API source map.
 
 ## Current verification
 
-The latest source and hardware verification is the [C++20 update](cpp20-modernization.md#verification),
-after the ownership refactors and periodic Hann update. It records fourteen passing
+The latest source and hardware verification is the [real-time review](realtime-review.md#verification),
+after the ownership refactors and periodic Hann update. It records fifteen passing
 host suite entries, formatter checks, Nano build, normal capture, control-stall
 stress, and developer-confirmed physical LED toggling during spoken "yes".
 
 | Current-source measurement | Result |
 |---|---|
-| Flash / static RAM | 331,488 / 208,888 bytes |
-| Outside static allocations | 53,256 bytes; not measured free heap |
-| Normal DSP average / observed maximum | 1.985 / 3.015 ms |
-| Normal inference average / observed maximum | 57.914 / 57.954 ms |
-| Normal processing-step observed maximum | 60.030 ms |
-| Minimum observed unused audio / control stack | 6856 / 4848 bytes |
+| Flash / static RAM | 320,088 / 188,392 bytes |
+| Outside static allocations | 73,752 bytes; not measured free heap |
+| Normal DSP average / observed maximum | 1.987 / 2.129 ms |
+| Normal inference average / observed maximum | 57.655 / 57.772 ms |
+| Normal processing-step observed maximum | 59.851 ms |
+| Minimum observed unused audio / control stack | 6872 / 4680 bytes |
 | Peak queued audio / capacity | 768 / 8192 samples |
 | Normal reported audio losses, inference/notification errors, score drops, stale results | All zero |
 | Deliberate 1.5 s control stall | Four score drops, nine stale rejections, zero reported audio losses |
-| Spoken-word output check | 13 cumulative confirmed actions; physical LED toggling confirmed |
+| Spoken-word output check | 10 cumulative confirmed actions; physical LED toggling confirmed |
 
-Raw current-source captures: [normal](cpp20-normal.json) and
-[stress](cpp20-stress.json). Timing and counters are cumulative snapshots;
+Raw current-source captures: [normal](realtime-normal.json) and
+[stress](realtime-stress.json). Timing and counters are cumulative snapshots;
 the action count is not a labeled accuracy measurement. The memory assessment
 limits below also apply to this build.
 
@@ -137,7 +137,7 @@ observed in the normal captures.
 ## Measured memory margins
 
 This table describes the original RTOS build's captures. Current-source stack
-watermarks are 6856/4848 bytes and static RAM is 208,888 bytes, as summarized
+watermarks are 6872/4680 bytes and static RAM is 188,392 bytes, as summarized
 above and in [the project README](../README.md#measured-memory-margins).
 
 The lowest unused stack values across the recorded checks are 6784/4984 bytes
@@ -204,5 +204,5 @@ and captures above remain historical evidence for their stated builds.
 The later [C++ idioms review](cpp-idioms.md#verification) adds the fourteenth suite
 entry and records that stage's build and repeated speech/stress checks.
 
-The [C++20 update](cpp20-modernization.md#verification) records the latest compiler
+The [real-time review](realtime-review.md#verification) records the latest compiler
 settings, reference interfaces, and repeated normal/stress/physical LED checks.

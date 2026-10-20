@@ -9,6 +9,7 @@ struct PdmFake {
     bool running = false;
     int stops = 0;
     std::size_t bufferSize = 0;
+    int readLimit = 512, readCalls = 0;
     std::deque<std::int16_t> pending;
     void onReceive(void (*receiver)()) {
         callback = receiver;

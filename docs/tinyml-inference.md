@@ -111,7 +111,7 @@ for row ordering and logarithm/scaling details.
 | Tensor arena | SRAM, `alignas(16)` array in the private static `KeywordModel::Runtime` | 96 KiB = 98,304 bytes, reserved for the life of the application |
 | Activations, input/output tensors, kernel scratch and prepared runtime metadata | Allocated by TFLite Micro within the arena | Planned/reused according to tensor lifetimes; actual total arena consumption is not reported by this application |
 | Rolling DSP feature context | `FeatureExtractor` member array; application has static lifetime | 1220 bytes, copied into the arena's input tensor for each invocation |
-| MicroProfiler event storage | Member of the private static `KeywordModel::Runtime` | 20,488 bytes in the recorded Nano build; 1024 event capacity |
+| Operator profiler | Disabled; no MicroProfiler object or callbacks | Frees the former 20,488-byte static allocation; whole-invocation telemetry is retained |
 | Interpreter / four-type operator resolver | Private runtime members; interpreter constructed in fixed storage during `KeywordModel::begin` | 176 / 188 bytes in the recorded build; pointers/scalars and guards add small allocations |
 
 `tflite::GetModel` maps the compiled FlatBuffer. In the pinned runtime, constant
@@ -134,19 +134,19 @@ Address     Size (hex)   Symbol
 
 These are observations from the recorded build, not fixed linker addresses for
 future binaries. In the current build, model flash is already included in the
-331,488-byte firmware flash footprint. The arena, profiler, interpreter, resolver,
-and DSP context are already included in the 208,888-byte static RAM total; do not
-subtract them again from the build's 53,256-byte remainder. That remainder is not
-measured free heap. See [current build verification](cpp20-modernization.md#verification).
+320,088-byte firmware flash footprint. The arena, interpreter, resolver,
+and DSP context are already included in the 188,392-byte static RAM total; do not
+subtract them again from the build's 73,752-byte remainder. That remainder is not
+measured free heap. See [current build verification](realtime-review.md#verification).
 
-The profiler wraps its fixed event storage when full. Normal telemetry reports
-whole-invocation timing; the application does not currently export a per-layer
-profiling report. Its profiler RAM is separate from the tensor-arena reservation.
+Normal telemetry reports whole-invocation timing. The unused per-layer profiler
+was removed during the [real-time review](realtime-review.md); its former SRAM
+allocation is no longer part of the current build.
 
 ## Runtime initialization and invocation
 
 `KeywordModel::instance()` returns the single noncopyable model wrapper. Its
-private runtime holds the arena, resolver, profiler, tensors, and interpreter
+private runtime holds the arena, resolver, tensors, and interpreter
 storage with static lifetime; no separate globals expose that state.
 `KeywordModel::begin` is called once during startup before capture starts;
 calls after interpreter construction return the established initialization status.
@@ -156,7 +156,8 @@ checks schema version compatibility, registers four operator types (`CONV_2D`,
 in its statically reserved member storage, and
 calls `AllocateTensors`. The eight graph operators reuse those four registrations.
 It obtains tensor quantization metadata and validates int8 input/output types,
-1220 input bytes, at least one output byte, and positive scales. The compiled
+1220 input bytes, at least one output byte, finite positive scales, and int8
+input/output zero points and nonnull tensor data. Prediction rejects nonfinite or out-of-range probabilities. The compiled
 artifact has three output elements; initialization does not independently check
 all tensor dimensions or the semantic label order.
 
@@ -258,12 +259,22 @@ rejection were checked separately from the dependency-free host test suite.
 To reproduce the linked placement check after `make build`:
 
 ```sh
-.build/arduino-data/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/bin/arm-none-eabi-nm \
+.build/toolchain/arm-gnu-toolchain-13.3.rel1-darwin-arm64-arm-none-eabi/bin/arm-none-eabi-nm \
     -S -C .build/artifacts/KWS_Arm_CortexM4F.ino.elf \
-    | rg 'kws_1class_depthwise_int8_tflite$|tensor_arena$|profiler$'
+    | rg 'kws_1class_depthwise_int8_tflite$|KeywordModel::instance\(\)::storage$'
 ```
+
+Substitute the installed host-specific compiler directory on Intel macOS or
+Linux. The arena is now a member of the private runtime storage; the historical
+standalone arena/profiler symbols shown earlier are not current symbol names.
 
 The verification of artifact/header identity, tensor metadata, parameter counts,
 and ELF placement does not run the network on labeled examples. See
 [unit/regression coverage](testing.md) and [hardware evidence](rtos-validation.md)
 for the different validation scopes.
+
+The shared compiler header defines `TF_LITE_STRIP_ERROR_STRINGS` for TFLite
+translation units. This prevents normal runtime error reporting from reaching
+blocking Arduino Serial writes. Application initialization messages and numeric
+inference-error counters remain; fatal framework assertions are still a platform
+fault-handling limitation documented in the [real-time review](realtime-review.md).

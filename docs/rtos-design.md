@@ -41,11 +41,11 @@ message path. The 96 KiB tensor arena and feature/DSP workspaces remain static.
 Unused task stack watermarks are reported through `stack_free`; they measure the
 observed high-water usage, not a proof against every future execution path.
 
-The current locked build reserves 208,888 bytes of static RAM, including both
-stacks, the 16 KiB audio ring, and the 96 KiB tensor arena. Its remaining 53,256 bytes are
+The current locked build reserves 188,392 bytes of static RAM, including both
+stacks, the 16 KiB audio ring, and the 96 KiB tensor arena. Its remaining 73,752 bytes are
 outside static allocations, not a free-heap measurement. The recorded stack
 watermarks and ring occupancy are summarized in
-[current validation](cpp20-modernization.md#verification). Heap peak,
+[current validation](realtime-review.md#verification). Heap peak,
 framework/interrupt-stack usage, and actual arena consumption remain unmeasured.
 
 ## Ownership and synchronization
@@ -57,7 +57,10 @@ Acquisition counters are copied with interrupts briefly disabled; `InterruptLock
 restores the caller's previous interrupt mask on scope exit. A priority-
 inheriting mutex protects the audio statistics snapshot; it is never held across
 DSP, inference, USB, GPIO, or a queue wait, and is never used by the ISR.
-`MutexLock` releases that initialized mutex automatically when its scope ends.
+`MutexLock` uses timeout zero and releases only an acquired mutex. Audio skips
+publication if busy; control retains its prior statistics. Metrics contention
+therefore cannot suspend the audio task. Stack-watermark scans run initially
+and at two-second intervals, rather than at every control wake.
 
 The callback sets a thread flag after samples are available. Repeated flags can
 coalesce safely because the ring preserves samples and the task drains it before
@@ -81,7 +84,12 @@ retrigger suppression. Fresh negative evidence still rearms the filter normally.
 
 Filtering retains the original EMA 0.5, smoothed threshold 0.75, raw threshold
 0.8, two qualifying decisions, release threshold 0.4, and 1500 ms cooldown.
-The control task rechecks the generation before applying a confirmed action.
+The control task locks task scheduling for the final generation/dual-clock
+freshness check and the preinitialized LED write. `SchedulerLock` restores the
+previous scheduler state, including nested locking, and interrupts remain enabled.
+This closes the preemption window between validation and action. A failed lock
+suppresses the action. Never extend that scope with blocking communications or
+dynamic allocation.
 
 A slow control task can lose score events; it does not stall the audio consumer.
 A slow audio task can still overflow the finite 512 ms audio ring. Neither queue
@@ -91,7 +99,10 @@ capacity nor task separation establishes a universal no-loss guarantee.
 
 Model/DSP initialization precedes task creation. Both workers initially wait on
 a start flag. PDM starts only after queue, mutex, and both tasks exist; startup
-then releases the workers. On failure, capture stops before task IDs, queue, or
+then checks both worker-release flag results. No blocking success print runs
+after capture starts. TFLite error strings are stripped through the shared build
+configuration, keeping inference failure reporting in counters rather than
+blocking Arduino Serial writes. On failure, capture stops before task IDs, queue, or
 mutex are deleted. Setup reports the failure and halts rather than running a
 partially initialized application.
 
@@ -114,7 +125,8 @@ through the coordinator in [kws_pipeline.cpp](../firmware/kws_pipeline.cpp).
 | `osMessageQueueNew` / `osMessageQueuePut` / `osMessageQueueGet` | Create the eight-score queue, send without waiting, receive with a 20 ms timeout |
 | `osMutexNew` | Create the priority-inheriting metrics mutex |
 | `osMutexAcquire` / `osMutexRelease` | Scope-based metrics protection in [mutex_lock.h](../firmware/mutex_lock.h) |
-| `osThreadGetStackSpace` | Report unused audio/control stack watermarks |
+| `osThreadGetStackSpace` | Sample unused audio/control stack watermarks initially and every two seconds |
+| `osKernelLock` / `osKernelRestoreLock` | Serialize final action validation and the initialized GPIO write; preserve interrupt delivery |
 | `osKernelGetTickFreq` | Convert milliseconds to scheduler ticks |
 | `osDelay` | Idle the Arduino main task for 1 s; inject the control stall only in the stress build |
 | `osThreadTerminate` / `osMessageQueueDelete` / `osMutexDelete` | Release initialized resources during cleanup |
@@ -163,3 +175,6 @@ The [C++ idioms review](cpp-idioms.md) documents fixed-size buffer references,
 scoped interrupt/mutex guards, automatic cleanup, and idempotent startup in the
 current implementation. Scheduling, queue capacities, and task priorities remain
 those described above.
+
+See [real-time review](realtime-review.md) for the explicit callback work budget,
+platform allocation/startup behavior, and remaining timing/fault-validation limits.

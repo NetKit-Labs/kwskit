@@ -1,6 +1,8 @@
 #include "../firmware/keyword_event.h"
 #include <cstdint>
 #include <cassert>
+#include <limits>
+#include <initializer_list>
 KeywordEvent score(float p, std::uint32_t seq, std::uint32_t ms, std::uint32_t generation = 0) {
     return {p, ms * 1000 - 60000, ms * 1000, ms, seq, generation};
 }
@@ -56,4 +58,16 @@ int main() {
     e.decisionUs = 256000;
     e.decisionMs = 1256;
     assert(wrap.consume(e, 0, 256100, 1256).detection.confirmed);
+    KeywordEventFilter invalid;
+    for (const float p : {std::numeric_limits<float>::quiet_NaN(),
+             std::numeric_limits<float>::infinity(), -0.1f, 1.1f}) {
+        auto bad = score(p, 1, 1000);
+        assert(invalid.consume(bad, 0, 1000000, 1000).discarded);
+    }
+    // A queued result cannot become fresh again after micros() wraps (~71 minutes).
+    const auto old = score(1.0f, 1, 1000);
+    assert(invalid.consume(old, 0, old.decisionUs + 1000, 1000 + 4294967).discarded);
+    // Both clocks and sequence IDs may cross their normal rollover while data is fresh.
+    auto fresh = score(1.0f, 0xffffffffu, 0xfffffff0u);
+    assert(!invalid.consume(fresh, 0, fresh.decisionUs + 32000, 16).discarded);
 }

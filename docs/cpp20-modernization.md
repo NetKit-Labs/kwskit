@@ -1,5 +1,8 @@
 # C++20 initialization and compiler update
 
+This record describes the C++20 migration build. The later [real-time review](realtime-review.md)
+supersedes its current footprint, synchronization, and hardware measurements.
+
 The maintained native firmware, tests, and host inspector now require C++20.
 Firmware selects GNU++20 with Arm GNU Toolchain 13.3.Rel1 (GCC 13.3.1); host checks
 use C++20. The project header rejects older modes, including C++17. The board

@@ -15,6 +15,7 @@ with tempfile.TemporaryDirectory(prefix="kws-features-") as directory:
             "-Wextra",
             "-Werror",
             "-fsanitize=address,undefined",
+            "-fsanitize=float-cast-overflow",
             "-Itests/fixtures/support",
             "-Ifirmware",
             "firmware/feature_extractor.cpp",

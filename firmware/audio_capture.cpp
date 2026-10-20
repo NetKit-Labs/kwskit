@@ -23,12 +23,19 @@ void AudioCapture::receive() {
     }
     lastAudioUs = now;
     bool missed = false;
-    while (PDM.available() > 0) {
-        const int bytes =
-            std::min(PDM.available(), static_cast<int>(pdmBuffer.size() * sizeof(pdmBuffer[0])));
-        const int received = PDM.read(pdmBuffer.data(), bytes);
-        if (received <= 0)
+    // The driver publishes one configured DMA block per callback. Even a faulty
+    // driver that keeps reporting data cannot extend this ISR beyond one block.
+    int remaining = sizeof(pdmBuffer);
+    while (remaining >= static_cast<int>(sizeof(pdmBuffer[0]))) {
+        const int bytes = std::min(PDM.available(), remaining) & ~1;
+        if (bytes <= 0)
             break;
+        const int received = PDM.read(pdmBuffer.data(), bytes);
+        if (received <= 0 || received > bytes || received % sizeof(pdmBuffer[0]) != 0) {
+            missed = true;
+            break;
+        }
+        remaining -= received;
         receivedSamples = receivedSamples + received / 2;
         for (int i = 0; i < received / 2; ++i)
             if (!audioQueue.push(pdmBuffer[i]))

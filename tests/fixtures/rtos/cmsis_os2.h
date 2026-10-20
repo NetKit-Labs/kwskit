@@ -43,6 +43,8 @@ std::uint32_t osThreadFlagsSet(osThreadId_t, std::uint32_t);
 std::uint32_t osThreadFlagsWait(std::uint32_t, std::uint32_t, std::uint32_t);
 std::uint32_t osKernelGetTickFreq();
 int osDelay(std::uint32_t);
+std::int32_t osKernelLock();
+std::int32_t osKernelRestoreLock(std::int32_t);
 osMessageQueueId_t osMessageQueueNew(std::uint32_t, std::uint32_t, const osMessageQueueAttr_t *);
 int osMessageQueueDelete(osMessageQueueId_t);
 int osMessageQueuePut(osMessageQueueId_t, const void *, std::uint8_t, std::uint32_t);

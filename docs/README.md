@@ -5,13 +5,16 @@ fields are documented in the [project README](../README.md).
 For current scheduling and API use, see [RTOS design](rtos-design.md), including
 [why two tasks are used](rtos-design.md#why-two-application-tasks) and
 [the API source map](rtos-design.md#rtos-api-source-map). Latest build and hardware
-measurements are in the [C++20 verification](cpp20-modernization.md#verification).
+measurements are in the [real-time verification](realtime-review.md#verification).
 Earlier validation records and captures retain their original results as history.
 
 | Record | Contents |
 |---|---|
-| [C++20 normal telemetry](cpp20-normal.json) | Current C++20 audio/inference and spoken-word regression |
-| [C++20 stress telemetry](cpp20-stress.json) | Current C++20 control-stall and normal restoration record |
+| [Real-time normal telemetry](realtime-normal.json) | Current hardened firmware, continuous audio/inference, and spoken-word LED check |
+| [Real-time stress telemetry](realtime-stress.json) | Current control-stall and normal restoration record |
+| [C++20 normal telemetry](cpp20-normal.json) | Historical C++20 audio/inference and spoken-word regression |
+| [C++20 stress telemetry](cpp20-stress.json) | Historical C++20 control-stall and normal restoration record |
+| [Real-time review](realtime-review.md) | Runtime hardening, targeted regressions, hardware checks, and explicit platform limits |
 | [C++20 modernization](cpp20-modernization.md) | Designated initialization, focused C++20 facilities, pinned compiler, and verification |
 | [Reference-cleanup normal telemetry](reference-cleanup-normal.json) | 30-second audio/inference regression after local object-reference cleanup |
 | [C++17 normal telemetry](cpp17-normal.json) | Historical C++17 normal-operation acquisition/inference and spoken-word check |

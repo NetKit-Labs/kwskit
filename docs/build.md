@@ -36,7 +36,7 @@ A successful build prints flash/static RAM usage. Generated firmware is in:
 .build/artifacts/build-manifest.json
 ```
 
-The two-task RTOS build uses 331,488 bytes flash and 208,888 bytes static RAM. Preserve
+The two-task RTOS build uses 320,088 bytes flash and 188,392 bytes static RAM. Preserve
 the manifest beside the binaries when comparing builds. The source remains in
 `firmware/`; do not edit the generated sketch under `.build/`.
 
@@ -139,8 +139,8 @@ record any measured firmware changes before updating performance claims.
 |---|---|
 | `make setup` | Install/restore locked dependencies (network required) |
 | `make test` | Complete host regression gate used by CI; includes unit tests |
-| `make test-unit` | Ten isolated component checks; no board or Arduino setup required |
-| `make test-regression` | All fourteen unit/integration/regression checks; equivalent to `make test` |
+| `make test-unit` | Eleven isolated component checks; no board or Arduino setup required |
+| `make test-regression` | All fifteen unit/integration/regression checks; equivalent to `make test` |
 | `make format` | Apply four-space C++/Python style using the optional pinned formatter environment |
 | `make format-check` | Verify C++/Python/notebook formatting; see [source style](source-style.md) for setup |
 | `make build JOBS=2` | Verify dependencies and cross-compile |
@@ -166,7 +166,8 @@ Intel macOS, and Linux x86-64/AArch64 hosts.
 The CLI passes both `compiler.path=<project-toolchain>/bin/` and
 `compiler.cpp.extra_flags` with the standard and forced include of the staged
 `cpp_standard.h`. That header loads `<chrono>` before Arduino's conflicting
-`abs` macro. Compiled upstream C++ translation units receive those settings;
+`abs` macro and defines `TF_LITE_STRIP_ERROR_STRINGS` so TFLite runtime failures
+cannot print through its blocking Arduino logger. Compiled upstream C++ translation units receive those settings;
 imported C sources still use C recipes. The supplied precompiled Mbed/RTX archive
 is retained. Both normal and stress manifests record `cpp_standard: gnu++20` and
 the complete compiler/dependency pins. See [C++20 verification](cpp20-modernization.md).

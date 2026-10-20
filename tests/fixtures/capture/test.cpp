@@ -40,6 +40,8 @@ int PdmFake::available() {
 }
 int PdmFake::read(void *destination, int bytes) {
     assert(bytes > 0 && static_cast<std::size_t>(bytes) <= bufferSize && bytes % 2 == 0);
+    ++readCalls;
+    bytes = std::min(bytes, readLimit);
     auto *samples = static_cast<std::int16_t *>(destination);
     for (int i = 0; i < bytes / 2; ++i) {
         samples[i] = pending.front();
@@ -59,8 +61,12 @@ int main() {
     for (int i = 0; i < 8192 + 168; ++i) {
         PDM.pending.push_back(static_cast<std::int16_t>(i));
     }
+    // A driver reporting more than a block cannot make one callback drain unbounded work.
     PDM.callback();
-    assert(notifications == 1 && PDM.pending.empty());
+    assert(notifications == 1 && PDM.pending.size() == 8360 - HOP_SIZE && PDM.readCalls == 1);
+    while (!PDM.pending.empty())
+        PDM.callback();
+    assert(notifications == 33);
     const auto stats = capture.snapshot();
     assert(stats.receivedSamples == 8360 && stats.droppedSamples == 168);
     assert(stats.missedBuffers == 1 && stats.highWater == 8192);
@@ -85,12 +91,12 @@ int main() {
     PDM.pending.push_back(123);
     clockUs += 16000;
     PDM.callback();
-    assert(notifications == 2 && capture.available() == 1);
+    assert(notifications == 34 && capture.available() == 1);
     assert(capture.snapshot().gapMaxUs == 16000);
     capture.end();
     assert(!PDM.running && PDM.stops == 1);
     PDM.callback(); // A late callback must not dereference a former receiver.
-    assert(notifications == 2);
+    assert(notifications == 34);
     assert(other.begin(notify, &notifications));
     other.end();
     assert(!PDM.running && PDM.stops == 2 && interruptMask == 0);
@@ -100,5 +106,20 @@ int main() {
     }
     assert(!PDM.running && PDM.stops == 3);
     PDM.callback(); // Destruction unregisters the former owner.
-    assert(notifications == 2);
+    assert(notifications == 34);
+    {
+        AudioCapture partial;
+        assert(partial.begin());
+        PDM.readLimit = 2;
+        PDM.readCalls = 0;
+        for (int i = 0; i < 512; ++i)
+            PDM.pending.push_back(i);
+        PDM.callback();
+        assert(PDM.readCalls == 256 && partial.available() == HOP_SIZE);
+        assert(PDM.pending.size() == HOP_SIZE);
+        PDM.readLimit = 0;
+        PDM.callback();
+        assert(partial.snapshot().missedBuffers == 1);
+        PDM.pending.clear();
+    }
 }

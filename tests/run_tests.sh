@@ -22,9 +22,11 @@ python3 tests/audio_capture_test.py
 echo 'PASS: audio_capture'
 python3 tests/feature_extractor_test.py
 echo 'PASS: feature_extractor'
+python3 tests/keyword_model_test.py
+echo 'PASS: keyword_model'
 python3 tests/buffer_contract_test.py
 echo 'PASS: buffer_contract'
-echo 'PASS: unit suite (10 checks)'
+echo 'PASS: unit suite (11 checks)'
 if [ "$suite" = unit ]; then
     exit 0
 fi
@@ -37,4 +39,4 @@ python3 tests/build_tooling_test.py
 echo 'PASS: build_tooling'
 python3 tests/rtos_startup_test.py
 echo 'PASS: rtos_startup'
-echo 'PASS: complete regression suite (14 checks, including unit tests)'
+echo 'PASS: complete regression suite (15 checks, including unit tests)'

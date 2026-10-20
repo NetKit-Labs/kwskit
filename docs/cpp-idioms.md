@@ -1,5 +1,8 @@
 # C++ idioms and ownership review
 
+The later [real-time review](realtime-review.md) makes metrics guards nonblocking,
+adds the final-action scheduler guard, and supersedes the measurements below.
+
 This record describes the ownership/buffer review before the subsequent
 [C++17 update](cpp17-modernization.md), which supersedes its language settings,
 ring read API, and current-build measurements. The results below remain evidence

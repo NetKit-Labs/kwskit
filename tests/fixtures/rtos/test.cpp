@@ -1,5 +1,6 @@
 #include "kws_pipeline.h"
 #include "mutex_lock.h"
+#include "scheduler_lock.h"
 #include <cstdint>
 #include "audio_pipeline.h"
 #include "audio_capture.h"
@@ -11,18 +12,32 @@
 #include <Arduino.h>
 #include <cassert>
 #include <cstring>
+#include <vector>
 SerialFake Serial;
+std::uint32_t clockUs = 1000000, clockMs = 1000;
 std::uint32_t micros() {
-    return 0;
+    return clockUs;
 }
 std::uint32_t millis() {
-    return 0;
+    return clockMs;
 }
 int failure = 0, mutexes = 0, queues = 0, threads = 0, threadCalls = 0, lastDelay = 0,
     flagCalls = 0;
 AudioCapture::Notification notifier = nullptr;
 void *notificationContext = nullptr;
 std::array<osThreadAttr_t, 2> attrs{};
+struct Task {
+    void (*entry)(void *) = nullptr;
+    void *context = nullptr;
+};
+std::array<Task, 2> tasks{};
+struct StopTask {};
+std::vector<KeywordEvent> scores;
+std::size_t nextScore = 0;
+int actions = 0, stackQueries = 0, schedulerState = 0;
+bool mutexBusy = false, schedulerFailure = false, delayAction = false;
+bool invalidateAction = false, runningAudio = false;
+int audioWaits = 0, audioSteps = 0;
 osMutexId_t osMutexNew(const osMutexAttr_t *a) {
     assert(a->cb_mem && a->cb_size && a->attr_bits == osMutexPrioInherit);
     if (failure == 1) {
@@ -37,7 +52,9 @@ int osMutexDelete(osMutexId_t) {
 }
 int heldLocks = 0;
 int osMutexAcquire(osMutexId_t mutex, std::uint32_t wait) {
-    assert(mutex && wait == osWaitForever);
+    assert(mutex && wait == 0);
+    if (mutexBusy)
+        return -1;
     ++heldLocks;
     return 0;
 }
@@ -65,14 +82,21 @@ int osMessageQueuePut(osMessageQueueId_t, const void *, std::uint8_t, std::uint3
     assert(wait == 0);
     return 0;
 }
-int osMessageQueueGet(osMessageQueueId_t, void *, std::uint8_t *, std::uint32_t) {
-    return -1;
+int osMessageQueueGet(osMessageQueueId_t, void *destination, std::uint8_t *, std::uint32_t) {
+    if (nextScore == scores.size())
+        throw StopTask{};
+    const auto &event = scores[nextScore++];
+    clockUs = event.decisionUs + 8000;
+    clockMs = event.decisionMs + 8;
+    *static_cast<KeywordEvent *>(destination) = event;
+    return osOK;
 }
 osThreadId_t osThreadNew(void (*entry)(void *), void *context, const osThreadAttr_t *a) {
     assert(context);
     assert(a->attr_bits == 0 && a->tz_module == 0 && a->reserved == 0);
     assert(entry && a->stack_mem && a->cb_mem && (std::uintptr_t(a->stack_mem) % 8) == 0);
     int call = threadCalls++;
+    tasks[call % 2] = {entry, context};
     attrs[call % 2] = *a;
     if ((failure == 3 && call == 0) || (failure == 4 && call == 1))
         return nullptr;
@@ -84,14 +108,20 @@ int osThreadTerminate(osThreadId_t) {
     return 0;
 }
 std::uint32_t osThreadGetStackSpace(osThreadId_t) {
+    ++stackQueries;
     return 4096;
 }
 std::uint32_t osThreadFlagsSet(osThreadId_t id, std::uint32_t f) {
     assert(id);
     ++flagCalls;
+    if ((failure == 8 && id == reinterpret_cast<void *>(std::uintptr_t{4})) ||
+        (failure == 9 && id == reinterpret_cast<void *>(std::uintptr_t{3})))
+        return osFlagsError;
     return f;
 }
 std::uint32_t osThreadFlagsWait(std::uint32_t f, std::uint32_t, std::uint32_t) {
+    if (runningAudio && f == 2 && ++audioWaits > 1)
+        throw StopTask{};
     return f;
 }
 std::uint32_t osKernelGetTickFreq() {
@@ -100,6 +130,33 @@ std::uint32_t osKernelGetTickFreq() {
 int osDelay(std::uint32_t t) {
     lastDelay = t;
     return 0;
+}
+std::int32_t osKernelLock() {
+    if (invalidateAction) {
+        // Simulate audio preempting control immediately before scheduler locking.
+        invalidateAction = false;
+        runningAudio = true;
+        audioWaits = audioSteps = 0;
+        try {
+            tasks[0].entry(tasks[0].context);
+        } catch (const StopTask &) {
+        }
+        runningAudio = false;
+    }
+    if (delayAction) {
+        clockUs += 300000;
+        clockMs += 300;
+    }
+    if (schedulerFailure)
+        return -1;
+    const auto previous = schedulerState;
+    schedulerState = 1;
+    return previous;
+}
+std::int32_t osKernelRestoreLock(std::int32_t previous) {
+    assert(schedulerState == 1 && previous >= 0);
+    schedulerState = previous;
+    return previous;
 }
 
 bool AudioCapture::begin(Notification callback, void *context) {
@@ -132,7 +189,10 @@ bool FeatureExtractor::begin(float, std::int32_t) {
 void DeviceControl::begin() {
     deviceOn = false;
 }
-void DeviceControl::applyKeywordAction() {}
+void DeviceControl::applyKeywordAction() {
+    assert(schedulerState == 1);
+    ++actions;
+}
 bool DeviceControl::isOn() const {
     return deviceOn;
 }
@@ -150,7 +210,7 @@ AudioStep AudioPipeline::process(KeywordEvent &) {
     (void)model;
     (void)seenDrops;
     (void)audioHop;
-    return {false, false, false};
+    return {false, false, audioSteps++ == 0};
 }
 struct KeywordModel::Runtime {};
 KeywordModel &KeywordModel::instance() {
@@ -166,7 +226,30 @@ int main() {
     };
     earlyReturn();
     assert(heldLocks == 0);
-    for (int f = 1; f <= 7; ++f) {
+    mutexBusy = true;
+    {
+        const MutexLock lock(reinterpret_cast<void *>(std::uintptr_t{1}));
+        assert(!lock && heldLocks == 0);
+    }
+    mutexBusy = false;
+    {
+        const SchedulerLock outer;
+        assert(outer && schedulerState == 1);
+        {
+            const SchedulerLock nested;
+            assert(nested);
+        }
+        assert(schedulerState == 1);
+    }
+    assert(schedulerState == 0);
+    schedulerFailure = true;
+    {
+        const SchedulerLock lock;
+        assert(!lock);
+    }
+    assert(schedulerState == 0);
+    schedulerFailure = false;
+    for (int f = 1; f <= 9; ++f) {
         failure = f;
         threadCalls = 0;
         assert(!KwsPipeline::begin());
@@ -188,4 +271,36 @@ int main() {
     assert(flagCalls == 1);
     KwsPipeline::poll();
     assert(lastDelay == 1000);
+    const auto runControl = [] {
+        scores.clear();
+        for (std::uint32_t i = 0; i < 30; ++i) {
+            const auto ms = 1000 + i * 128;
+            scores.push_back({i < 3 ? 1.0f : 0.0f, ms * 1000 - 60000, ms * 1000, ms, i, 0});
+        }
+        nextScore = 0;
+        actions = stackQueries = 0;
+        try {
+            tasks[1].entry(tasks[1].context);
+        } catch (const StopTask &) {
+        }
+        assert(heldLocks == 0 && schedulerState == 0);
+        assert(stackQueries == 4); // First sample, then once per two seconds; not every loop.
+    };
+    runControl();
+    assert(actions == 1);
+    delayAction = true;
+    runControl();
+    assert(actions == 0); // A fresh dequeue can become stale before the GPIO action.
+    delayAction = false;
+    schedulerFailure = true;
+    runControl();
+    assert(actions == 0);
+    schedulerFailure = false;
+    mutexBusy = true;
+    runControl();
+    assert(actions == 1); // Optional metrics contention does not prevent device operation.
+    mutexBusy = false;
+    invalidateAction = true;
+    runControl();
+    assert(actions == 0); // Generation changed between filtering and the final action check.
 }

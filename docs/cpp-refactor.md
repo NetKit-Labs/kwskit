@@ -7,7 +7,9 @@ that manages them. Measurements below describe that build before the subsequent
 [C++ idioms review](cpp-idioms.md). The latter records that stage's buffer contracts,
 resource cleanup, build footprint, and repeated hardware checks. The subsequent
 [C++17 update](cpp17-modernization.md) records that stage's source and build settings;
-[C++20 modernization](cpp20-modernization.md) describes the current compiler and initialization style.
+[C++20 modernization](cpp20-modernization.md) describes the compiler and initialization style.
+The later [real-time review](realtime-review.md) removes the profiler and updates
+metrics/action synchronization; the ownership-stage measurements below remain historical.
 CMSIS-DSP, PDM, and TFLite keep their existing upstream APIs.
 
 ## Objects and lifetimes

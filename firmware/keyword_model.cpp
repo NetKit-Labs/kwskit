@@ -5,11 +5,11 @@
 #include <tensorflow/lite/micro/micro_error_reporter.h>
 #include <tensorflow/lite/micro/micro_interpreter.h>
 #include <tensorflow/lite/micro/micro_mutable_op_resolver.h>
-#include <tensorflow/lite/micro/micro_profiler.h>
 #include <tensorflow/lite/schema/schema_generated.h>
 #include "kws_1class_depthwise_int8.h"
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <new>
 
 struct KeywordModel::Runtime {
@@ -18,7 +18,6 @@ struct KeywordModel::Runtime {
     Runtime &operator=(const Runtime &) = delete;
     alignas(16) std::array<std::uint8_t, 96 * 1024> tensorArena{};
     tflite::MicroErrorReporter errorReporter;
-    tflite::MicroProfiler profiler;
     tflite::MicroMutableOpResolver<4> resolver;
     alignas(tflite::MicroInterpreter)
         std::array<std::byte, sizeof(tflite::MicroInterpreter)> interpreterStorage{};
@@ -55,9 +54,8 @@ bool KeywordModel::begin() {
     }
 
     // Placement construction uses the fixed member storage; it does not allocate from the heap.
-    runtime.interpreter =
-        new (runtime.interpreterStorage.data()) tflite::MicroInterpreter(&model, runtime.resolver,
-            runtime.tensorArena.data(), runtime.tensorArena.size(), nullptr, &runtime.profiler);
+    runtime.interpreter = new (runtime.interpreterStorage.data()) tflite::MicroInterpreter(
+        &model, runtime.resolver, runtime.tensorArena.data(), runtime.tensorArena.size());
     auto &interpreter = *runtime.interpreter;
     if (interpreter.AllocateTensors() != kTfLiteOk) {
         static_cast<tflite::ErrorReporter &>(runtime.errorReporter)
@@ -71,9 +69,12 @@ bool KeywordModel::begin() {
     }
     const auto &input = *runtime.input;
     const auto &output = *runtime.output;
-    runtime.ready = input.type == kTfLiteInt8 && output.type == kTfLiteInt8 &&
-        input.bytes == NUM_FRAMES * NUM_MEL && output.bytes >= 1 && input.params.scale > 0 &&
-        output.params.scale > 0;
+    runtime.ready = input.type == kTfLiteInt8 && output.type == kTfLiteInt8 && input.data.int8 &&
+        output.data.int8 && input.bytes == NUM_FRAMES * NUM_MEL && output.bytes >= 1 &&
+        std::isfinite(input.params.scale) && input.params.scale > 0 &&
+        input.params.zero_point >= -128 && input.params.zero_point <= 127 &&
+        std::isfinite(output.params.scale) && output.params.scale > 0 &&
+        output.params.zero_point >= -128 && output.params.zero_point <= 127;
     return runtime.ready;
 }
 
@@ -96,6 +97,9 @@ bool KeywordModel::predict(const FeatureTensor &features, float &probability) {
     if (interpreter.Invoke() != kTfLiteOk) {
         return false;
     }
-    probability = output.params.scale * (output.data.int8[0] - output.params.zero_point);
+    const auto candidate = output.params.scale * (output.data.int8[0] - output.params.zero_point);
+    if (!std::isfinite(candidate) || candidate < 0.0f || candidate > 1.0f)
+        return false;
+    probability = candidate;
     return true;
 }

@@ -130,8 +130,11 @@ q = clamp(q, -128, 127)
 ```
 
 `roundf` rounds halfway cases away from zero. Scale/zero point are model metadata,
-not hardcoded signal-processing constants. Initialization rejects nonpositive
-scales and verifies int8 input/output types and the expected 1220 input bytes.
+not hardcoded signal-processing constants. Initialization requires
+finite positive scales and verifies int8 input/output types, the int8 input zero
+point, and the expected 1220 input bytes. Rounding and clamping happen in floating
+point before conversion to int8, avoiding an overflowing intermediate integer
+conversion for very small positive scales.
 
 Each 20-byte quantized row is appended to `featureBuffer`; the oldest row is
 removed by shifting the prior 60 rows. Time is the major dimension, with ascending
@@ -192,14 +195,14 @@ This subtotal excludes FFT/matrix descriptors, counters, coefficient storage,
 the audio ring/hop buffer, and the model's separate 96 KiB arena. It is a fixed
 workspace budget, not a measured dynamic-memory high-water value.
 
-In the [current normal capture](cpp20-normal.json), `dsp_us` averaged 1985 us
-with a 3015 us observed maximum; inference averaged 57,914 us with a 57,954 us
+In the [current normal capture](realtime-normal.json), `dsp_us` averaged 1987 us
+with a 2129 us observed maximum; inference averaged 57,655 us with a 57,772 us
 maximum. `dsp_us` wraps `FeatureExtractor::consume`, including the cheap priming hop.
 It includes frame movement, window/FFT/power, mel/log/quantization, and feature
 movement on later hops. These are whole-step measurements, not per-stage timings
 or established worst-case execution times. `infer_us` includes the input copy
 and model invocation. Definitions are in [RTOS design](rtos-design.md); current
-build identity and capture results are in [verification](cpp20-modernization.md#verification).
+build identity and capture results are in [verification](realtime-review.md#verification).
 
 ## Training alignment and verification limits
 

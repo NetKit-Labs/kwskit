@@ -24,10 +24,10 @@ void FeatureExtractor::computeLogMel() {
 
     for (std::size_t m = 0; m < melRow.size(); ++m) {
         const float logMel = std::log(melRow[m] + 1e-6f);
+        // Saturate in floating point before conversion, including overflow to infinity.
         const auto quantized =
-            static_cast<std::int32_t>(std::round(logMel / inputScale + inputZeroPoint));
-        quantizedMelRow[m] =
-            static_cast<std::int8_t>(std::clamp<std::int32_t>(quantized, -128, 127));
+            std::clamp(std::round(logMel / inputScale + inputZeroPoint), -128.0f, 127.0f);
+        quantizedMelRow[m] = static_cast<std::int8_t>(quantized);
     }
 
     std::copy(featureBuffer.begin() + NUM_MEL, featureBuffer.end(), featureBuffer.begin());
@@ -52,11 +52,13 @@ void FeatureExtractor::consume(const AudioHop &samples) {
     if (frameCount < NUM_FRAMES) {
         ++frameCount;
     }
-    ++framesSinceInference;
+    if (framesSinceInference < INFERENCE_HOP)
+        ++framesSinceInference;
 }
 
 bool FeatureExtractor::begin(float scale, std::int32_t zeroPoint) {
-    if (scale <= 0 || arm_rfft_fast_init_f32(&fft, FRAME_SIZE) != ARM_MATH_SUCCESS) {
+    if (!std::isfinite(scale) || scale <= 0 || zeroPoint < -128 || zeroPoint > 127 ||
+        arm_rfft_fast_init_f32(&fft, FRAME_SIZE) != ARM_MATH_SUCCESS) {
         return false;
     }
     inputScale = scale;

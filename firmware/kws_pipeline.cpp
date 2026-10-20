@@ -12,6 +12,7 @@
 #include <atomic>
 #include <array>
 #include "mutex_lock.h"
+#include "scheduler_lock.h"
 
 namespace {
     class Application {
@@ -46,7 +47,8 @@ namespace {
         }
         void publishAudio() {
             const MutexLock lock(metricsMutex);
-            sharedAudio = audioPipeline.statistics();
+            if (lock)
+                sharedAudio = audioPipeline.statistics();
         }
         void processAudio() {
             osThreadFlagsWait(runFlag, osFlagsWaitAny, osWaitForever);
@@ -78,6 +80,9 @@ namespace {
             osThreadFlagsWait(runFlag, osFlagsWaitAny, osWaitForever);
             KeywordEventFilter filter;
             TimingStats response, queueLatency;
+            PipelineMetrics latestAudio;
+            std::uint32_t lastStackCheck = 0, audioStackFree = 0, controlStackFree = 0;
+            bool haveStackSample = false;
             std::uint32_t triggers = 0, staleEvents = 0;
 #ifdef KWS_RTOS_STRESS_TEST
             bool stressDone = false;
@@ -97,27 +102,43 @@ namespace {
                     auto result = filter.consume(event, generation.load(), now, millis());
                     if (result.discarded)
                         ++staleEvents;
-                    if (result.detection.confirmed && event.generation == generation.load()) {
-                        device.applyKeywordAction();
-                        ++triggers;
-                        if (result.detection.hasResponse)
-                            response.record(result.detection.responseUs +
-                                static_cast<std::uint32_t>(micros() - now));
+                    if (result.detection.confirmed) {
+                        // Serialize generation validation with audio-task invalidation.
+                        // GPIO was initialized before capture; this cannot allocate or wait.
+                        const SchedulerLock lock;
+                        if (lock &&
+                            KeywordEventFilter::isCurrent(
+                                event, generation.load(), micros(), millis())) {
+                            device.applyKeywordAction();
+                            ++triggers;
+                            if (result.detection.hasResponse)
+                                response.record(result.detection.responseUs +
+                                    static_cast<std::uint32_t>(micros() - now));
+                        }
                     }
                 }
-                PipelineMetrics snapshot;
                 {
                     const MutexLock lock(metricsMutex);
-                    snapshot = sharedAudio;
+                    if (lock)
+                        latestAudio = sharedAudio;
                 }
+                auto snapshot = latestAudio;
                 snapshot.confirmedKeywords = triggers;
                 snapshot.responseTiming = response;
                 snapshot.eventLatency = queueLatency;
                 snapshot.eventDrops = eventDrops.load();
                 snapshot.staleEvents = staleEvents;
                 snapshot.notifyErrors = notifyErrors.load();
-                snapshot.audioStackFree = osThreadGetStackSpace(audioThread);
-                snapshot.controlStackFree = osThreadGetStackSpace(controlThread);
+                // RTX scans stack fill words in an SVC; keep that diagnostic work infrequent.
+                const auto nowMs = millis();
+                if (!haveStackSample || nowMs - lastStackCheck >= 2000) {
+                    audioStackFree = osThreadGetStackSpace(audioThread);
+                    controlStackFree = osThreadGetStackSpace(controlThread);
+                    lastStackCheck = nowMs;
+                    haveStackSample = true;
+                }
+                snapshot.audioStackFree = audioStackFree;
+                snapshot.controlStackFree = controlStackFree;
                 telemetry.pump();
                 telemetry.report(capture.snapshot(), snapshot, device.isOn());
             }
@@ -224,10 +245,13 @@ namespace {
                 Serial.println("PDM failed");
                 return false;
             }
+            if ((osThreadFlagsSet(controlThread, runFlag) & osFlagsError) ||
+                (osThreadFlagsSet(audioThread, runFlag) & osFlagsError)) {
+                cleanup();
+                Serial.println("RTOS start flags failed");
+                return false;
+            }
             started = true;
-            Serial.println("Setup complete. RTOS audio/control tasks started.");
-            osThreadFlagsSet(controlThread, runFlag);
-            osThreadFlagsSet(audioThread, runFlag);
             return true;
         }
         void poll() {

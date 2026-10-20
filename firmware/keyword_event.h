@@ -2,6 +2,7 @@
 #include "keyword_detector.h"
 #include <type_traits>
 #include <cstdint>
+#include <cmath>
 
 // CMSIS queue copies this value; no audio/feature/tensor pointers cross tasks.
 struct KeywordEvent {
@@ -21,10 +22,17 @@ class KeywordEventFilter {
 
 public:
     static constexpr std::uint32_t maxAgeUs = 250000;
+    static bool isCurrent(const KeywordEvent &event, std::uint32_t generation, std::uint32_t nowUs,
+        std::uint32_t nowMs) {
+        // Both clocks prevent an event delayed for a full micros() rollover looking fresh.
+        return std::isfinite(event.probability) && event.probability >= 0.0f &&
+            event.probability <= 1.0f && event.generation == generation &&
+            static_cast<std::uint32_t>(nowUs - event.decisionUs) <= maxAgeUs &&
+            static_cast<std::uint32_t>(nowMs - event.decisionMs) <= maxAgeUs / 1000;
+    }
     EventResult consume(const KeywordEvent &event, std::uint32_t currentGeneration,
         std::uint32_t nowUs, std::uint32_t nowMs) {
-        if (event.generation != currentGeneration ||
-            static_cast<std::uint32_t>(nowUs - event.decisionUs) > maxAgeUs) {
+        if (!isCurrent(event, currentGeneration, nowUs, nowMs)) {
             detector.resetEvidence();
             havePrevious = false;
             return {{false, false, 0}, true};

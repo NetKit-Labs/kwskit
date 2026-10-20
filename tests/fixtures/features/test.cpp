@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstring>
 #include <type_traits>
+#include <limits>
 
 extern bool failFftInitialization;
 extern std::array<float, FRAME_SIZE> lastAppliedWindow;
@@ -14,6 +15,10 @@ int main() {
     FeatureExtractor extractor;
     assert(!extractor.begin(0.0f, 0));
     assert(!extractor.begin(-1.0f, 0));
+    assert(!extractor.begin(std::numeric_limits<float>::quiet_NaN(), 0));
+    assert(!extractor.begin(std::numeric_limits<float>::infinity(), 0));
+    assert(!extractor.begin(1.0f, -129));
+    assert(!extractor.begin(1.0f, 128));
     failFftInitialization = true;
     assert(!extractor.begin(1.0f, 0));
     failFftInitialization = false;
@@ -75,4 +80,20 @@ int main() {
     assert(silence.features().data() != tone.features().data());
     silence.reset();
     assert(!silence.inferenceDue() && tone.inferenceDue());
+    // Tiny positive scales overflow the float quotient; conversion must saturate safely.
+    assert(extractor.begin(std::numeric_limits<float>::min(), 0));
+    for (int hop = 0; hop <= NUM_FRAMES; ++hop)
+        extractor.consume(zero);
+    assert(extractor.inferenceDue());
+    for (const auto feature : extractor.features())
+        assert(feature == -128);
+    // Backlog can defer inference arbitrarily without an ever-growing signed counter.
+    for (int hop = 0; hop < 1000; ++hop)
+        extractor.consume(zero);
+    assert(extractor.inferenceDue());
+    extractor.markInferred();
+    for (int hop = 0; hop < INFERENCE_HOP; ++hop) {
+        extractor.consume(zero);
+        assert(extractor.inferenceDue() == (hop == INFERENCE_HOP - 1));
+    }
 }

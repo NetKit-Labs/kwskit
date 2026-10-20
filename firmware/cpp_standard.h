@@ -7,4 +7,8 @@
 
 // Preinclude before Arduino defines abs: that macro conflicts with C++20 chrono::abs.
 #include <chrono>
+
+// TFLite's Arduino logger performs blocking Serial writes, including Invoke failures.
+// Keep failure reporting in the application's counters and nonblocking telemetry.
+#define TF_LITE_STRIP_ERROR_STRINGS
 #endif

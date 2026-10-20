@@ -32,18 +32,18 @@ stall is documented separately. Memory is from the current C++ firmware build. T
 | FFT frame / overlap | 512 samples (32 ms) / 50% |
 | Model input | 61 × 20 int8 log-mel features (~1 s context) |
 | Decision cadence after warmup | Every 8 feature hops (~128 ms), when audio backlog is drained |
-| DSP average / observed maximum | 1.985 / 3.015 ms |
-| Inference average / observed maximum | 57.914 / 57.954 ms |
-| Processing iteration observed maximum | 60.030 ms |
+| DSP average / observed maximum | 1.987 / 2.129 ms |
+| Inference average / observed maximum | 57.655 / 57.772 ms |
+| Processing iteration observed maximum | 59.851 ms |
 | Circular audio buffer / observed peak occupancy | 8192 / 768 samples |
-| Flash / static RAM | 331,488 / 208,888 bytes (33% / 79%) |
+| Flash / static RAM | 320,088 / 188,392 bytes (32% / 71%) |
 | Dedicated task stacks | Audio 8192 bytes; control 6144 bytes |
-| RTOS spoken "yes" check | 13 cumulative confirmed actions; physical LED toggling confirmed |
+| RTOS spoken "yes" check | 10 cumulative confirmed actions; physical LED toggling confirmed |
 | Reported sample drops / missed buffers / inference errors | 0 / 0 / 0 in the recorded checks |
 | Normal-operation score drops / stale results | 0 / 0 |
 | Forced 1.5 s control stall | 4 score drops; 9 stale results rejected; 0 reported audio losses |
 
-See [C++20 validation](docs/cpp20-modernization.md#verification) for current build,
+See [real-time review and validation](docs/realtime-review.md#verification) for current build,
 stress, and spoken-word evidence, and [RTOS validation](docs/rtos-validation.md)
 for the earlier task checks. The [earlier module/refactor record](docs/module-refactor-validation.md)
 and [pre-RTOS build check](docs/build-validation.md) retain historical results.
@@ -58,8 +58,8 @@ checks. They describe exercised paths, rather than guaranteed worst-case usage.
 
 | Allocation | Capacity | Observed peak use / remaining |
 |---|---|---|
-| Audio-task stack | 8192 bytes | 1336 used / 6856 unused (84%) |
-| Control-task stack | 6144 bytes | 1296 used / 4848 unused (79%) |
+| Audio-task stack | 8192 bytes | 1320 used / 6872 unused (84%) |
+| Control-task stack | 6144 bytes | 1464 used / 4680 unused (76%) |
 | Audio ring | 8192 samples | 768 queued / 7424 spare (91%) |
 
 At peak observed ring occupancy, the remaining capacity represents about 464 ms
@@ -69,7 +69,7 @@ overflows in the 1.5 s stall test; dropping scores and rejecting stale evidence
 preserves acquisition but can miss a command during the stall.
 
 The static RAM total already includes both application stacks and the 96 KiB
-tensor arena. The build leaves 53,256 bytes outside static allocations; this is
+tensor arena. The build leaves 73,752 bytes outside static allocations; this is
 not measured free heap. Peak runtime heap, framework/interrupt-stack usage, and
 unused tensor-arena capacity have not been measured. Broader memory headroom
 must be established before substantial expansion.
@@ -194,8 +194,11 @@ sufficient for the current workload; framework/kernel threads also exist.
 
 The queue copies timestamped score values, including low scores needed to rearm
 the detector. No audio buffers, feature windows, or tensor pointers cross tasks.
-A priority-inheriting mutex protects only a short metrics copy. The interrupt
-callback never takes that mutex. Audio never waits for room in the event queue.
+A metrics mutex protects only a short copy; both tasks try it without waiting,
+and keep processing if that optional copy is busy. The interrupt callback never
+takes that mutex. Audio never waits for room in the event queue. A short scheduler
+lock protects the final event check and preinitialized LED write while leaving
+interrupts enabled.
 See [RTOS design](docs/rtos-design.md) for scheduling, ownership, and overload rules.
 
 ## DSP pipeline
@@ -232,9 +235,9 @@ and RAM use. See [recognition evidence and hypothesis](docs/tinyml-inference.md#
 
 The **8496-byte model blob and its weights reside in internal flash**, compiled
 from the tracked header. Inference reserves a **96 KiB SRAM tensor arena** for
-activations/scratch/runtime metadata; the current profiler additionally occupies
-20,488 bytes of static SRAM. These allocations are already included in the
-reported firmware memory totals. The [TinyML inference guide](docs/tinyml-inference.md)
+activations/scratch/runtime metadata. The unused operator profiler is disabled;
+whole-invocation timing remains in telemetry. These allocations are already
+included in the reported firmware memory totals. The [TinyML inference guide](docs/tinyml-inference.md)
 documents layer counts, quantization, model identity, storage placement, runtime
 flow, inspection commands, and the limits of the recorded training accuracy.
 
@@ -277,8 +280,8 @@ peripheral failure is future work.
 
 ## Tests and instrumentation
 
-`make test-unit` runs ten component checks. `make test-regression`
-runs the complete fourteen-check suite, including those unit tests plus stream,
+`make test-unit` runs eleven component checks. `make test-regression`
+runs the complete fifteen-check suite, including those unit tests plus stream,
 pipeline, RTOS startup, and build-tool checks. `make test` runs the same complete
 regression gate in CI. Compile-contract probes also verify that invalid buffer
 extents and ownership copies are rejected. See the [testing guide](docs/testing.md) for coverage,
@@ -336,3 +339,7 @@ run longer endurance tests; measure runtime heap, framework/interrupt stacks,
 and tensor-arena usage; add peripheral fault recovery; and extend the control
 task with communications or additional device functionality. Threshold
 refinement and multi-keyword training are separate from the build/runtime work.
+
+The [real-time execution review](docs/realtime-review.md) records the runtime
+hardening, tested properties, and remaining platform/startup/fault-handling limits.
+The observed checks do not establish hard real-time or functional-safety certification.

@@ -124,3 +124,9 @@ not add a new physical microphone/LED session.
 The subsequent semantic refactor has its own [verification record](cpp-refactor.md#verification).
 Its binary is different; the byte-identity statement above applies only to the
 earlier formatting change.
+
+`MutexLock` is a nonblocking guard for optional statistics copies; callers check
+its acquired state. `SchedulerLock` preserves scheduler state for final event
+validation and the already configured LED write; it leaves interrupts enabled.
+Neither guard permits blocking device work inside its protected scope. See the
+[real-time review](realtime-review.md) for runtime guarantees and limits.
