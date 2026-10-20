@@ -5,11 +5,13 @@ fields are documented in the [project README](../README.md).
 For current scheduling and API use, see [RTOS design](rtos-design.md), including
 [why two tasks are used](rtos-design.md#why-two-application-tasks) and
 [the API source map](rtos-design.md#rtos-api-source-map). Latest build and hardware
-measurements are in the [C++17 verification](cpp17-modernization.md#verification).
+measurements are in the [C++17 verification](cpp17-modernization.md#verification),
+with the latest source check in its [reference cleanup follow-up](cpp17-modernization.md#reference-cleanup-follow-up).
 Earlier validation records and captures retain their original results as history.
 
 | Record | Contents |
 |---|---|
+| [Reference-cleanup normal telemetry](reference-cleanup-normal.json) | 30-second audio/inference regression after local object-reference cleanup |
 | [C++17 normal telemetry](cpp17-normal.json) | Current C++17 normal-operation acquisition/inference and spoken-word check |
 | [C++17 stress telemetry](cpp17-stress.json) | Current C++17 control-stall regression and normal restoration |
 | [C++17 baseline and references](cpp17-modernization.md) | Minimum language mode, reference interfaces, build compatibility, regression and hardware evidence |

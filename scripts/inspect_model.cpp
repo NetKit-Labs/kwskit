@@ -152,12 +152,13 @@ int main(int argc, char **argv) {
             array(tensor.shape());
             std::cout << ",\"constant_bytes\":" << size
                       << ",\"variable\":" << (tensor.is_variable() ? "true" : "false");
-            if (const auto *q = tensor.quantization()) {
+            if (const auto *parameters = tensor.quantization()) {
+                const auto &quantization = *parameters;
                 std::cout << ",\"scales\":";
-                array(q->scale());
+                array(quantization.scale());
                 std::cout << ",\"zero_points\":";
-                array(q->zero_point());
-                std::cout << ",\"quantized_dimension\":" << q->quantized_dimension();
+                array(quantization.zero_point());
+                std::cout << ",\"quantized_dimension\":" << quantization.quantized_dimension();
             }
             std::cout << '}';
         }

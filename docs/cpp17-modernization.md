@@ -39,6 +39,10 @@ for a null state would obscure those contracts.
 
 ## Verification
 
+The build measurements and captures in this section describe the initial C++17
+baseline (`6adaf65`). A subsequent readability cleanup is recorded
+[below](#reference-cleanup-follow-up); its memory footprint is unchanged.
+
 The complete host gate still has fourteen entries. Its buffer-contract entry
 now compiles eleven buffer/ownership probes and rejects C++11/C++14 explicitly.
 The audio-ring tests verify that an oversized requested count preserves unread
@@ -87,3 +91,27 @@ averaged 11.021 ms with an 11.669 ms observed maximum. Peak ring occupancy was
 bytes (audio/control). These counters are cumulative since boot and can include
 operation before host recording; they are not a trial denominator. Normal C++17
 firmware remains installed and runs continuously while powered.
+
+## Reference cleanup follow-up
+
+The RTOS audio/control entry adapters and PDM notification adapter now bind
+`Application&` from the required context before invoking methods. The microphone
+callback similarly binds its active receiver after the null check. Inference
+uses an interpreter reference once initialization/readiness guarantees it exists;
+the host inspector uses a const reference after optional quantization metadata
+has been found. Nullable storage and external API signatures retain pointers.
+There is no pointer-reassignment operation that would benefit from `T*&`.
+
+All fourteen host entries, formatting, and Nano compilation passed again.
+The sanitizer-built model inspector still produces identical model metadata.
+Flash/static RAM remain 331,616/209,328 bytes. The updated normal BIN is 332,212 bytes, SHA-256
+`41893aebaca38a6ca292df9df6eb03e5fe0901cc6a6e0e1cdf2939e4d9721816`.
+The earlier normal/stress captures above describe the initial C++17 binary;
+this cleanup has its own normal-operation hardware regression record.
+
+A 30-second [normal-operation capture](reference-cleanup-normal.json) passed after
+uploading the cleanup: audio and inference counters advanced with zero reported
+sample/buffer losses, inference/notification errors, score drops, or stale results.
+Peak ring occupancy was 768 samples; reported unused audio/control stacks were
+6768/4976 bytes. This quiet capture did not repeat the physical spoken-word test
+or the deliberate control-stall test. The updated normal firmware remains loaded.

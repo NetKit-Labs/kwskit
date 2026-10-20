@@ -58,13 +58,14 @@ bool KeywordModel::begin() {
     runtime.interpreter =
         new (runtime.interpreterStorage.data()) tflite::MicroInterpreter(&model, runtime.resolver,
             runtime.tensorArena.data(), runtime.tensorArena.size(), nullptr, &runtime.profiler);
-    if (runtime.interpreter->AllocateTensors() != kTfLiteOk) {
+    auto &interpreter = *runtime.interpreter;
+    if (interpreter.AllocateTensors() != kTfLiteOk) {
         static_cast<tflite::ErrorReporter &>(runtime.errorReporter)
             .Report("AllocateTensors() failed");
         return false;
     }
-    runtime.input = runtime.interpreter->input(0);
-    runtime.output = runtime.interpreter->output(0);
+    runtime.input = interpreter.input(0);
+    runtime.output = interpreter.output(0);
     if (!runtime.input || !runtime.output) {
         return false;
     }
@@ -90,8 +91,9 @@ bool KeywordModel::predict(const FeatureTensor &features, float &probability) {
     }
     auto &input = *runtime.input;
     const auto &output = *runtime.output;
+    auto &interpreter = *runtime.interpreter;
     std::copy(features.begin(), features.end(), input.data.int8);
-    if (runtime.interpreter->Invoke() != kTfLiteOk) {
+    if (interpreter.Invoke() != kTfLiteOk) {
         return false;
     }
     probability = output.params.scale * (output.data.int8[0] - output.params.zero_point);

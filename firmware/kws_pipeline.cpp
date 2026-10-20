@@ -187,8 +187,11 @@ namespace {
             attrs.stack_mem = audioStack.data();
             attrs.stack_size = audioStack.size();
             audioThread = osThreadNew(
-                [](void *context) { static_cast<Application *>(context)->processAudio(); }, this,
-                &attrs);
+                [](void *context) {
+                    auto &application = *static_cast<Application *>(context);
+                    application.processAudio();
+                },
+                this, &attrs);
             attrs.name = "kws-control";
             attrs.priority = osPriorityNormal;
             attrs.cb_mem = &deviceControlBlock;
@@ -196,15 +199,21 @@ namespace {
             attrs.stack_mem = controlStack.data();
             attrs.stack_size = controlStack.size();
             controlThread = osThreadNew(
-                [](void *context) { static_cast<Application *>(context)->controlDevice(); }, this,
-                &attrs);
+                [](void *context) {
+                    auto &application = *static_cast<Application *>(context);
+                    application.controlDevice();
+                },
+                this, &attrs);
             if (!audioThread || !controlThread) {
                 cleanup();
                 Serial.println("RTOS tasks failed");
                 return false;
             }
             if (!capture.begin(
-                    [](void *context) { static_cast<Application *>(context)->notifyAudio(); },
+                    [](void *context) {
+                        auto &application = *static_cast<Application *>(context);
+                        application.notifyAudio();
+                    },
                     this)) {
                 cleanup();
                 Serial.println("PDM failed");

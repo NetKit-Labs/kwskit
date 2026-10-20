@@ -28,7 +28,12 @@ Use references for required existing objects and array references for owned buff
 interfaces. The ring's `pop` takes a `std::array` reference and optionally a count,
 rejecting counts larger than its destination before consuming samples. Borrowed
 capture/extractor/model dependencies and model-inspector graph objects also use
-references. Keep pointers when null is meaningful (uninitialized runtime tensors,
+references. RTOS/PDM context adapters bind an `Application&` before calling its
+methods, and the active PDM receiver is used through a reference after its null
+check. The ready interpreter and present quantization metadata also use local
+object references. These are `T&` aliases to existing objects; `T*&` would alias
+and permit reassignment of a pointer variable, which these operations do not need.
+Keep pointers when null is meaningful (uninitialized runtime tensors,
 optional FlatBuffer fields, inactive capture ownership) and for the PDM/CMSIS/USB
 API signatures and raw byte buffers they require. A reference is not a replacement
 for an optional value, a reseatable handle, or an array extent.

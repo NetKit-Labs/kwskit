@@ -9,7 +9,8 @@ AudioCapture *AudioCapture::activeReceiver = nullptr;
 
 void AudioCapture::receiveCallback() {
     if (activeReceiver) {
-        activeReceiver->receive();
+        auto &receiver = *activeReceiver;
+        receiver.receive();
     }
 }
 
