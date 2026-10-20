@@ -66,3 +66,13 @@ Reproduce host checks with `sh tests/run_tests.sh`. With pyserial installed,
 run `python3 tests/hardware_capture.py --port /dev/cu.usbmodem11201 --seconds 60`
 for acquisition/inference checks. Repeat spoken `yes` attempts with pauses and
 observe the built-in LED to check behavior in the deployment environment.
+
+
+## Subsequent module refactor
+
+The application was later separated into capture, features, model, detection,
+control, telemetry, and coordinator modules. The original FFT/buffering fixes
+and detection settings remain in place. See
+[module separation validation](module-refactor-validation.md) for the current
+build and repeated spoken-word/physical LED results, and the
+[documentation index](README.md) for all raw captures.

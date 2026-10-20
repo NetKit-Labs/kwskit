@@ -231,7 +231,7 @@ MIT License
 
 The maintained sketch is `firmware/KWS_Arm_CortexM4F.ino`. For Arduino IDE,
 copy the contents of `firmware/` into a sketch folder named `KWS_Arm_CortexM4F`.
-Select **Arduino Nano 33 BLE**. The empty root-level `.ino` file is not the firmware.
+Select **Arduino Nano 33 BLE**. Use the maintained sketch in `firmware/`.
 
 The interrupt callback drains bounded PDM reads into an 8192-sample ring (512 ms).
 The main loop consumes complete 256-sample hops and preserves 50% frame overlap
@@ -263,6 +263,61 @@ enabled during DSP and inference; only short counter snapshots mask interrupts.
 
 Run `sh tests/run_tests.sh` on a host with Python 3 and a C++ compiler. Tests cover
 queue overflow/order/wraparound, packed FFT bounds and bins, simulated inference
-stalls, filter transitions/cooldown, GPIO toggling with a fake pin, and timing
-accumulation/timer wraparound. Hardware measurements are recorded separately in
-`docs/validation.md`.
+stalls, filter transitions/cooldown, detection-response timing, GPIO toggling with
+a fake pin, timing accumulation/timer wraparound, and pipeline scheduling/error
+recovery with fake modules. See the [validation records](docs/README.md) for
+hardware measurements and raw telemetry.
+
+
+## Firmware module boundaries
+
+`KWS_Arm_CortexM4F.ino` only starts and polls the application. The modules are:
+
+| Module | Responsibility |
+|---|---|
+| `audio_capture` | PDM callback, ring ownership, complete-hop reads, timestamps, and acquisition counters |
+| `feature_extractor` | Frame overlap, FFT/log-mel extraction, quantization, feature-window readiness |
+| `keyword_model` | TFLite setup, tensor validation, input copy, inference, class-0 probability |
+| `keyword_detector` | Confidence filtering, rearming/cooldown, and response-delay evidence |
+| `device_control` | Built-in LED initialization and confirmed-keyword actions |
+| `telemetry` | Formatting and nonblocking USB transmission of supplied snapshots |
+| `kws_pipeline` | Scheduling, overflow recovery, timing, and routing confirmed detections to control |
+| `kws_config` | Shared audio and feature dimensions and inference cadence |
+
+The model does not access GPIO, detection does not access the microphone or model,
+and telemetry does not operate the pipeline. The coordinator passes complete audio
+hops, a feature window, probabilities, detection results, and statistics across
+these boundaries. Feature data remains owned by the extractor and is consumed
+synchronously by the model before the next hop modifies it.
+
+Execution remains one main-loop consumer plus the PDM interrupt producer. These
+boundaries support a later RTOS migration, but do not make the modules safe for
+arbitrary concurrent calls. A future task split must assign one owner to each
+stateful module, transfer feature/result snapshots with explicit lifetimes, and
+replace interrupt-counter snapshots with synchronization suitable for that task
+layout. Keep the PDM callback short and avoid USB, DSP, inference, or GPIO actions
+inside it.
+
+
+## Verified operation after module separation
+
+On October 20, 2026, the refactored firmware passed the full host test suite,
+compiled for the Nano 33 BLE, and was uploaded and checked on the board.
+
+- A 30-second acquisition/inference regression check completed with zero reported
+  dropped samples, missed buffers, or inference errors.
+- A separate one-minute spoken “yes” test recorded 12 confirmed detections.
+  Telemetry showed alternating LED states, and the operator confirmed that the
+  physical built-in LED toggled.
+- During the spoken test, inference averaged 59.09 ms with a 59.55 ms maximum;
+  peak ring occupancy was 768 of 8192 samples. Loss and error counters stayed zero.
+- The firmware runs continuously while powered. Test durations limit the host
+  recording, not the Nano's runtime.
+
+The current build uses 328,304 bytes of flash (33%) and 194,112 bytes of static
+RAM (74%). Full results, measurement definitions, and raw captures are in
+[module separation validation](docs/module-refactor-validation.md).
+
+These checks verify the working pipeline in the tested environment. Detection
+accuracy across speakers/noise conditions and hours-to-days endurance remain
+separate validation work.

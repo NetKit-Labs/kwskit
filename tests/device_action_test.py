@@ -1,19 +1,29 @@
-# Compile the actual sketch action with fake GPIO and verify pin state and toggling.
+"""Compile the actual device-control module with fake GPIO."""
 from pathlib import Path
 import subprocess
-s = Path('firmware/KWS_Arm_CortexM4F.ino').read_text()
-a = s.index('bool deviceOn = false;')
-b = s.index('\n}', a) + 2
-source = '''#include <assert.h>
+import tempfile
+with tempfile.TemporaryDirectory(prefix='kws-device-') as directory:
+    root = Path(directory)
+    (root / 'Arduino.h').write_text('''#pragma once
 #define LED_BUILTIN 13
 #define HIGH 1
 #define LOW 0
-int pin=-1, level=-1;
-void digitalWrite(int p,int v) {pin=p;level=v;}
-''' + s[a:b] + '''
-int main(){applyKeywordAction();assert(pin==13 && level==HIGH && deviceOn);
-applyKeywordAction();assert(level==LOW && !deviceOn);}
-'''
-Path('/tmp/kws_device_test.cpp').write_text(source)
-subprocess.run(['c++','/tmp/kws_device_test.cpp','-o','/tmp/kws_device_test'],check=True)
-subprocess.run(['/tmp/kws_device_test'],check=True)
+#define OUTPUT 1
+void pinMode(int,int);
+void digitalWrite(int,int);
+''')
+    (root / 'test.cpp').write_text('''#include "device_control.h"
+#include <assert.h>
+int pin=-1,level=-1,mode=-1;
+void pinMode(int p,int m){pin=p;mode=m;}
+void digitalWrite(int p,int v){pin=p;level=v;}
+int main(){
+ DeviceControl::begin();assert(pin==13 && mode==1 && level==0 && !DeviceControl::isOn());
+ DeviceControl::applyKeywordAction();assert(level==1 && DeviceControl::isOn());
+ DeviceControl::applyKeywordAction();assert(level==0 && !DeviceControl::isOn());
+}
+''')
+    subprocess.run(['c++', '-std=c++11', '-Wall', '-Wextra', '-Werror',
+                    '-I'+directory, '-Ifirmware', 'firmware/device_control.cpp',
+                    str(root/'test.cpp'), '-o', str(root/'test')], check=True)
+    subprocess.run([str(root/'test')], check=True)
