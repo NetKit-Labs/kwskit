@@ -12,3 +12,5 @@ python3 tests/device_action_test.py
 echo 'PASS: device_action'
 python3 tests/pipeline_test.py
 echo "PASS: pipeline"
+python3 tests/build_tooling_test.py
+echo 'PASS: build_tooling'

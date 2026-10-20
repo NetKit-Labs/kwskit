@@ -1,323 +1,185 @@
-# TinyML Keyword Spotting on ARM Cortex-M
+# Real-time keyword spotting on ARM Cortex-M4F
 
-Keyword spotting (KWS) system for microcontrollers using TensorFlow Lite Micro, CMSIS-DSP, and CMSIS-NN.  
-Detects a single keyword ("yes") from 1-second audio windows with low latency.
+[![Build and test](https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/workflows/ci.yml/badge.svg)](https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/workflows/ci.yml)
 
----
+Continuous single-keyword spotting on an **Arduino Nano 33 BLE / nRF52840**
+(64 MHz Cortex-M4F). Interrupt-driven PDM acquisition feeds CMSIS-DSP feature
+extraction and an int8 TensorFlow Lite Micro model. Confirmed **“yes”** detections
+toggle the built-in LED. The application runs continuously while powered.
 
-## Metrics & Performance Summary
+The implementation focuses on bounded buffering, preserved sample/frame order,
+measured execution time, explicit module ownership, and tested failure paths.
+The primary workflow is command-line Make and C++; Arduino IDE is optional.
 
-| Metric | Value |
-|--------|-------|
-| Model type | CNN (6 Conv layers + GAP + Softmax) |
-| Parameters | ~1,000 |
-| Input | 61 frames × 20 log-mel coefficients (~1s audio) |
-| Quantization | int8 |
-| Inference time | ~60 ms on Cortex-M4F 64 MHz |
-| Training accuracy | ~90%+ (3 epochs) |
-| Memory footprint | Very small, fits on low-power MCUs |
+## Measured results
 
----
+Measurements below are from the refactored firmware on the connected Nano,
+recorded October 20, 2026. Timing summarizes the recorded checks; memory is from
+the locked CLI build. These are observed results, not worst-case guarantees.
 
-## Highlights
+| Measurement | Recorded result |
+|---|---:|
+| Audio rate / hop | 16 kHz / 256 samples (16 ms) |
+| FFT frame / overlap | 512 samples (32 ms) / 50% |
+| Model input | 61 × 20 int8 log-mel features (~1 s context) |
+| Decision cadence after warmup | Every 8 feature hops (~128 ms), when audio backlog is drained |
+| DSP average / observed maximum | 2.48 / 3.04 ms |
+| Inference average / observed maximum | 59.09 / 60.10 ms |
+| Processing iteration observed maximum | 62.87 ms |
+| Circular audio buffer / observed peak occupancy | 8192 / 768 samples |
+| Flash / static RAM | 328,880 / 194,112 bytes (33% / 74%) |
+| 60-second spoken “yes” check | 12 confirmed detections; physical LED toggling confirmed |
+| Reported sample drops / missed buffers / inference errors | 0 / 0 / 0 in the recorded checks |
 
-- Approximately 1,000 parameter CNN  
-- ~60 ms inference on Cortex-M4F @ 64 MHz  
-- int8 quantized model  
-- CMSIS-NN accelerated CNN  
-- CMSIS-DSP accelerated feature extraction  
-- Designed for low-power Cortex-M MCUs  
+See [speech/refactor validation](docs/module-refactor-validation.md) and the
+[locked-build check](docs/build-validation.md). Response
+measurements start at a high-confidence window's estimated end; they do not
+measure acoustic word-onset latency. Detection accuracy across a controlled
+speaker/noise dataset and hours-to-days endurance have not been established.
 
----
+## Build, test, and flash
 
-## Project Overview
+Prerequisites: **Python 3.9+**, GNU Make, and a host C++ compiler with
+AddressSanitizer/UndefinedBehaviorSanitizer support. Supported firmware-build
+hosts: macOS Intel/Apple Silicon and Linux x86-64/ARM64. Network access is needed
+for initial setup. Apple Silicon also needs Rosetta 2 for the pinned Intel
+Arm compiler. No Arduino IDE or globally installed Arduino CLI is required.
 
-Keyword spotting is a lightweight speech recognition system for detecting specific trigger words.  
-
-This project implements single-keyword spotting using the Google Speech Commands dataset, deployed on an ARM Cortex-M4F MCU.
-
-### Classes
-
-- `keyword` ("yes")  
-- `unknown speech`  
-- `silence`  
-
-Effectively acts as binary classification:  
-`keyword vs everything else`
-
-The keyword "YES" is chosen for its three phonemes, improving single-word detection reliability.
-
----
-
-## Model Summary
-
-| Feature | Value |
-|---------|------|
-| Model type | Convolutional Neural Network (CNN) |
-| Parameters | ~1,000 |
-| Layers | 6 convolution layers |
-| Pooling | Global Average Pooling |
-| Output | Softmax |
-| Quantization | int8 |
-| Input | Log-Mel Spectrogram |
-| Framework | TensorFlow / TensorFlow Lite Micro |
-
----
-
-## Input Features
-
-### Audio Parameters
-
-| Parameter | Value |
-|-----------|------|
-| Sample Rate | 16 kHz |
-| Frame Size | 512 samples |
-| Frame Duration | 32 ms |
-| Hop Size | 256 samples |
-| Hop Duration | 16 ms |
-| Overlap | 50% |
-
-### Spectrogram Dimensions
-
-61 time frames × 20 log-mel coefficients (~1 second of audio)
-
----
-
-## Model Architecture
-
-- 3 convolutional stages: Conv2D → DepthwiseConv2D  
-- Global Average Pooling  
-- Softmax output
-
-```
-Input Spectrogram
-    ↓
-Conv2D → DepthwiseConv2D
-    ↓
-Conv2D → DepthwiseConv2D
-    ↓
-Conv2D → DepthwiseConv2D
-    ↓
-Global Average Pooling
-    ↓
-Softmax
+```sh
+make setup                         # Download and verify pinned tools/libraries
+make test                          # Host unit and integration tests
+make build                         # Cross-compile for Nano 33 BLE
+make boards                        # Find the connected board's serial port
+make flash PORT=/dev/cu.usbmodem11201  # Example macOS port; use your board's port
+# Linux example: make flash PORT=/dev/ttyACM0
 ```
 
-Stacked layers increase the receptive field, capturing long-range phonetic patterns.
+`make build` writes ELF/BIN/HEX outputs and a source/dependency manifest to
+`.build/artifacts/`. `make flash` rebuilds before uploading. All downloaded tools,
+board packages, libraries, generated sketch files, and objects stay under the
+ignored `.build/` directory. Existing Arduino IDE libraries are not used.
+Use `JOBS=4` to change firmware compile parallelism.
 
-![Receptive Field](1sec_timing.png)
+[dependencies.lock.json](dependencies.lock.json) pins Arduino CLI 1.5.1,
+Arduino mbed Nano core 4.6.0 (GCC Arm Embedded 7-2017q4), CMSIS-DSP 5.7.0, and
+TensorFlow Lite Micro's exact source revision. CLI/library downloads are
+SHA-256 checked; Arduino CLI verifies core/tool package downloads. The three
+required TFLite compatibility headers are tracked in `build-support/`.
+See [build reproducibility](docs/build.md) for dependency provenance and limitations.
 
----
+GitHub Actions runs **the same `make test` and `make setup && make build` paths**
+on pushes and pull requests. Firmware and build manifests are retained as CI
+artifacts. Physical microphone/LED testing remains a hardware check.
 
-## Embedded Deployment
+## Runtime architecture and ownership
 
-### Hardware
-
-- ARM Cortex-M4F @ 64 MHz  
-- Hardware FPU for DSP acceleration  
-
-### Libraries
-
-- CMSIS-DSP: FFT, vector/matrix math  
-- CMSIS-NN: accelerated CNN kernels  
-
-TensorFlow Lite Micro automatically invokes CMSIS-NN for optimal performance.
-
----
-
-## Feature Extraction Pipeline
-
-```c
-arm_mult_f32(audioFrame, hannWindow, windowed, FRAME_SIZE);
-arm_rfft_fast_f32(&fft_inst, windowed, fftOut, 0);
-
-// CMSIS fast real FFT stores DC and Nyquist in its first two floats.
-mag[0] = fftOut[0] * fftOut[0];
-for (int i = 1; i < FRAME_SIZE / 2; ++i) {
-    mag[i] = fftOut[2*i] * fftOut[2*i] + fftOut[2*i+1] * fftOut[2*i+1];
-}
-mag[FRAME_SIZE / 2] = fftOut[1] * fftOut[1];
-
-arm_mat_mult_f32(&melMat, &magVec, &melOut);
-
-for (int m = 0; m < NUM_MEL; m++) {
-    float log_mel = logf(melRowTmp[m] + 1e-6f);
-    int32_t q = (int32_t)roundf(log_mel / input_scale + input_zero_point);
-    quantized_mel_row[m] = (int8_t)constrain(q, -128, 127);
-}
+```mermaid
+flowchart LR
+    PDM["PDM peripheral / DMA"] --> ISR["PDM interrupt callback"]
+    ISR --> Q["8192-sample SPSC ring"]
+    Q --> DSP["Frame overlap + FFT + log-mel"]
+    DSP --> NN["int8 TFLite Micro inference"]
+    NN --> FILTER["EMA + confidence + hysteresis + cooldown"]
+    FILTER --> LED["Confirmed event → LED toggle"]
+    PIPE["Main-loop coordinator"] -. schedules .-> DSP
+    PIPE -. schedules .-> NN
+    PIPE -. snapshots .-> USB["Nonblocking USB telemetry"]
 ```
 
-Manual power spectrum ensures consistency between training and MCU pipeline.
+| Module | Owned state and responsibility | Execution context |
+|---|---|---|
+| `audio_capture` | PDM staging, ring, acquisition counters, complete-hop reads | Interrupt producer; main-loop consumer |
+| `feature_extractor` | Hann/FFT workspace, overlap, quantization, rolling features, readiness | Main loop |
+| `keyword_model` | Interpreter, 96 KiB tensor arena, tensor validation, class-0 probability | Main loop |
+| `keyword_detector` | Confidence filter, rearming/cooldown, response evidence | Main loop; hardware independent |
+| `device_control` | Built-in LED state and confirmed-event action | Main loop |
+| `telemetry` | Output staging and nonblocking USB transmission | Main loop |
+| `kws_pipeline` | Scheduling, overflow recovery, timing and event routing | Main loop |
+| `kws_config` | Shared dimensions and inference cadence | Compile-time configuration |
 
----
+The `.ino` contains only `setup()`/`loop()` delegation. Application code is in
+`.cpp`/`.h` modules. The board's Arduino mbed core supplies the underlying RTOS;
+this application creates no separate tasks. The modules currently have one
+main-loop owner. A future task split needs explicit queue/snapshot lifetimes and
+synchronization; it cannot call these stateful APIs concurrently without changes.
 
-## Performance
+## Real-time behavior and design choices
 
-### Training
+**Acquisition.** The PDM callback drains bounded reads into a single-producer,
+single-consumer circular buffer using lock-free atomic publication. It does no
+DSP, inference, GPIO action, or USB printing. The main loop consumes complete
+256-sample hops. The 8192-sample capacity provides 512 ms of nominal buffering
+at 16 kHz; it absorbs bounded stalls rather than sustained overload.
 
-| Metric | Value |
-|--------|-------|
-| Accuracy (3 epochs) | ~90%+ |
-| Dataset | Google Speech Commands |
+**Scheduling.** Capture starts after model/DSP initialization. The first decision
+waits for a full feature window; subsequent decisions require eight new feature
+frames and less than one queued hop. FFT frame overlap continues across model
+calls. DSP and inference leave interrupts enabled; short counter snapshots mask
+interrupts. With the recorded averages, eight DSP hops plus one inference take
+about 79 ms of a nominal 128 ms decision interval, excluding other work.
 
-### Inference
+**FFT correctness.** CMSIS fast real FFT packs DC at output index 0 and Nyquist at
+index 1. `fft_power.h` treats both separately and computes interior-bin power
+without reading beyond the 512-float output. Tests exercise exact-size arrays
+under address/undefined-behavior sanitizers.
 
-| MCU | Inference Time | Parameters |
-|-----|----------------|-----------|
-| Cortex-M4F 64MHz | ~60 ms | ~1,000 |
+**Detection.** Class 0 is `yes`; the training labels also include unknown speech
+and silence. A confidence EMA with weight 0.5 must reach 0.75 while raw confidence
+is at least 0.8 on two successive decisions. The filter rearms below 0.4 and
+requires 1500 ms between triggers. Thresholds are starting values for broader
+speech/noise validation, rather than an established false-positive guarantee.
 
-Optimization could reduce inference to 20–30 ms.
+**Failure behavior.** A full ring rejects new samples, counts dropped samples
+and affected callbacks, and preserves unread samples. On observing a loss, the
+coordinator discards pending audio, resets feature/detection state, and waits for
+a fresh feature window. Failed inference increments an error counter and resets
+detection state. Startup validates FFT initialization, tensor type/size/scales,
+and PDM startup; failures are reported and halt setup. Automatic recovery from
+peripheral failure is future work.
 
----
+## Tests and instrumentation
 
-## Benchmark & Comparison
+`make test` exercises queue ordering/overflow/wraparound, packed FFT bins/bounds,
+simulated inference stalls, temporal filtering and cooldown, detection-response
+timing and timer wraparound, actual GPIO-module logic with fake pins, and actual
+coordinator logic with fake capture/model/telemetry modules. Pipeline tests cover
+startup failures, readiness, backlog deferral, confirmed actions, inference
+errors, overflow reset, and statistics routing. Build-tool tests check archive
+checksums, extraction boundaries, library/lock drift, and environment isolation.
 
-| Model | Dataset | Parameters | Inference (ms) | Accuracy | MCU |
-|-------|---------|-----------|----------------|---------|-----|
-| TinyML KWS (this project) | Google SC | ~1,000 | 60 | ~90%+ | Cortex-M4F 64MHz |
-| TFLM CNN Example | Google SC | ~8,000 | 120 | 92 | Cortex-M4F 72MHz |
-| ARM CMSIS-NN Ref | Google SC | ~2,500 | 45 | 88 | Cortex-M4 80MHz |
-| KeywordSpotting-Small | Google SC | ~10,000 | 150 | 95 | STM32F746 216MHz |
+At 115200 baud, USB telemetry is emitted every two seconds without waiting for a
+host. A two-second startup timeout allows standalone operation.
 
-TinyML KWS is ultra-lightweight and maintains real-time operation.
-
----
-
-## Batch vs Streaming Inference
-
-- Batch mode: ~1 s latency  
-- Current firmware: rolling ~1 s feature window, decisions every 8 hops (~128 ms), with confidence filtering
-
-Circular buffers can reduce DSP overhead and improve streaming latency.
-
----
-
-## Silence Handling
-
-Limited dataset silence → weak correlation with real silence.  
-
-Solution: augment silence data and retrain.
-
----
-
-## Future Work
-
-1. Tune streaming detection thresholds using recorded positive and negative examples
-2. Multi-keyword detection (5–10 keywords)  
-3. TinyLLM voice interface with flexible commands:
-
-```
-Robot, get me a black coffee
-Robot, I want a coffee
-Robot, I'll take my coffee now
-```
-
----
-
-## Model Visualization
-
-Generated using Netron:
-
-![Model Architecture](kws_1class_depthwise_int8.tflite.png)
-
----
-
-## License
-
-MIT License
-
-
-## Updated firmware and tests
-
-The maintained sketch is `firmware/KWS_Arm_CortexM4F.ino`. For Arduino IDE,
-copy the contents of `firmware/` into a sketch folder named `KWS_Arm_CortexM4F`.
-Select **Arduino Nano 33 BLE**. Use the maintained sketch in `firmware/`.
-
-The interrupt callback drains bounded PDM reads into an 8192-sample ring (512 ms).
-The main loop consumes complete 256-sample hops and preserves 50% frame overlap
-across inferences. Acquisition starts after model initialization. Overflow drops
-new samples, counts the loss, and resets the feature window before resuming
-classification. The queue can absorb bounded stalls; it cannot compensate for
-sustained processing slower than acquisition.
-
-Class 0 is `yes`, matching the training notebook. An EMA (weight 0.5) must reach
-0.75 with raw confidence at least 0.8 on two successive decisions. A confirmed
-keyword toggles `LED_BUILTIN` (initially off). The filter rearms below 0.4 and
-requires at least 1500 ms between triggers. These starting thresholds require
-validation with real speech and background noise; host tests do not establish
-false-positive rates.
-
-At 115200 baud, the serial monitor receives telemetry every two seconds:
-
-- `samples`: cumulative samples delivered by PDM; should keep increasing during inference.
-- `dropped`: ring overflow samples; `missed_buffers`: callbacks that lost any samples.
-- `queue_max`: peak queued samples (capacity 8192).
-- `gap_max_us`: largest callback interval; `audio_age_us`: time since the last callback, exposing acquisition stalls that ring counters alone cannot detect.
-- `dsp_us`, `infer_us`, `process_us`: average/maximum execution time in microseconds. Processing includes consumption, DSP, and any inference in that iteration.
-- `response_us`: last/maximum delay from the end of the first high-confidence audio window to the LED action. It includes filtering and processing delay. It is an estimate at callback resolution (~16 ms), not acoustic word-onset latency; measuring that requires a known external audio stimulus.
-- `inferences`, `errors`, `p_milli`, `triggers`, `led`: inference count, failures, confidence multiplied by 1000, confirmed actions, and LED state.
-
-Telemetry uses the Nano mbed USB CDC nonblocking sender. The application starts
-without a serial monitor after a two-second startup timeout. Keep interrupts
-enabled during DSP and inference; only short counter snapshots mask interrupts.
-
-Run `sh tests/run_tests.sh` on a host with Python 3 and a C++ compiler. Tests cover
-queue overflow/order/wraparound, packed FFT bounds and bins, simulated inference
-stalls, filter transitions/cooldown, detection-response timing, GPIO toggling with
-a fake pin, timing accumulation/timer wraparound, and pipeline scheduling/error
-recovery with fake modules. See the [validation records](docs/README.md) for
-hardware measurements and raw telemetry.
-
-
-## Firmware module boundaries
-
-`KWS_Arm_CortexM4F.ino` only starts and polls the application. The modules are:
-
-| Module | Responsibility |
+| Field | Meaning |
 |---|---|
-| `audio_capture` | PDM callback, ring ownership, complete-hop reads, timestamps, and acquisition counters |
-| `feature_extractor` | Frame overlap, FFT/log-mel extraction, quantization, feature-window readiness |
-| `keyword_model` | TFLite setup, tensor validation, input copy, inference, class-0 probability |
-| `keyword_detector` | Confidence filtering, rearming/cooldown, and response-delay evidence |
-| `device_control` | Built-in LED initialization and confirmed-keyword actions |
-| `telemetry` | Formatting and nonblocking USB transmission of supplied snapshots |
-| `kws_pipeline` | Scheduling, overflow recovery, timing, and routing confirmed detections to control |
-| `kws_config` | Shared audio and feature dimensions and inference cadence |
+| `samples`, `dropped`, `missed_buffers` | Received sample count; ring loss; callbacks with loss |
+| `queue_max`, `gap_max_us`, `audio_age_us` | Peak backlog; maximum callback gap; time since last callback |
+| `dsp_us`, `infer_us`, `process_us` | Average/maximum execution times in microseconds |
+| `response_us` | Last/maximum estimated high-confidence-window-to-action delay |
+| `inferences`, `errors`, `p_milli` | Model calls, failures, class-0 confidence × 1000 |
+| `triggers`, `led` | Confirmed actions and current logical LED state |
 
-The model does not access GPIO, detection does not access the microphone or model,
-and telemetry does not operate the pipeline. The coordinator passes complete audio
-hops, a feature window, probabilities, detection results, and statistics across
-these boundaries. Feature data remains owned by the extractor and is consumed
-synchronously by the model before the next hop modifies it.
+For a live capture, install `pyserial` in a host virtual environment and run:
 
-Execution remains one main-loop consumer plus the PDM interrupt producer. These
-boundaries support a later RTOS migration, but do not make the modules safe for
-arbitrary concurrent calls. A future task split must assign one owner to each
-stateful module, transfer feature/result snapshots with explicit lifetimes, and
-replace interrupt-counter snapshots with synchronization suitable for that task
-layout. Keep the PDM callback short and avoid USB, DSP, inference, or GPIO actions
-inside it.
+```sh
+python3 tests/hardware_capture.py --port /dev/cu.usbmodem11201 --seconds 60
+```
 
+Say “yes” with pauses of about three seconds and observe the LED. The script
+checks acquisition/inference progression and reported loss/error counters;
+physical LED behavior and speech-trigger correspondence require observation.
+The host recording ends after the requested interval; firmware keeps running.
 
-## Verified operation after module separation
+## Model and project artifacts
 
-On October 20, 2026, the refactored firmware passed the full host test suite,
-compiled for the Nano 33 BLE, and was uploaded and checked on the board.
+- [Training notebook](training/kws_1class_depthwise.ipynb): Google Speech Commands training and quantization workflow.
+- [Model architecture](kws_1class_depthwise_int8.tflite.png): exported model visualization.
+- [Feature timing diagram](1sec_timing.png): context and overlap illustration.
+- [Documentation index](docs/README.md): initial and refactor validation records with raw telemetry.
 
-- A 30-second acquisition/inference regression check completed with zero reported
-  dropped samples, missed buffers, or inference errors.
-- A separate one-minute spoken “yes” test recorded 12 confirmed detections.
-  Telemetry showed alternating LED states, and the operator confirmed that the
-  physical built-in LED toggled.
-- During the spoken test, inference averaged 59.09 ms with a 59.55 ms maximum;
-  peak ring occupancy was 768 of 8192 samples. Loss and error counters stayed zero.
-- The firmware runs continuously while powered. Test durations limit the host
-  recording, not the Nano's runtime.
+## Next engineering work
 
-The current build uses 328,304 bytes of flash (33%) and 194,112 bytes of static
-RAM (74%). Full results, measurement definitions, and raw captures are in
-[module separation validation](docs/module-refactor-validation.md).
-
-These checks verify the working pipeline in the tested environment. Detection
-accuracy across speakers/noise conditions and hours-to-days endurance remain
-separate validation work.
+Evaluate false accepts/rejects across speakers, noise, distance, and silence;
+run longer endurance tests; add peripheral fault recovery; and introduce explicit
+RTOS tasks when expansion provides a useful concurrent workload. Threshold
+refinement and multi-keyword training are separate from the build/runtime work.

@@ -5,6 +5,8 @@ fields are documented in the [project README](../README.md).
 
 | Record | Contents |
 |---|---|
+| [Locked-build validation](build-validation.md) | Clean setup, Make targets, host checks, upload and live telemetry validation |
+| [Build and CI](build.md) | Locked command-line tools, dependency provenance, Make targets, CI artifacts, and reproducibility limits |
 | [Initial improvements validation](validation.md) | Ordered testing of the six improvements, Nano build/upload, and initial hardware measurements |
 | [Module separation validation](module-refactor-validation.md) | Module boundaries, host regression tests, current memory use, 30-second live check, and repeated one-minute speech/physical LED test |
 | [Initial hardware telemetry](hardware-telemetry.json) | Raw records from the initial implementation |
@@ -24,8 +26,8 @@ and validation status. The model diagram remains available as
 
 ## Reproducing checks
 
-From the repository root, run `sh tests/run_tests.sh` with a C++ compiler and
-Python 3. For hardware checks, install pyserial and run
+From the repository root, run `make test` with a C++ compiler and
+Python 3.9+. Run `make setup` then `make build` for a project-local firmware build. For hardware checks, install pyserial and run
 `python3 tests/hardware_capture.py --port <Nano-serial-port> --seconds 60`.
 Speak “yes” with pauses of about three seconds and observe the built-in LED.
 The capture script checks acquisition/inference progression and loss/error

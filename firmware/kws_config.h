@@ -1,5 +1,5 @@
 #pragma once
-#define ARM_MATH_DSP
+#define ARM_MATH_DSP 1
 #define ARM_MATH_LOOPUNROLL
 #define TF_LITE_USE_CMSIS_NN
 #include <stdint.h>
