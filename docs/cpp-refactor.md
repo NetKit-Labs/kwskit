@@ -88,9 +88,12 @@ maximum 61997 us. Observed unused stack was 6776 bytes for audio and 4976 for
 control; peak ring occupancy was 768 samples. Counters are cumulative since boot,
 not restricted to the host recording interval. Normal firmware remains installed.
 
-No confirmed keyword actions occurred in this normal capture. A fresh physical
-spoken-word/LED observation has been requested but is not established by this
-record. Earlier speech/LED confirmations remain in [RTOS validation](rtos-validation.md#spoken-word-and-physical-led-check).
+No confirmed keyword actions occurred in the automated normal capture. After
+normal-firmware restoration, the developer separately repeated the spoken
+"yes" test and confirmed that the built-in LED toggles. This is a fresh physical
+end-to-end confirmation for the object-based firmware; no labeled attempt count
+or accuracy rate is inferred from it. Earlier speech/LED captures remain in
+[RTOS validation](rtos-validation.md#spoken-word-and-physical-led-check).
 
 The normal BIN is 332,532 bytes including image layout, with SHA-256
 `89178085786d3ee3de5a38da7b2cdbca22b0d83b6ce79691f680e37e3b70b711`.
