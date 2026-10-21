@@ -1,9 +1,11 @@
 #pragma once
+
+#include <type_traits>
+
 #include "audio_capture.h"
 #include "audio_pipeline.h"
 #include "device_control.h"
-#include "telemetry.h"
 #include "feature_extractor.h"
-#include "keyword_model.h"
 #include "fft_power.h"
-#include <type_traits>
+#include "keyword_model.h"
+#include "telemetry.h"

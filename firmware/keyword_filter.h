@@ -1,6 +1,9 @@
 #pragma once
+
 #include "cpp_standard.h"
+
 #include <cstdint>
+
 class KeywordFilter {
     float smoothed = 0;
     std::uint8_t hits = 0;
@@ -15,6 +18,7 @@ public:
         if (armed)
             smoothed = 0;
     }
+
     // Scores arrive every ~128 ms. Require sustained evidence and release below 0.4.
     bool update(float probability, std::uint32_t now) {
         smoothed += 0.5f * (probability - smoothed);

@@ -1,18 +1,23 @@
-#include "audio_pipeline.h"
-#include <cstdint>
-#include "keyword_event.h"
-#include "audio_capture.h"
-#include "feature_extractor.h"
-#include "keyword_model.h"
-#include <Arduino.h>
 #include <cassert>
+#include <cstdint>
+
+#include <Arduino.h>
+
+#include "audio_capture.h"
+#include "audio_pipeline.h"
+#include "feature_extractor.h"
+#include "keyword_event.h"
+#include "keyword_model.h"
 std::uint32_t clockUs = 0;
+
 std::uint32_t micros() {
     return clockUs;
 }
+
 std::uint32_t millis() {
     return clockUs / 1000;
 }
+
 bool predictOk = true, hop = true, due = true;
 int queued = 0, predictions = 0, resets = 0, discards = 0;
 AudioCapture::Snapshot audio{};
@@ -30,13 +35,17 @@ bool AudioCapture::readHop(AudioHop &, std::uint32_t &time) {
     time = clockUs;
     return hop;
 }
+
 std::uint32_t AudioCapture::available() const {
     return queued;
 }
+
 AudioCapture::Snapshot AudioCapture::snapshot() const {
     return audio;
 }
+
 void AudioCapture::end() {}
+
 void AudioCapture::discardPending() {
     ++discards;
 }
@@ -49,13 +58,17 @@ void FeatureExtractor::reset() {
     (void)firstFrame;
     ++resets;
 }
+
 void FeatureExtractor::consume(const AudioHop &) {
     clockUs += 2000;
 }
+
 bool FeatureExtractor::inferenceDue() const {
     return due;
 }
+
 void FeatureExtractor::markInferred() {}
+
 const FeatureTensor &FeatureExtractor::features() const {
     return featureBuffer;
 }
@@ -69,11 +82,13 @@ bool KeywordModel::predict(const FeatureTensor &, float &p) {
 }
 
 struct KeywordModel::Runtime {};
+
 KeywordModel &KeywordModel::instance() {
     static Runtime runtime;
     static KeywordModel model(runtime);
     return model;
 }
+
 int main() {
     AudioCapture capture;
     FeatureExtractor features;

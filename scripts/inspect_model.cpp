@@ -1,18 +1,20 @@
 // Inspect the project's single-subgraph TFLite artifact using the pinned schema.
 // This is a host tool; it does not link or execute the inference runtime.
 #include "../firmware/cpp_standard.h"
-#include <tensorflow/lite/schema/schema_generated.h>
+
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <set>
 #include <stdexcept>
-#include <vector>
 #include <string_view>
+#include <vector>
+
+#include <tensorflow/lite/schema/schema_generated.h>
 
 namespace {
     void string(std::string_view value) {
@@ -29,6 +31,7 @@ namespace {
         }
         std::cout << '"';
     }
+
     template <typename T> void array(const flatbuffers::Vector<T> *values) {
         std::cout << '[';
         if (values)
@@ -39,6 +42,7 @@ namespace {
             }
         std::cout << ']';
     }
+
     std::uint64_t elements(const tflite::Tensor &tensor) {
         std::uint64_t count = 1;
         for (int dim : *tensor.shape())

@@ -1,6 +1,8 @@
 #include "../firmware/audio_queue.h"
-#include <cstdint>
+
 #include <cassert>
+#include <cstdint>
+
 int main() {
     AudioQueue<8> q;
     std::array<std::int16_t, 8> out{};

@@ -1,10 +1,14 @@
 #pragma once
+
 #include "cpp_standard.h"
+
 #define ARM_MATH_DSP 1
 #define ARM_MATH_LOOPUNROLL
 #define TF_LITE_USE_CMSIS_NN
-#include <cstdint>
+
 #include <array>
+#include <cstdint>
+
 constexpr int SAMPLE_RATE = 16000;
 constexpr int FRAME_SIZE = 512;
 constexpr int HOP_SIZE = FRAME_SIZE / 2;

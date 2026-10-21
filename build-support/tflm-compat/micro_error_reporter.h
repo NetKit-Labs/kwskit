@@ -23,9 +23,11 @@ limitations under the License.
 namespace tflite {
     // Get a pointer to a singleton global error reporter.
     ErrorReporter *GetMicroErrorReporter();
+
     class MicroErrorReporter : public ErrorReporter {
     public:
         ~MicroErrorReporter() override {}
+
         int Report(const char *format, va_list args) override;
 
     private:

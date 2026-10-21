@@ -1,4 +1,5 @@
 #include "device_control.h"
+
 #include <Arduino.h>
 
 void DeviceControl::begin() {

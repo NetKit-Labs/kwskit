@@ -1,6 +1,9 @@
 #pragma once
-#include "timing_stats.h"
+
 #include <cstdint>
+
+#include "timing_stats.h"
+
 struct PipelineMetrics {
     TimingStats dspTiming, inferenceTiming, processingTiming, responseTiming;
     std::uint32_t confirmedKeywords = 0, inferenceErrors = 0;

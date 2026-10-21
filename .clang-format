@@ -11,7 +11,22 @@ AccessModifierOffset: -4
 AlignAfterOpenBracket: DontAlign
 AlignOperands: DontAlign
 AlignEscapedNewlines: DontAlign
-SortIncludes: Never
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+IncludeIsMainRegex: '(_test|Test)?$'
+IncludeCategories:
+  - Regex: '^"(.*/)?(cpp_standard|kws_config)\.h"$'
+    Priority: -1
+  - Regex: '^<[a-z0-9_]+>$'
+    Priority: 1
+  - Regex: '^(<|"tensorflow/)'
+    Priority: 2
+  - Regex: '.*'
+    Priority: 3
+SeparateDefinitionBlocks: Always
+EmptyLineBeforeAccessModifier: Always
+EmptyLineAfterAccessModifier: Never
+KeepEmptyLinesAtTheStartOfBlocks: false
 ReflowComments: false
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never

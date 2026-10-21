@@ -1,43 +1,53 @@
+#include <cassert>
+#include <cstdint>
+#include <cstring>
+#include <vector>
+
+#include <Arduino.h>
+#include <cmsis_os2.h>
+
+#include "audio_capture.h"
+#include "audio_pipeline.h"
+#include "device_control.h"
+#include "feature_extractor.h"
+#include "keyword_model.h"
 #include "kws_pipeline.h"
 #include "mutex_lock.h"
 #include "scheduler_lock.h"
-#include <cstdint>
-#include "audio_pipeline.h"
-#include "audio_capture.h"
-#include "feature_extractor.h"
-#include "keyword_model.h"
-#include "device_control.h"
 #include "telemetry.h"
-#include <cmsis_os2.h>
-#include <Arduino.h>
-#include <cassert>
-#include <cstring>
-#include <vector>
 SerialFake Serial;
 std::uint32_t clockUs = 1000000, clockMs = 1000;
+
 std::uint32_t micros() {
     return clockUs;
 }
+
 std::uint32_t millis() {
     return clockMs;
 }
+
 int failure = 0, mutexes = 0, queues = 0, threads = 0, threadCalls = 0, lastDelay = 0,
     flagCalls = 0;
 AudioCapture::Notification notifier = nullptr;
 void *notificationContext = nullptr;
 std::array<osThreadAttr_t, 2> attrs{};
+
 struct Task {
     void (*entry)(void *) = nullptr;
     void *context = nullptr;
 };
+
 std::array<Task, 2> tasks{};
+
 struct StopTask {};
+
 std::vector<KeywordEvent> scores;
 std::size_t nextScore = 0;
 int actions = 0, stackQueries = 0, schedulerState = 0;
 bool mutexBusy = false, schedulerFailure = false, delayAction = false;
 bool invalidateAction = false, runningAudio = false;
 int audioWaits = 0, audioSteps = 0;
+
 osMutexId_t osMutexNew(const osMutexAttr_t *a) {
     assert(a->cb_mem && a->cb_size && a->attr_bits == osMutexPrioInherit);
     if (failure == 1) {
@@ -46,11 +56,14 @@ osMutexId_t osMutexNew(const osMutexAttr_t *a) {
     ++mutexes;
     return reinterpret_cast<void *>(std::uintptr_t{1});
 }
+
 int osMutexDelete(osMutexId_t) {
     --mutexes;
     return 0;
 }
+
 int heldLocks = 0;
+
 int osMutexAcquire(osMutexId_t mutex, std::uint32_t wait) {
     assert(mutex && wait == 0);
     if (mutexBusy)
@@ -58,11 +71,13 @@ int osMutexAcquire(osMutexId_t mutex, std::uint32_t wait) {
     ++heldLocks;
     return 0;
 }
+
 int osMutexRelease(osMutexId_t) {
     assert(heldLocks > 0);
     --heldLocks;
     return 0;
 }
+
 osMessageQueueId_t osMessageQueueNew(
     std::uint32_t n, std::uint32_t size, const osMessageQueueAttr_t *a) {
     assert(n == 8 && size == sizeof(KeywordEvent));
@@ -74,14 +89,17 @@ osMessageQueueId_t osMessageQueueNew(
     ++queues;
     return reinterpret_cast<void *>(std::uintptr_t{2});
 }
+
 int osMessageQueueDelete(osMessageQueueId_t) {
     --queues;
     return 0;
 }
+
 int osMessageQueuePut(osMessageQueueId_t, const void *, std::uint8_t, std::uint32_t wait) {
     assert(wait == 0);
     return 0;
 }
+
 int osMessageQueueGet(osMessageQueueId_t, void *destination, std::uint8_t *, std::uint32_t) {
     if (nextScore == scores.size())
         throw StopTask{};
@@ -91,6 +109,7 @@ int osMessageQueueGet(osMessageQueueId_t, void *destination, std::uint8_t *, std
     *static_cast<KeywordEvent *>(destination) = event;
     return osOK;
 }
+
 osThreadId_t osThreadNew(void (*entry)(void *), void *context, const osThreadAttr_t *a) {
     assert(context);
     assert(a->attr_bits == 0 && a->tz_module == 0 && a->reserved == 0);
@@ -103,14 +122,17 @@ osThreadId_t osThreadNew(void (*entry)(void *), void *context, const osThreadAtt
     ++threads;
     return reinterpret_cast<void *>(std::uintptr_t(call + 3));
 }
+
 int osThreadTerminate(osThreadId_t) {
     --threads;
     return 0;
 }
+
 std::uint32_t osThreadGetStackSpace(osThreadId_t) {
     ++stackQueries;
     return 4096;
 }
+
 std::uint32_t osThreadFlagsSet(osThreadId_t id, std::uint32_t f) {
     assert(id);
     ++flagCalls;
@@ -119,18 +141,22 @@ std::uint32_t osThreadFlagsSet(osThreadId_t id, std::uint32_t f) {
         return osFlagsError;
     return f;
 }
+
 std::uint32_t osThreadFlagsWait(std::uint32_t f, std::uint32_t, std::uint32_t) {
     if (runningAudio && f == 2 && ++audioWaits > 1)
         throw StopTask{};
     return f;
 }
+
 std::uint32_t osKernelGetTickFreq() {
     return 1000;
 }
+
 int osDelay(std::uint32_t t) {
     lastDelay = t;
     return 0;
 }
+
 std::int32_t osKernelLock() {
     if (invalidateAction) {
         // Simulate audio preempting control immediately before scheduler locking.
@@ -153,6 +179,7 @@ std::int32_t osKernelLock() {
     schedulerState = 1;
     return previous;
 }
+
 std::int32_t osKernelRestoreLock(std::int32_t previous) {
     assert(schedulerState == 1 && previous >= 0);
     schedulerState = previous;
@@ -164,9 +191,11 @@ bool AudioCapture::begin(Notification callback, void *context) {
     ::notificationContext = context;
     return failure != 5;
 }
+
 void AudioCapture::end() {
     notifier = nullptr;
 }
+
 AudioCapture::Snapshot AudioCapture::snapshot() const {
     return {};
 }
@@ -175,9 +204,11 @@ bool KeywordModel::begin() {
     (void)runtime;
     return failure != 6;
 }
+
 float KeywordModel::inputScale() const {
     return 0.5f;
 }
+
 std::int32_t KeywordModel::inputZeroPoint() const {
     return 0;
 }
@@ -189,10 +220,12 @@ bool FeatureExtractor::begin(float, std::int32_t) {
 void DeviceControl::begin() {
     deviceOn = false;
 }
+
 void DeviceControl::applyKeywordAction() {
     assert(schedulerState == 1);
     ++actions;
 }
+
 bool DeviceControl::isOn() const {
     return deviceOn;
 }
@@ -201,7 +234,9 @@ void Telemetry::begin() {
     (void)buffer;
     length = offset = lastReport = 0;
 }
+
 void Telemetry::pump() {}
+
 void Telemetry::report(const AudioCapture::Snapshot &, const PipelineMetrics &, bool) {}
 
 AudioStep AudioPipeline::process(KeywordEvent &) {
@@ -212,12 +247,15 @@ AudioStep AudioPipeline::process(KeywordEvent &) {
     (void)audioHop;
     return {false, false, audioSteps++ == 0};
 }
+
 struct KeywordModel::Runtime {};
+
 KeywordModel &KeywordModel::instance() {
     static Runtime runtime;
     static KeywordModel model(runtime);
     return model;
 }
+
 int main() {
     const auto earlyReturn = [] {
         const MutexLock lock(reinterpret_cast<void *>(std::uintptr_t{1}));

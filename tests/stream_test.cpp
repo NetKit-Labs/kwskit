@@ -1,6 +1,8 @@
-#include "../firmware/audio_queue.h"
-#include <cstdint>
 #include <cassert>
+#include <cstdint>
+
+#include "../firmware/audio_queue.h"
+
 // Simulate 60 ms inference pauses and 1 ms DSP work for 10 s at 16 kHz.
 int main() {
     AudioQueue<8192> q;

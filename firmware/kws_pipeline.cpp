@@ -1,24 +1,28 @@
 #include "kws_pipeline.h"
+
+#include <array>
+#include <atomic>
 #include <cstdint>
-#include "audio_pipeline.h"
-#include "audio_capture.h"
-#include "feature_extractor.h"
-#include "keyword_model.h"
-#include "device_control.h"
-#include "telemetry.h"
+
 #include <Arduino.h>
 #include <cmsis_os2.h>
 #include <rtx_os.h>
-#include <atomic>
-#include <array>
+
+#include "audio_capture.h"
+#include "audio_pipeline.h"
+#include "device_control.h"
+#include "feature_extractor.h"
+#include "keyword_model.h"
 #include "mutex_lock.h"
 #include "scheduler_lock.h"
+#include "telemetry.h"
 
 namespace {
     class Application {
     private:
         static constexpr std::uint32_t runFlag = 1, audioFlag = 2;
         static constexpr std::uint32_t eventCapacity = 8;
+
         alignas(8) std::array<std::uint8_t, 8192> audioStack{};
         alignas(8) std::array<std::uint8_t, 6144> controlStack{};
         osRtxThread_t audioControlBlock{}, deviceControlBlock{};
@@ -26,12 +30,15 @@ namespace {
         alignas(8) std::array<std::uint8_t,
             osRtxMessageQueueMemSize(eventCapacity, sizeof(KeywordEvent))> queueStorage{};
         osRtxMutex_t metricsControlBlock{};
+
         osThreadId_t audioThread = nullptr, controlThread = nullptr;
         osMessageQueueId_t events = nullptr;
         osMutexId_t metricsMutex = nullptr;
+
         std::atomic<std::uint32_t> generation{0}, eventDrops{0}, notifyErrors{0};
         PipelineMetrics sharedAudio;
         bool started = false;
+
         AudioCapture capture;
         FeatureExtractor features;
         DeviceControl device;
@@ -41,26 +48,32 @@ namespace {
         std::uint32_t ticksForMs(std::uint32_t ms) {
             return (ms * osKernelGetTickFreq() + 999) / 1000;
         }
+
         void notifyAudio() {
             if (osThreadFlagsSet(audioThread, audioFlag) & osFlagsError)
                 ++notifyErrors;
         }
+
         void publishAudio() {
             const MutexLock lock(metricsMutex);
             if (lock)
                 sharedAudio = audioPipeline.statistics();
         }
+
         void processAudio() {
             osThreadFlagsWait(runFlag, osFlagsWaitAny, osWaitForever);
             std::uint32_t sequence = 0;
+
             while (true) {
                 // Flags coalesce; drain the ring completely before waiting again.
                 osThreadFlagsWait(audioFlag, osFlagsWaitAny, ticksForMs(100));
                 while (true) {
                     KeywordEvent event{};
                     AudioStep step = audioPipeline.process(event);
+
                     if (step.reset)
                         ++generation;
+
                     if (step.hasEvent) {
                         event.sequence = ++sequence;
                         event.generation = generation.load();
@@ -69,6 +82,7 @@ namespace {
                             ++generation; // Invalidate any older queued evidence after a gap.
                         }
                     }
+
                     if (step.processed)
                         publishAudio();
                     else
@@ -76,8 +90,10 @@ namespace {
                 }
             }
         }
+
         void controlDevice() {
             osThreadFlagsWait(runFlag, osFlagsWaitAny, osWaitForever);
+
             KeywordEventFilter filter;
             TimingStats response, queueLatency;
             PipelineMetrics latestAudio;
@@ -87,6 +103,7 @@ namespace {
 #ifdef KWS_RTOS_STRESS_TEST
             bool stressDone = false;
 #endif
+
             while (true) {
                 KeywordEvent event{};
                 if (osMessageQueueGet(events, &event, nullptr, ticksForMs(20)) == osOK) {
@@ -117,11 +134,13 @@ namespace {
                         }
                     }
                 }
+
                 {
                     const MutexLock lock(metricsMutex);
                     if (lock)
                         latestAudio = sharedAudio;
                 }
+
                 auto snapshot = latestAudio;
                 snapshot.confirmedKeywords = triggers;
                 snapshot.responseTiming = response;
@@ -129,6 +148,7 @@ namespace {
                 snapshot.eventDrops = eventDrops.load();
                 snapshot.staleEvents = staleEvents;
                 snapshot.notifyErrors = notifyErrors.load();
+
                 // RTX scans stack fill words in an SVC; keep that diagnostic work infrequent.
                 const auto nowMs = millis();
                 if (!haveStackSample || nowMs - lastStackCheck >= 2000) {
@@ -137,14 +157,18 @@ namespace {
                     lastStackCheck = nowMs;
                     haveStackSample = true;
                 }
+
                 snapshot.audioStackFree = audioStackFree;
                 snapshot.controlStackFree = controlStackFree;
+
                 telemetry.pump();
                 telemetry.report(capture.snapshot(), snapshot, device.isOn());
             }
         }
+
         void cleanup() {
             capture.end(); // Stop the interrupt producer before deleting thread IDs.
+
             if (audioThread)
                 osThreadTerminate(audioThread);
             if (controlThread)
@@ -153,6 +177,7 @@ namespace {
                 osMessageQueueDelete(events);
             if (metricsMutex)
                 osMutexDelete(metricsMutex);
+
             audioThread = controlThread = nullptr;
             events = nullptr;
             metricsMutex = nullptr;
@@ -163,6 +188,7 @@ namespace {
         Application() = default;
         Application(const Application &) = delete;
         Application &operator=(const Application &) = delete;
+
         ~Application() {
             cleanup();
         }
@@ -171,17 +197,21 @@ namespace {
             if (started) {
                 return true;
             }
+
             device.begin();
             telemetry.begin();
+
             auto &model = KeywordModel::instance();
             if (!model.begin()) {
                 Serial.println("Model initialization failed");
                 return false;
             }
+
             if (!features.begin(model.inputScale(), model.inputZeroPoint())) {
                 Serial.println("DSP initialization failed");
                 return false;
             }
+
             const osMutexAttr_t mutexAttrs{
                 .name = "kws-metrics",
                 .attr_bits = osMutexPrioInherit,
@@ -189,6 +219,7 @@ namespace {
                 .cb_size = sizeof(metricsControlBlock),
             };
             metricsMutex = osMutexNew(&mutexAttrs);
+
             const osMessageQueueAttr_t queueAttrs{
                 .name = "kws-scores",
                 .cb_mem = &queueControlBlock,
@@ -202,6 +233,7 @@ namespace {
                 Serial.println("RTOS objects failed");
                 return false;
             }
+
             const osThreadAttr_t audioAttrs{
                 .name = "kws-audio",
                 .cb_mem = &audioControlBlock,
@@ -216,6 +248,7 @@ namespace {
                     application.processAudio();
                 },
                 this, &audioAttrs);
+
             const osThreadAttr_t controlAttrs{
                 .name = "kws-control",
                 .cb_mem = &deviceControlBlock,
@@ -230,11 +263,13 @@ namespace {
                     application.controlDevice();
                 },
                 this, &controlAttrs);
+
             if (!audioThread || !controlThread) {
                 cleanup();
                 Serial.println("RTOS tasks failed");
                 return false;
             }
+
             if (!capture.begin(
                     [](void *context) {
                         auto &application = *static_cast<Application *>(context);
@@ -245,15 +280,18 @@ namespace {
                 Serial.println("PDM failed");
                 return false;
             }
+
             if ((osThreadFlagsSet(controlThread, runFlag) & osFlagsError) ||
                 (osThreadFlagsSet(audioThread, runFlag) & osFlagsError)) {
                 cleanup();
                 Serial.println("RTOS start flags failed");
                 return false;
             }
+
             started = true;
             return true;
         }
+
         void poll() {
             // Arduino's existing main task has no pipeline work; let application tasks run.
             osDelay(ticksForMs(1000));
@@ -271,6 +309,7 @@ namespace KwsPipeline {
     bool begin() {
         return application().begin();
     }
+
     void poll() {
         application().poll();
     }

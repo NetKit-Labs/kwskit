@@ -1,5 +1,7 @@
 #pragma once
+
 #include "cpp_standard.h"
+
 #include <array>
 #include <cstddef>
 

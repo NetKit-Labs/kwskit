@@ -1,43 +1,55 @@
-#include "audio_capture.h"
-#include <cstddef>
-#include <cstdint>
-#include <PDM.h>
 #include <array>
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
+
+#include <PDM.h>
+
+#include "audio_capture.h"
 
 PdmFake PDM;
 std::uint32_t clockUs = 1000000;
 int interruptMask = 0, notifications = 0;
+
 std::uint32_t micros() {
     return clockUs;
 }
+
 void noInterrupts() {
     interruptMask = 1;
 }
+
 void interrupts() {
     interruptMask = 0;
 }
+
 std::uint32_t __get_PRIMASK() {
     return interruptMask;
 }
+
 void __set_PRIMASK(std::uint32_t mask) {
     interruptMask = static_cast<int>(mask);
 }
+
 bool PdmFake::begin(int channels, int rate) {
     assert(channels == 1 && rate == 16000);
     running = startOk;
     return running;
 }
+
 void PdmFake::end() {
     running = false;
     ++stops;
 }
+
 void PdmFake::setGain(int gain) {
     assert(gain == 60);
 }
+
 int PdmFake::available() {
     return static_cast<int>(pending.size() * sizeof(std::int16_t));
 }
+
 int PdmFake::read(void *destination, int bytes) {
     assert(bytes > 0 && static_cast<std::size_t>(bytes) <= bufferSize && bytes % 2 == 0);
     ++readCalls;
@@ -49,6 +61,7 @@ int PdmFake::read(void *destination, int bytes) {
     }
     return bytes;
 }
+
 int main() {
     AudioCapture capture, other;
     const auto notify = [](void *context) { ++*static_cast<int *>(context); };

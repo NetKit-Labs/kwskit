@@ -1,5 +1,7 @@
 #pragma once
+
 #include "kws_config.h"
+
 #include <cstdint>
 
 // One fixed TFLite runtime for the deployed model, constructed on first use.
@@ -7,6 +9,7 @@
 class KeywordModel {
 public:
     static KeywordModel &instance();
+
     KeywordModel(const KeywordModel &) = delete;
     KeywordModel &operator=(const KeywordModel &) = delete;
 
@@ -17,6 +20,8 @@ public:
 
 private:
     struct Runtime;
+
     explicit KeywordModel(Runtime &runtime) : runtime(runtime) {}
+
     Runtime &runtime;
 };

@@ -1,6 +1,8 @@
 #include "../firmware/keyword_filter.h"
-#include <cstdint>
+
 #include <cassert>
+#include <cstdint>
+
 int main() {
     KeywordFilter f;
     assert(!f.update(1, 0));

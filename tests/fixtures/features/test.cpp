@@ -1,12 +1,13 @@
-#include "feature_extractor.h"
-#include <cstdint>
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
-#include <type_traits>
 #include <limits>
+#include <type_traits>
+
+#include "feature_extractor.h"
 
 extern bool failFftInitialization;
 extern std::array<float, FRAME_SIZE> lastAppliedWindow;

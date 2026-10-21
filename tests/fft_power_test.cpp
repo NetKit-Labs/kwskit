@@ -1,5 +1,7 @@
 #include "../firmware/fft_power.h"
+
 #include <cassert>
+
 int main() {
     std::array<float, 512> packed{};
     std::array<float, 257> power{};

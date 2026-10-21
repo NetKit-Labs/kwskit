@@ -1,4 +1,5 @@
 #pragma once
+
 #include <algorithm>
 #include <cstdint>
 using std::min;

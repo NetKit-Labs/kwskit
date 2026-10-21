@@ -1,5 +1,7 @@
 #include "../firmware/keyword_detector.h"
+
 #include <cassert>
+
 int main() {
     KeywordDetector detector;
     assert(!detector.update(1, 1000, 2000, 1).confirmed);

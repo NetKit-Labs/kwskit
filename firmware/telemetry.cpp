@@ -1,14 +1,17 @@
 #include "telemetry.h"
+
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
+
 #include <Arduino.h>
 #include <USB/PluggableUSBSerial.h>
-#include <algorithm>
-#include <cstdio>
 
 void Telemetry::pump() {
     if (offset >= length || !_SerialUSB.connected())
         return;
+
     std::uint32_t sent = 0;
     std::size_t remaining = length - offset;
     _SerialUSB.send_nb(reinterpret_cast<std::uint8_t *>(buffer.data()) + offset,
@@ -19,9 +22,11 @@ void Telemetry::pump() {
 void Telemetry::begin() {
     Serial.begin(115200);
     std::uint32_t start = millis();
+
     while (!Serial && millis() - start < 2000) {
     }
 }
+
 void Telemetry::report(
     const AudioCapture::Snapshot &audio, const PipelineMetrics &metrics, bool deviceOn) {
     if (millis() - lastReport >= 2000 && offset >= length) {
@@ -29,6 +34,7 @@ void Telemetry::report(
         std::uint32_t samples = audio.receivedSamples, missed = audio.missedBuffers;
         std::uint32_t high = audio.highWater, gap = audio.gapMaxUs, arrival = audio.lastAudioUs;
         std::uint32_t dropped = audio.droppedSamples;
+
         const int formattedLength = std::snprintf(buffer.data(), buffer.size(),
             "ms=%lu samples=%lu dropped=%lu missed_buffers=%lu queue_max=%lu gap_max_us=%lu "
             "audio_age_us=%lu "
@@ -58,6 +64,7 @@ void Telemetry::report(
             static_cast<unsigned long>(metrics.eventLatency.maximum),
             static_cast<unsigned long>(metrics.audioStackFree),
             static_cast<unsigned long>(metrics.controlStackFree));
+
         length = formattedLength > 0
             ? std::min(static_cast<std::size_t>(formattedLength), buffer.size() - 1)
             : 0;

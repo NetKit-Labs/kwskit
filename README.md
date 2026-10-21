@@ -131,8 +131,10 @@ and the supplied precompiled Mbed/RTX archive is retained. Arduino IDE builds re
 [same compiler configuration](docs/build.md#c20-compiler-configuration).
 
 Maintained code uses **four spaces per indentation level**, with `.clang-format`,
-Black configuration, and `.editorconfig` checked into the repository. Makefile
-recipes retain their required tabs. Run `make format` to apply the style and
+Black configuration, and `.editorconfig` checked into the repository. Native
+includes are grouped and alphabetized, with whitespace between definitions and
+logical sections. Makefile recipes retain their required tabs. Run `make format`
+to apply the style and
 `make format-check` to verify it; the [formatting guide](docs/source-style.md)
 documents the project-local formatter setup. Native test fixtures are ordinary
 C++ source/header files under `tests/fixtures/`.

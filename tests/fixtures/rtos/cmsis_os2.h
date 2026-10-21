@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 using osThreadId_t = void *;
 using osMessageQueueId_t = void *;
@@ -7,6 +8,7 @@ using osStatus_t = int;
 constexpr int osOK = 0, osPriorityAboveNormal = 32, osPriorityNormal = 24;
 constexpr std::uint32_t osWaitForever = 0xffffffffu, osFlagsError = 0x80000000u, osFlagsWaitAny = 0,
                         osMutexPrioInherit = 2;
+
 struct osThreadAttr_t {
     const char *name;
     std::uint32_t attr_bits;
@@ -18,6 +20,7 @@ struct osThreadAttr_t {
     std::uint32_t tz_module;
     std::uint32_t reserved;
 };
+
 struct osMessageQueueAttr_t {
     const char *name;
     std::uint32_t attr_bits;
@@ -26,12 +29,14 @@ struct osMessageQueueAttr_t {
     void *mq_mem;
     std::uint32_t mq_size;
 };
+
 struct osMutexAttr_t {
     const char *name;
     std::uint32_t attr_bits;
     void *cb_mem;
     std::uint32_t cb_size;
 };
+
 osMutexId_t osMutexNew(const osMutexAttr_t *);
 int osMutexDelete(osMutexId_t);
 int osMutexAcquire(osMutexId_t, std::uint32_t);

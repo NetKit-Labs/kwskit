@@ -1,14 +1,17 @@
 #pragma once
+
 #include "cpp_standard.h"
-#include <cstdint>
-#include <cstddef>
-#include <atomic>
+
 #include <array>
-#include <limits>
+#include <atomic>
 #include <bit>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
 
 // Single interrupt producer, single audio-task consumer. Never overwrite unread audio.
 static_assert(ATOMIC_INT_LOCK_FREE == 2, "ISR queue requires lock-free atomics");
+
 template <std::size_t Capacity> class AudioQueue {
     static_assert(std::has_single_bit(Capacity), "Nonzero power-of-two capacity required");
     static_assert(
@@ -22,6 +25,7 @@ public:
     std::uint32_t droppedSamples() const {
         return droppedCount;
     }
+
     bool push(std::int16_t sample) {
         std::uint32_t h = head.load(std::memory_order_relaxed);
         if (h - tail.load(std::memory_order_acquire) == Capacity) {
@@ -32,6 +36,7 @@ public:
         head.store(h + 1, std::memory_order_release);
         return true;
     }
+
     template <std::size_t Count>
     bool pop(std::array<std::int16_t, Count> &destination, std::size_t count = Count) {
         if (count > destination.size())
@@ -44,10 +49,12 @@ public:
         tail.store(t + count, std::memory_order_release);
         return true;
     }
+
     void discardPending() {
         // Only the consumer advances tail. Samples published afterward remain available.
         tail.store(head.load(std::memory_order_acquire), std::memory_order_release);
     }
+
     std::uint32_t available() const {
         return head.load(std::memory_order_acquire) - tail.load(std::memory_order_acquire);
     }

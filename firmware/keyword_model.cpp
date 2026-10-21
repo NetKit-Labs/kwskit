@@ -1,26 +1,33 @@
 #include "keyword_model.h"
-#include <cstdint>
+
+#include <algorithm>
+#include <array>
+#include <cmath>
 #include <cstddef>
+#include <cstdint>
+#include <new>
+
 #include <TensorFlowLite.h>
 #include <tensorflow/lite/micro/micro_error_reporter.h>
 #include <tensorflow/lite/micro/micro_interpreter.h>
 #include <tensorflow/lite/micro/micro_mutable_op_resolver.h>
 #include <tensorflow/lite/schema/schema_generated.h>
+
 #include "kws_1class_depthwise_int8.h"
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <new>
 
 struct KeywordModel::Runtime {
     Runtime() = default;
     Runtime(const Runtime &) = delete;
     Runtime &operator=(const Runtime &) = delete;
+
     alignas(16) std::array<std::uint8_t, 96 * 1024> tensorArena{};
+
     tflite::MicroErrorReporter errorReporter;
     tflite::MicroMutableOpResolver<4> resolver;
+
     alignas(tflite::MicroInterpreter)
         std::array<std::byte, sizeof(tflite::MicroInterpreter)> interpreterStorage{};
+
     tflite::MicroInterpreter *interpreter = nullptr;
     TfLiteTensor *input = nullptr;
     TfLiteTensor *output = nullptr;
@@ -43,6 +50,7 @@ bool KeywordModel::begin() {
     if (runtime.interpreter) {
         return runtime.ready;
     }
+
     const auto &model = *tflite::GetModel(kws_1class_depthwise_int8_tflite);
     if (model.version() != TFLITE_SCHEMA_VERSION) {
         return false;
@@ -67,6 +75,7 @@ bool KeywordModel::begin() {
     if (!runtime.input || !runtime.output) {
         return false;
     }
+
     const auto &input = *runtime.input;
     const auto &output = *runtime.output;
     runtime.ready = input.type == kTfLiteInt8 && output.type == kTfLiteInt8 && input.data.int8 &&
@@ -90,16 +99,20 @@ bool KeywordModel::predict(const FeatureTensor &features, float &probability) {
     if (!runtime.ready) {
         return false;
     }
+
     auto &input = *runtime.input;
     const auto &output = *runtime.output;
     auto &interpreter = *runtime.interpreter;
+
     std::copy(features.begin(), features.end(), input.data.int8);
     if (interpreter.Invoke() != kTfLiteOk) {
         return false;
     }
+
     const auto candidate = output.params.scale * (output.data.int8[0] - output.params.zero_point);
     if (!std::isfinite(candidate) || candidate < 0.0f || candidate > 1.0f)
         return false;
+
     probability = candidate;
     return true;
 }

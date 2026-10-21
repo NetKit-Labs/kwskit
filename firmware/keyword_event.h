@@ -1,20 +1,25 @@
 #pragma once
-#include "keyword_detector.h"
-#include <type_traits>
-#include <cstdint>
+
 #include <cmath>
+#include <cstdint>
+#include <type_traits>
+
+#include "keyword_detector.h"
 
 // CMSIS queue copies this value; no audio/feature/tensor pointers cross tasks.
 struct KeywordEvent {
     float probability;
     std::uint32_t captureEndUs, decisionUs, decisionMs, sequence, generation;
 };
+
 static_assert(
     std::is_trivially_copyable_v<KeywordEvent>, "CMSIS copies event object representations");
+
 struct EventResult {
     DetectionResult detection;
     bool discarded;
 };
+
 class KeywordEventFilter {
     KeywordDetector detector;
     bool havePrevious = false;
@@ -22,6 +27,7 @@ class KeywordEventFilter {
 
 public:
     static constexpr std::uint32_t maxAgeUs = 250000;
+
     static bool isCurrent(const KeywordEvent &event, std::uint32_t generation, std::uint32_t nowUs,
         std::uint32_t nowMs) {
         // Both clocks prevent an event delayed for a full micros() rollover looking fresh.
@@ -30,6 +36,7 @@ public:
             static_cast<std::uint32_t>(nowUs - event.decisionUs) <= maxAgeUs &&
             static_cast<std::uint32_t>(nowMs - event.decisionMs) <= maxAgeUs / 1000;
     }
+
     EventResult consume(const KeywordEvent &event, std::uint32_t currentGeneration,
         std::uint32_t nowUs, std::uint32_t nowMs) {
         if (!isCurrent(event, currentGeneration, nowUs, nowMs)) {

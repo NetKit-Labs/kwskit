@@ -48,7 +48,7 @@ buffer initialization remain appropriate elsewhere.
 
 - C++: four spaces per indentation level, including namespaces, with formatter
   alignment of wrapped expressions where applicable;
-  100-column formatting, with include order preserved. See [.clang-format](../.clang-format).
+  100-column formatting, grouped/sorted includes, and blank lines between definitions. See [.clang-format](../.clang-format).
 - Python and notebook code cells: four-space blocks and Black's standard
   continuation formatting, with a 100-column target and Python 3.9 compatibility.
   See [pyproject.toml](../pyproject.toml).
@@ -62,6 +62,37 @@ fixtures in `tests/fixtures/device`, `tests/fixtures/pipeline`, and
 `tests/fixtures/rtos`, plus capture/features fixtures and scalar DSP support.
 Formatting checks include them directly. Harnesses compile fixtures either from
 temporary copies or their maintained paths, with actual firmware modules.
+
+## Include order and whitespace
+
+The formatter groups includes with a blank line between groups and sorts each
+group alphabetically (case sensitive):
+
+1. The matching header first in a `.cpp` file, when one exists; test filenames
+   ending in `_test` or `Test` also match their module header.
+2. Standard C++ headers, such as `<array>`, `<atomic>`, and `<cstdint>`.
+3. Platform/library headers, including Arduino, CMSIS/RTX, PDM, USB, and TFLite.
+4. Other project headers in quotes.
+
+The intentional prelude is `cpp_standard.h` / `kws_config.h` where already needed.
+It precedes ordinary groups: `<chrono>` must load before Arduino's `abs` macro,
+and CMSIS/TFLite feature switches must be visible before their library headers.
+Include sorting does not move directives across conditional/macro boundaries.
+Quoted upstream `tensorflow/...` headers belong to the library group. Lowercase,
+extensionless angle-bracket headers are classified as standard headers; add an
+explicit category if introducing a vendor header with that spelling.
+
+Keep one blank line after `#pragma once`, between function/type definitions,
+before a later access section, and between logical phases in longer functions.
+Group related declarations and data members together; avoid separating every
+statement. Hand-selected spacing distinguishes capture, DSP/inference, event
+handling, diagnostics, initialization, and cleanup without changing their code.
+The formatter preserves those logical breaks and limits consecutive blank lines.
+
+This applies to maintained firmware, tests/fakes, the host model inspector, and
+tracked compatibility headers. Downloaded libraries and generated coefficient/
+model tables are not manually rewritten. Compatibility overlays are refreshed
+through `make setup` when their tracked file hashes change.
 
 ## Install and run formatters
 
@@ -130,3 +161,28 @@ its acquired state. `SchedulerLock` preserves scheduler state for final event
 validation and the already configured LED write; it leaves interrupts enabled.
 Neither guard permits blocking device work inside its protected scope. See the
 [real-time review](realtime-review.md) for runtime guarantees and limits.
+
+## Include grouping and readability validation
+
+The later include/whitespace pass keeps the real-time hardening behavior described
+in [the review](realtime-review.md). It changes header grouping and layout, not
+runtime statements, APIs, allocations, scheduling, or model/filter values.
+The native-file audit compares code tokens with includes/comments/whitespace
+excluded and verifies unchanged include sets. All fifteen host checks, the
+formatter check, dependency refresh, and Nano cross-build passed. The host inspector compiled with sanitizers and produced
+metadata identical to the checked-in record. The audit covered 52 changed native
+files; the formatting target covers 69 native files. Generated model/filter
+headers are unchanged.
+
+The rebuilt image still uses 320,088 bytes flash and 188,392 bytes static RAM.
+Its 320,664-byte BIN is byte-for-byte identical to the real-time hardening image:
+
+```text
+71714d71c948d9488895e6a93f4fd380ae1a438c7ce0f7c802e1764da5300df0
+```
+
+The manifest matches all 29 maintained firmware files and the refreshed
+compatibility-overlay hashes. The earlier normal/stress/spoken-word hardware
+checks therefore describe this same binary. This formatting pass did not flash
+the Nano or claim a new physical test. The README PDF was regenerated and its
+six pages visually checked.

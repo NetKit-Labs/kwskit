@@ -1,9 +1,11 @@
 #pragma once
-#include "pipeline_metrics.h"
-#include <cstdint>
-#include "audio_capture.h"
+
 #include <array>
 #include <cstddef>
+#include <cstdint>
+
+#include "audio_capture.h"
+#include "pipeline_metrics.h"
 
 // Used only by the control task after initialization.
 class Telemetry {

@@ -1,9 +1,12 @@
 #include "audio_capture.h"
+
+#include <algorithm>
 #include <cstdint>
+
 #include <Arduino.h>
 #include <PDM.h>
+
 #include "interrupt_lock.h"
-#include <algorithm>
 
 constinit AudioCapture *AudioCapture::activeReceiver = nullptr;
 
@@ -16,13 +19,16 @@ void AudioCapture::receiveCallback() {
 
 void AudioCapture::receive() {
     std::uint32_t now = micros();
+
     if (lastAudioUs) {
         std::uint32_t gap = now - lastAudioUs;
         if (gap > callbackGapMaxUs)
             callbackGapMaxUs = gap;
     }
     lastAudioUs = now;
+
     bool missed = false;
+
     // The driver publishes one configured DMA block per callback. Even a faulty
     // driver that keeps reporting data cannot extend this ISR beyond one block.
     int remaining = sizeof(pdmBuffer);
@@ -41,11 +47,13 @@ void AudioCapture::receive() {
             if (!audioQueue.push(pdmBuffer[i]))
                 missed = true;
     }
+
     if (missed)
         missedBuffers = missedBuffers + 1;
     std::uint32_t depth = audioQueue.available();
     if (depth > queueHighWater)
         queueHighWater = depth;
+
     if (notifyConsumer)
         notifyConsumer(notificationContext);
 }
@@ -54,6 +62,7 @@ bool AudioCapture::begin(Notification notify, void *context) {
     if (activeReceiver) {
         return false;
     }
+
     notifyConsumer = notify;
     notificationContext = context;
     activeReceiver = this;
@@ -65,6 +74,7 @@ bool AudioCapture::begin(Notification notify, void *context) {
         notificationContext = nullptr;
         return false;
     }
+
     running = true;
     PDM.setGain(60);
     return true;
@@ -74,10 +84,12 @@ void AudioCapture::end() {
     if (running) {
         PDM.end();
     }
+
     running = false;
     if (activeReceiver == this) {
         activeReceiver = nullptr;
     }
+
     notifyConsumer = nullptr;
     notificationContext = nullptr;
 }
@@ -85,6 +97,7 @@ void AudioCapture::end() {
 std::uint32_t AudioCapture::available() const {
     return audioQueue.available();
 }
+
 AudioCapture::Snapshot AudioCapture::snapshot() const {
     const InterruptLock lock;
     return Snapshot{
@@ -96,18 +109,22 @@ AudioCapture::Snapshot AudioCapture::snapshot() const {
         .lastAudioUs = lastAudioUs,
     };
 }
+
 bool AudioCapture::readHop(AudioHop &samples, std::uint32_t &captureEndUs) {
     if (!audioQueue.pop(samples))
         return false;
+
     std::uint32_t arrival, backlog;
     {
         const InterruptLock lock;
         arrival = lastAudioUs;
         backlog = audioQueue.available();
     }
+
     captureEndUs = arrival - (static_cast<std::uint64_t>(backlog) * 1000000ULL) / SAMPLE_RATE;
     return true;
 }
+
 void AudioCapture::discardPending() {
     audioQueue.discardPending();
 }

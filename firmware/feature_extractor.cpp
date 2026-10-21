@@ -1,11 +1,13 @@
 #include "feature_extractor.h"
-#include <cstddef>
-#include <cstdint>
-#include "fft_power.h"
-#include "mel_filter_coefs.h"
+
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <numbers>
+
+#include "fft_power.h"
+#include "mel_filter_coefs.h"
 
 void FeatureExtractor::computeHannWindow() {
     constexpr double pi = std::numbers::pi_v<double>;
@@ -20,6 +22,7 @@ void FeatureExtractor::computeLogMel() {
     arm_mult_f32(audioFrame.data(), hannWindow.data(), windowed.data(), FRAME_SIZE);
     arm_rfft_fast_f32(&fft, windowed.data(), fftOutput.data(), 0);
     fftPower(fftOutput, powerSpectrum);
+
     arm_mat_mult_f32(&melMatrix, &spectrumVector, &melVector);
 
     for (std::size_t m = 0; m < melRow.size(); ++m) {
@@ -48,7 +51,9 @@ void FeatureExtractor::consume(const AudioHop &samples) {
     for (int i = 0; i < HOP_SIZE; ++i) {
         audioFrame[i + HOP_SIZE] = samples[i] / 32768.0f;
     }
+
     computeLogMel();
+
     if (frameCount < NUM_FRAMES) {
         ++frameCount;
     }
@@ -61,12 +66,15 @@ bool FeatureExtractor::begin(float scale, std::int32_t zeroPoint) {
         arm_rfft_fast_init_f32(&fft, FRAME_SIZE) != ARM_MATH_SUCCESS) {
         return false;
     }
+
     inputScale = scale;
     inputZeroPoint = zeroPoint;
+
     // CMSIS takes a mutable pointer but matrix multiplication only reads these flash coefficients.
     arm_mat_init_f32(&melMatrix, NUM_MEL, SPECTRUM_BINS, const_cast<float *>(&melFilterbank[0][0]));
     arm_mat_init_f32(&spectrumVector, SPECTRUM_BINS, 1, powerSpectrum.data());
     arm_mat_init_f32(&melVector, NUM_MEL, 1, melRow.data());
+
     computeHannWindow();
     reset();
     return true;

@@ -1,9 +1,11 @@
-#include "keyword_model.h"
-#include <TensorFlowLite.h>
 #include <cassert>
-#include <limits>
 #include <initializer_list>
+#include <limits>
 #include <string_view>
+
+#include <TensorFlowLite.h>
+
+#include "keyword_model.h"
 
 int main(int argc, char **argv) {
     assert(argc == 2);

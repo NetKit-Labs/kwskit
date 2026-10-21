@@ -1,6 +1,8 @@
 #include "../firmware/timing_stats.h"
-#include <cstdint>
+
 #include <cassert>
+#include <cstdint>
+
 int main() {
     TimingStats s;
     assert(s.average() == 0);
