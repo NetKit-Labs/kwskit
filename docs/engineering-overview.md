@@ -101,12 +101,18 @@ remain in [historical RTOS validation](rtos-validation.md).
 | Normal operation | Zero reported audio losses, inference/notification errors, score drops, or stale-result rejections |
 | Firmware footprint | 320,088 bytes flash; 188,392 bytes static RAM, including application stacks and tensor arena |
 
-Separately, the developer reports approximately **95% keyword-recognition
+The saved Colab notebook reports **93.48% test accuracy (loss 0.1853)**,
+with **97.90% validation accuracy** and **98.02% training accuracy** in the final
+epoch. These floating-point dataset results are separate from on-device results.
+
+The developer reports approximately **95% keyword-recognition
 success in informal use** with the current **1075 deployed parameter values**.
 No labeled trial count or false-trigger rate accompanies that estimate. A wider
 or deeper model reaching the upper 90% range is an **untested hypothesis** that
 requires suitable training and comparison on shared held-out data, plus timing
-and RAM checks. See [recognition evidence and hypothesis](tinyml-inference.md#informal-recognition-and-possible-model-expansion).
+and RAM checks. On-device accuracy also depends on data, microphone and noise
+conditions, preprocessing, quantization, and detection thresholds.
+See [recognition evidence and hypothesis](tinyml-inference.md#informal-recognition-and-possible-model-expansion).
 
 With the final normal averages, eight feature hops plus one inference account
 for approximately `8 x 1.987 + 57.655 = 73.551 ms` of a nominal 128 ms decision

@@ -189,9 +189,18 @@ The [RTOS design](rtos-design.md) documents scheduling and score-queue ownership
 The notebook loads the TensorFlow Datasets `speech_commands` train/validation/test
 splits, maps labels to `yes`/unknown/silence, applies training time shifts up to
 100 ms and volume scaling, and trains for three epochs using Adam and sparse
-categorical cross-entropy. Its saved floating-point test evaluation is
-approximately **93.48% overall accuracy**. This is a historical notebook result,
-not a fresh evaluation of the quantized artifact or microphone deployment.
+categorical cross-entropy. Its saved Colab output reports these floating-point
+results for the small model (1315 total Keras parameters):
+
+| Evaluation | Accuracy | Loss |
+| --- | --- | --- |
+| Final training epoch | 98.02% | 0.0620 |
+| Final validation epoch | 97.90% | 0.0522 |
+| Held-out test evaluation | 93.48% | 0.1853 |
+
+These are historical notebook results, not a fresh evaluation of the quantized
+artifact or microphone deployment. The final validation and training accuracies
+do not replace the separate held-out test result.
 No per-class false-accept/false-reject rate is established by that aggregate.
 
 The physical spoken-word/LED check verifies end-to-end operation. It does not
@@ -223,8 +232,9 @@ channels or another depthwise/pointwise block, could potentially improve
 recognition into the **upper 90% range**, with representative training data and
 appropriate tuning. No larger candidate has been trained or evaluated in this
 project to establish that improvement. Added parameters may help if current
-errors reflect limited model capacity; data coverage, preprocessing alignment,
-and detection thresholds can also determine the result.
+errors reflect limited model capacity. On-device accuracy also depends on data
+coverage, microphone and noise conditions, preprocessing alignment, quantization,
+and detection thresholds.
 
 Evaluate this hypothesis by comparing the current and larger models on the same
 held-out labeled recordings and continuous-stream trials across intended

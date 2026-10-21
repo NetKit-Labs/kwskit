@@ -226,13 +226,20 @@ softmax outputs: `yes`, unknown speech, and silence. The training model has
 batch-normalization folding. Six convolutions, spatial mean pooling, and softmax
 form the eight-operator inference graph.
 
-**Roughly low-to-mid 90% keyword-recognition success during informal
+The saved Colab notebook reports **93.48% test accuracy (loss 0.1853)**;
+the final training epoch reports **97.90% validation accuracy** and **98.02%
+training accuracy** for this small model. These floating-point dataset results
+are separate from on-device recognition performance.
+
+**Roughly mid-90% keyword-recognition success during informal
 use** with this 1075-parameter deployed model. This is an approximate observation
 under current operating conditions; a labeled trial count and false-trigger rate
 have not been supplied for the estimate. **An untested hypothesis is that a wider
 or deeper model, with suitable training and tuning, could improve recognition
-into the mid-to-high 90% range.** Additional parameters alone do not guarantee that
-improvement; a controlled comparison must also check false triggers, latency,
+into the upper 90% range.** On-device accuracy also depends on training data,
+microphone and noise conditions, preprocessing alignment, quantization, and
+detection thresholds. Additional parameters alone do not guarantee improvement;
+a controlled comparison must also check false triggers, latency,
 and RAM use. See [recognition evidence and hypothesis](docs/tinyml-inference.md#informal-recognition-and-possible-model-expansion).
 
 The **8496-byte model blob and its weights reside in internal flash**, compiled
