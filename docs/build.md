@@ -22,10 +22,10 @@ Choose the port printed for your Nano. On Linux it commonly resembles
 monitors before upload. Apple Silicon needs Rosetta 2 for the core's Intel
 `bossac` uploader; the CLI and compiler themselves are native ARM64.
 
-The repository is named `kwskit`. Its Arduino sketch is
-`firmware/KWS_Arm_CortexM4F.ino`; Arduino uses that sketch name for generated
-build directories and firmware artifacts shown below. Existing checkout folders
-can keep their current names; Git uses the configured remote URL.
+The repository and Arduino sketch are named `kwskit`. Arduino uses
+`firmware/kwskit.ino` to name the generated build directory and firmware artifacts
+shown below. Existing checkout folders can be renamed to `kwskit`; the build
+discovers its root from the script location and regenerates its CLI configuration.
 
 ## Single supported target and locked inputs
 
@@ -70,7 +70,7 @@ driver hashes. No global Arduino library is replaced.
 ## Compilation and output
 
 `firmware/` is authoritative. `scripts/project.py` stages maintained `.ino`,
-`.cpp` and `.h` files under `.build/zephyr-sketch/KWS_Arm_CortexM4F/`, preserving
+`.cpp` and `.h` files under `.build/zephyr-sketch/kwskit/`, preserving
 unchanged file timestamps. It strips ambient `ARDUINO_*` settings from CLI child
 processes and selects the locked FQBN. Arduino's normal recipes compile/link the
 sketch; this is not an independent startup or linker build.
@@ -86,10 +86,10 @@ PDM driver consistently with the application.
 
 ```text
 .build/zephyr-objects/                         compiler working files
-.build/zephyr-artifacts/KWS_Arm_CortexM4F.ino.elf
-.build/zephyr-artifacts/KWS_Arm_CortexM4F.ino.bin
-.build/zephyr-artifacts/KWS_Arm_CortexM4F.ino.hex
-.build/zephyr-artifacts/KWS_Arm_CortexM4F.ino.bin-zsk.bin
+.build/zephyr-artifacts/kwskit.ino.elf
+.build/zephyr-artifacts/kwskit.ino.bin
+.build/zephyr-artifacts/kwskit.ino.hex
+.build/zephyr-artifacts/kwskit.ino.bin-zsk.bin
 .build/zephyr-artifacts/build-manifest.json
 .build/zephyr-artifacts/realtime-audit.json
 ```
@@ -161,7 +161,7 @@ IDE core's `platform.txt` can supply:
 compiler.cpp.extra_flags=-std=gnu++20 -fno-exceptions -fno-rtti -Werror=vla -include "/absolute/path/to/project/firmware/cpp_standard.h" -DPDM_NUMBER_OF_SAMPLES=256 -DPDM_THREAD_PRIORITY=3
 ```
 
-Open `firmware/KWS_Arm_CortexM4F.ino`, select the Nano under Arduino Zephyr Boards
+Open `firmware/kwskit.ino`, select the Nano under Arduino Zephyr Boards
 and static link mode, and inspect verbose output. There is no `compiler.path`
 override. IDE UI behavior has not been independently validated. Core reinstalls
 can remove local properties; Make configures them automatically.

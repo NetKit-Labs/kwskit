@@ -160,6 +160,10 @@ records its source hashes, captures and limits. A later
 [spoken-keyword check](docs/validation.md#spoken-keyword-and-physical-led-follow-up)
 on this image recorded 13 new actions and user-confirmed LED toggling on “yes.”
 
+The [renamed-sketch validation](docs/validation.md#kwskit-sketch-and-checkout-renaming)
+records the current `kwskit.ino` build, upload and live telemetry check. Earlier
+spoken-keyword evidence retains its original image identity.
+
 The saved training notebook reports 93.48% floating-point held-out test accuracy,
 97.90% validation accuracy, and 98.02% final training accuracy. These are training
 artifacts, not measured recognition rates for the quantized model on this board.

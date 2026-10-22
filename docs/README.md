@@ -48,3 +48,8 @@ The subsequent [spoken-keyword/physical LED check](validation.md#spoken-keyword-
 reuploaded the same current image. Its [summary](zephyr-keyword-validation.json)
 and [raw capture](zephyr-keyword.json) record 13 new actions, consistent reported
 LED state and the user's confirmation that the physical LED toggled on “yes.”
+
+The sketch and checkout now share the `kwskit` name. The
+[rename validation](kwskit-name-validation.json) and
+[normal capture](kwskit-name-normal.json) identify the rebuilt/uploaded image;
+earlier hardware records retain their original sketch filenames and hashes.

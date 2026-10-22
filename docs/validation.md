@@ -190,6 +190,35 @@ recognition accuracy and false-trigger rate were not measured. Stack watermarks
 remain unavailable, and no cold power-cycle, extended soak or physical microphone
 fault injection was performed.
 
+## kwskit sketch and checkout renaming
+
+The Arduino entry point is now `firmware/kwskit.ino`, and new artifacts use
+the `kwskit.ino.*` basename. Earlier hardware records retain the original sketch
+filename and exact source/binary hashes recorded during those sessions. The
+entry-point contents are unchanged by the rename; historical image identities
+remain evidence for the images actually tested, rather than a new build path.
+
+The [naming validation summary](kwskit-name-validation.json) records the official
+Zephyr build from the renamed checkout, with all sixteen host entries, eleven
+build-tooling cases, formatting, the actual PDM-worker fault gate and sketch import
+audit passing. The build removes obsolete generated sketch artifacts before
+compilation so an existing checkout cannot upload an image under the former name.
+Both normal and stress output directories are covered by the tooling regression.
+
+The rebuilt `kwskit.ino.bin-zsk.bin` is 206,824 bytes, with 118,096 bytes sketch
+RAM reported. Its SHA-256 is:
+
+```text
+1c682d22d309ca24ce986c2bca4dbbcd639ea7f38a8be7af77d1997fc9098d7e
+```
+
+Arduino CLI uploaded that image successfully. The [30-second normal capture](kwskit-name-normal.json)
+retained sixteen records, including buffered startup telemetry. Acquisition and
+inference continued with zero reported losses, missed buffers, DSP/inference
+errors, score drops or stale events; ring high-water was 768 samples. The normal
+image remains running. No new spoken-keyword/physical LED observation is claimed
+for this naming build; the prior follow-up records the actual speech check.
+
 ## Limits and reproducibility
 
 Run [unit/regression checks](testing.md), follow [build/upload](build.md), then

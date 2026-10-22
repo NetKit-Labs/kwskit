@@ -229,7 +229,7 @@ To reproduce the linked placement check after `make build`:
 
 ```sh
 .build/arduino-data/packages/zephyr/tools/arm-zephyr-eabi/1.0.1/bin/arm-zephyr-eabi-nm \
-    -S -C .build/zephyr-artifacts/KWS_Arm_CortexM4F.ino.elf \
+    -S -C .build/zephyr-artifacts/kwskit.ino.elf \
     | rg 'kws_1class_depthwise_int8_tflite$|KeywordModel::instance\(\)::storage$'
 ```
 

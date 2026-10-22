@@ -116,7 +116,18 @@ class BuildToolingTests(unittest.TestCase):
             mock.patch.object(project, "stage_pdm_library", return_value=self.root / "PDM"),
         ):
             for output in (self.root / "zephyr-artifacts", self.root / "zephyr-stress-artifacts"):
+                output.mkdir()
+                obsolete = [output / "previous.ino.bin-zsk.bin", output / "previous.ino_debug.elf"]
+                for artifact in obsolete:
+                    artifact.write_bytes(b"obsolete image")
+                current = output / (project.SKETCH.name + ".ino.bin-zsk.bin")
+                current.write_bytes(b"current image")
+                manifest = output / "build-manifest.json"
+                manifest.write_text("{}")
                 project.compile_sketch(2, output)
+                self.assertTrue(all(not artifact.exists() for artifact in obsolete))
+                self.assertEqual(current.read_bytes(), b"current image")
+                self.assertEqual(manifest.read_text(), "{}")
                 args = cli.call_args.args
                 flags = args[args.index("--build-property") + 1]
                 self.assertIn("-std=gnu++20", flags)

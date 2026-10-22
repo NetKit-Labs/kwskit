@@ -20,7 +20,7 @@ BUILD = ROOT / ".build"
 LOCK = json.loads((ROOT / "dependencies.lock.json").read_text())
 CLI = BUILD / "bin" / "arduino-cli"
 CONFIG = BUILD / "arduino-cli.json"
-SKETCH = BUILD / "zephyr-sketch" / "KWS_Arm_CortexM4F"
+SKETCH = BUILD / "zephyr-sketch" / "kwskit"
 LIBRARIES = BUILD / "arduino-user" / "libraries"
 OUTPUT = BUILD / "zephyr-artifacts"
 CPP_STANDARD = "gnu++20"
@@ -308,6 +308,11 @@ def stage_pdm_library():
 
 
 def compile_sketch(jobs, output):
+    # Upload discovers images in this generated directory. Never mix sketch basenames.
+    output.mkdir(parents=True, exist_ok=True)
+    for artifact in output.glob("*.ino*"):
+        if artifact.is_file() and not artifact.name.startswith(SKETCH.name + ".ino"):
+            artifact.unlink()
     # Last -std flag wins over each core's default language standard.
     # Preinclude chrono before Arduino's abs macro, including in upstream C++ sources.
     cpp_flags = "-std=" + CPP_STANDARD + ' -include "' + str(SKETCH / "cpp_standard.h") + '"'

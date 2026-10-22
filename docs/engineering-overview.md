@@ -51,7 +51,7 @@ A [control stall](zephyr-stress.json) demonstrates score loss/stale rejection
 while audio continues. [Validation](validation.md) distinguishes those recorded
 hardware results from the cleanup build and current host/CI checks.
 
-The [latest source/capture summary](zephyr-pdm-validation.json) identifies the
+The [PDM-backoff source/capture summary](zephyr-pdm-validation.json) identifies the
 206,824-byte image with C++20 hardening and PDM read-error backoff. Its normal,
 control-stall and restored-image checks passed. A later
 [spoken-keyword follow-up](validation.md#spoken-keyword-and-physical-led-follow-up)
