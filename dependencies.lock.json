@@ -22,12 +22,12 @@
         }
     },
     "board": {
-        "fqbn": "arduino:mbed_nano:nano33ble",
-        "platform": "arduino:mbed_nano",
-        "version": "4.6.0",
-        "compiler": "arm-none-eabi-gcc 7-2017q4",
-        "url": "https://downloads.arduino.cc/cores/staging/ArduinoCore-mbed-nano-4.6.0.tar.bz2",
-        "sha256": "40b6c4ea6b89e85b421705549925857f67f278b1bd3e0879b8d1201d86d68211"
+        "fqbn": "arduino:zephyr_main:nano33ble:link_mode=static",
+        "platform": "arduino:zephyr_main",
+        "version": "1.0.0",
+        "compiler": "Arduino-packaged arm-zephyr-eabi 1.0.1",
+        "url": "https://downloads.arduino.cc/cores/zephyr/ArduinoCore-zephyr_main-79b3f1af.tar.bz2",
+        "sha256": "be78bfcc912caf43f0d652f64f378f7bdc39a31bf5e69c055cfa35ddad475a10"
     },
     "libraries": [
         {
@@ -45,26 +45,9 @@
         }
     ],
     "toolchain": {
-        "version": "13.3.rel1",
-        "gcc_version": "13.3.1",
-        "base_url": "https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/",
-        "archives": {
-            "Darwin-arm64": {
-                "file": "arm-gnu-toolchain-13.3.rel1-darwin-arm64-arm-none-eabi.tar.xz",
-                "sha256": "fb6921db95d345dc7e5e487dd43b745e3a5b4d5c0c7ca4f707347148760317b4"
-            },
-            "Darwin-x86_64": {
-                "file": "arm-gnu-toolchain-13.3.rel1-darwin-x86_64-arm-none-eabi.tar.xz",
-                "sha256": "1ab00742d1ed0926e6f227df39d767f8efab46f5250505c29cb81f548222d794"
-            },
-            "Linux-x86_64": {
-                "file": "arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz",
-                "sha256": "95c011cee430e64dd6087c75c800f04b9c49832cc1000127a92a97f9c8d83af4"
-            },
-            "Linux-aarch64": {
-                "file": "arm-gnu-toolchain-13.3.rel1-aarch64-arm-none-eabi.tar.xz",
-                "sha256": "c8824bffd057afce2259f7618254e840715f33523a3d4e4294f471208f976764"
-            }
-        }
+        "packager": "zephyr",
+        "name": "arm-zephyr-eabi",
+        "version": "1.0.1",
+        "gcc_version": "14.3.0"
     }
 }

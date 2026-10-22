@@ -1,5 +1,8 @@
 # Command-line build and CI
 
+This guide describes the preserved Mbed build (`KWS_CORE=mbed make setup build`).
+The default Zephyr build is documented in [zephyr-port.md](zephyr-port.md).
+
 ## Fresh checkout
 
 Install GNU Make, Python 3.9 or newer, and a host C++ compiler (`c++`) supporting C++20,

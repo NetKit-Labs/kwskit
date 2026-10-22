@@ -6,9 +6,21 @@
 #include <cstdio>
 
 #include <Arduino.h>
+#ifndef ARDUINO_ARCH_ZEPHYR
 #include <USB/PluggableUSBSerial.h>
+#endif
 
 void Telemetry::pump() {
+#ifdef ARDUINO_ARCH_ZEPHYR
+    if (offset >= length || !Serial)
+        return;
+    const auto available = Serial.availableForWrite();
+    if (available <= 0)
+        return;
+    const auto count =
+        std::min({length - offset, std::size_t{64}, static_cast<std::size_t>(available)});
+    offset += Serial.write(reinterpret_cast<const std::uint8_t *>(buffer.data()) + offset, count);
+#else
     if (offset >= length || !_SerialUSB.connected())
         return;
 
@@ -17,6 +29,7 @@ void Telemetry::pump() {
     _SerialUSB.send_nb(reinterpret_cast<std::uint8_t *>(buffer.data()) + offset,
         std::min(remaining, std::size_t{64}), &sent);
     offset += sent;
+#endif
 }
 
 void Telemetry::begin() {
@@ -24,6 +37,9 @@ void Telemetry::begin() {
     std::uint32_t start = millis();
 
     while (!Serial && millis() - start < 2000) {
+#ifdef ARDUINO_ARCH_ZEPHYR
+        delay(1);
+#endif
     }
 }
 

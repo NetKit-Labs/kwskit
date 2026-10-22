@@ -16,7 +16,8 @@ spec = importlib.util.spec_from_file_location(
     "project", Path(__file__).resolve().parents[1] / "scripts/project.py"
 )
 project = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(project)
+with mock.patch.dict(os.environ, {"KWS_CORE": "mbed"}):
+    spec.loader.exec_module(project)
 
 
 class BuildToolingTests(unittest.TestCase):
@@ -126,6 +127,17 @@ class BuildToolingTests(unittest.TestCase):
                 self.assertIn(
                     "compiler.path=" + str(project.toolchain_directory() / "bin") + "/", args
                 )
+
+    def test_zephyr_uses_official_compiler_and_pdm_configuration(self):
+        with mock.patch.object(project, "ZEPHYR", True), mock.patch.object(project, "cli") as cli:
+            project.compile_sketch(2, self.root / "zephyr-artifacts")
+            args = cli.call_args.args
+            flags = args[args.index("--build-property") + 1]
+            self.assertIn("-std=gnu++20", flags)
+            self.assertIn("-DPDM_NUMBER_OF_SAMPLES=256", flags)
+            self.assertIn("-DPDM_THREAD_PRIORITY=3", flags)
+            self.assertFalse(any(str(arg).startswith("compiler.path=") for arg in args))
+            self.assertIn(project.BUILD / "zephyr-objects", args)
 
     def test_build_manifest_records_language_and_staged_sources(self):
         sketch = self.root / "sketch"

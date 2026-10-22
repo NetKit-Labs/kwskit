@@ -1,5 +1,11 @@
 # Real-time keyword spotting on ARM Cortex-M4F
 
+**Zephyr migration:** the default build now targets Arduino Zephyr Boards 1.0.0
+using the official packaged toolchain. See [the migration and hardware report](docs/zephyr-port.md)
+for setup, memory constraints, validation, and rollback. Use `KWS_CORE=mbed make build`
+for the preserved Mbed implementation. The performance tables and architectural
+measurements below describe the earlier Mbed firmware unless explicitly stated otherwise.
+
 [![Build and test](https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/workflows/ci.yml/badge.svg)](https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/workflows/ci.yml)
 
 Continuous single-keyword spotting on an **Arduino Nano 33 BLE / nRF52840**

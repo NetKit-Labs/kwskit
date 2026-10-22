@@ -17,7 +17,13 @@ The headers retain their original TensorFlow copyright and Apache-2.0 notices.
 Their declarations use the repository's four-space C++ formatting; this is a
 presentation change to the tracked overlay, with no API changes. Rerun
 `make setup` after an overlay update so dependency hashes include the maintained
-headers. Downloaded upstream source is otherwise preserved.
+headers. For Zephyr, setup also guards the unused bundled `src/peripherals/*.cpp`,
+`src/test_over_serial/test_over_serial.cpp`, and the peripheral include in
+`TensorFlowLite.h` with `#ifndef ARDUINO_ARCH_ZEPHYR`. These example helpers use
+Mbed pin types, own a Nordic I2S interrupt, or install serial test constructors.
+KWS uses the core PDM library instead. Inference and CMSIS-NN sources are retained.
+The guards leave the Mbed build available. These transformations are implemented
+in `scripts/project.py` and included in the installed library hash manifest.
 The accompanying `LICENSE` is the upstream Apache License, Version 2.0. Review
 this overlay whenever changing the TFLite source revision; it is specific to the
 locked version, rather than a general compatibility layer for newer releases.

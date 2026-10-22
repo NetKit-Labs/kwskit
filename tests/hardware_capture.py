@@ -14,6 +14,11 @@ parser.add_argument(
     action="store_true",
     help="Test-only control-stall build: require observed queue overflow",
 )
+parser.add_argument(
+    "--allow-unavailable-stack-metrics",
+    action="store_true",
+    help="Accept stack_free=0/0 when the stock Zephyr loader cannot measure it",
+)
 parser.add_argument("--output", default="/tmp/kws-hardware.json")
 args = parser.parse_args()
 records = []
@@ -33,7 +38,10 @@ for row in records:
     assert int(row["errors"]) == 0, row
     if "notify_errors" in row:
         assert int(row["notify_errors"]) == 0, row
-        assert all(int(value) > 512 for value in row["stack_free"].split("/")), row
+        stack = [int(value) for value in row["stack_free"].split("/")]
+        assert (args.allow_unavailable_stack_metrics and stack == [0, 0]) or all(
+            value > 512 for value in stack
+        ), row
         if not args.expect_event_drops:
             assert int(row["event_drops"]) == 0, row
             assert int(row["stale_events"]) == 0, row
@@ -45,4 +53,7 @@ for before, after in zip(records, records[1:]):
 if args.expect_event_drops:
     assert any(int(row.get("event_drops", 0)) > 0 for row in records), "No event overflow exercised"
     assert any(int(row.get("stale_events", 0)) > 0 for row in records), "No stale scores rejected"
-print("PASS: live acquisition and inference, no reported drops or errors")
+if args.expect_event_drops:
+    print("PASS: continuous audio/inference; expected event overflow and stale-score rejection")
+else:
+    print("PASS: live acquisition and inference, no reported drops or errors")

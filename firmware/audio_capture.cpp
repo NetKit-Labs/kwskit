@@ -67,7 +67,9 @@ bool AudioCapture::begin(Notification notify, void *context) {
     notificationContext = context;
     activeReceiver = this;
     PDM.onReceive(receiveCallback);
+#ifndef ARDUINO_ARCH_ZEPHYR
     PDM.setBufferSize(pdmBuffer.size() * sizeof(pdmBuffer[0]));
+#endif
     if (!PDM.begin(1, SAMPLE_RATE)) {
         activeReceiver = nullptr;
         notifyConsumer = nullptr;

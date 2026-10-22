@@ -17,7 +17,9 @@ def main():
     args = parser.parse_args()
     project.configure()
     project.build(args.jobs)
-    stress_output = project.BUILD / "stress-artifacts"
+    stress_output = project.BUILD / (
+        "zephyr-stress-artifacts" if project.ZEPHYR else "stress-artifacts"
+    )
     try:
         header = project.SKETCH / "kws_config.h"
         header.write_text(header.read_text() + "\n#define KWS_RTOS_STRESS_TEST 1\n")
@@ -55,6 +57,7 @@ def main():
                 "--seconds",
                 str(args.seconds),
                 "--expect-event-drops",
+                *(["--allow-unavailable-stack-metrics"] if project.ZEPHYR else []),
                 "--output",
                 args.output,
             ],

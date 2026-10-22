@@ -39,4 +39,6 @@ python3 tests/build_tooling_test.py
 echo 'PASS: build_tooling'
 python3 tests/rtos_startup_test.py
 echo 'PASS: rtos_startup'
-echo 'PASS: complete regression suite (15 checks, including unit tests)'
+python3 tests/zephyr_startup_test.py
+echo 'PASS: zephyr_startup'
+echo 'PASS: complete regression suite (16 checks, including unit tests)'
