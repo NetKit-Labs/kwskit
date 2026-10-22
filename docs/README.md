@@ -27,3 +27,9 @@ The original Zephyr session is recorded in [normal](zephyr-normal.json),
 for every future source change. The validation guide distinguishes new checks
 from the retained session. No training or acoustic accuracy is inferred from a
 count of keyword actions.
+
+The later C++20 hardening session has its own [source/evidence summary](zephyr-realtime-validation.json)
+and normal, control-stall and restored-image records linked from
+[validation](validation.md#c20-real-time-hardening-validation). It includes the
+lower-priority diagnostic main thread, fixed audio-batch budget and build-time
+allocation policy; the original captures describe the earlier image.

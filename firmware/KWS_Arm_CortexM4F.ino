@@ -3,6 +3,7 @@
 void setup() {
     if (!KwsPipeline::begin())
         while (true) {
+            KwsPipeline::poll();
         }
 }
 

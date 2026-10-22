@@ -6,6 +6,6 @@ namespace KwsPipeline {
     // Initialize the model, DSP, kernel objects and capture before releasing the workers.
     bool begin();
 
-    // Idle Arduino's main thread; the Zephyr workers run the continuous pipeline.
+    // Run best-effort diagnostics at priority 6; workers own audio and keyword control.
     void poll();
 } // namespace KwsPipeline

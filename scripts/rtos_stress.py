@@ -22,6 +22,7 @@ def main():
         header = project.SKETCH / "kws_config.h"
         header.write_text(header.read_text() + "\n#define KWS_RTOS_STRESS_TEST 1\n")
         project.compile_sketch(args.jobs, stress_output)
+        project.audit_realtime_objects(stress_output)
         (stress_output / "stress-manifest.json").write_text(
             json.dumps(
                 {
@@ -30,6 +31,7 @@ def main():
                     "firmware": project.tree_manifest(project.SKETCH),
                     "dependencies": project.LOCK,
                     "cpp_standard": project.CPP_STANDARD,
+                    "cpp_safety_flags": project.CPP_SAFETY_FLAGS,
                 },
                 indent=2,
             )

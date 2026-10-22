@@ -11,7 +11,7 @@ control must reject results that become obsolete during a delay.
 | --- | --- |
 | Preserve audio through bounded processing delays | Priority-3 PDM callback publishes into an 8192-sample ring; full rings reject new samples and report loss |
 | Bound acquisition work | At most one 512-byte PCM block per callback; no DSP, model, actions or serial output |
-| Isolate slow control | Audio priority 4, control priority 5; score sends never wait |
+| Isolate slow work | Audio priority 4, control priority 5, telemetry in main at priority 6; score sends never wait |
 | Avoid cross-thread buffer lifetime problems | Eight-entry Zephyr queue copies values, never audio/tensor pointers |
 | Prevent stale actions | Generation, sequence and dual-clock age checks; final scheduler-locked check immediately before GPIO |
 | Avoid isolated/repeated detections | EMA, raw/smoothed thresholds, consecutive evidence, release hysteresis and cooldown |
@@ -34,7 +34,8 @@ control must reject results that become obsolete during a delay.
 | [telemetry.cpp](../firmware/telemetry.cpp) | Fixed formatting buffer and bounded Arduino Serial writes |
 
 The static application owns noncopyable stateful modules. Audio exclusively
-uses DSP/model state after initialization; control owns detection/LED/telemetry.
+uses DSP/model state after initialization; control owns detection/LED. The
+priority-6 Arduino main thread owns best-effort telemetry and optional stack scans.
 References describe required dependencies and typed arrays carry extents across
 interfaces. Pointer/context adapters stay confined to platform API boundaries.
 See [ownership](cpp-idioms.md) and [scheduling](rtos-design.md).

@@ -36,6 +36,7 @@ for row in records:
     assert int(row["dropped"]) == 0, row
     assert int(row["missed_buffers"]) == 0, row
     assert int(row["errors"]) == 0, row
+    assert int(row.get("dsp_errors", 0)) == 0, row
     if "notify_errors" in row:
         assert int(row["notify_errors"]) == 0, row
         stack = [int(value) for value in row["stack_free"].split("/")]

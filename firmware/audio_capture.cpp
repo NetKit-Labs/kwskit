@@ -8,24 +8,23 @@
 
 #include "interrupt_lock.h"
 
-constinit AudioCapture *AudioCapture::activeReceiver = nullptr;
+constinit std::atomic<AudioCapture *> AudioCapture::activeReceiver{nullptr};
 
 void AudioCapture::receiveCallback() {
-    if (activeReceiver) {
-        auto &receiver = *activeReceiver;
-        receiver.receive();
-    }
+    if (auto *receiver = activeReceiver.load(std::memory_order_acquire))
+        receiver->receive();
 }
 
 void AudioCapture::receive() {
     std::uint32_t now = micros();
 
-    if (lastAudioUs) {
-        std::uint32_t gap = now - lastAudioUs;
-        if (gap > callbackGapMaxUs)
-            callbackGapMaxUs = gap;
+    const auto previousArrival = lastAudioUs.load(std::memory_order_relaxed);
+    if (previousArrival) {
+        std::uint32_t gap = now - previousArrival;
+        if (gap > callbackGapMaxUs.load(std::memory_order_relaxed))
+            callbackGapMaxUs.store(gap, std::memory_order_relaxed);
     }
-    lastAudioUs = now;
+    lastAudioUs.store(now, std::memory_order_relaxed);
 
     bool missed = false;
 
@@ -42,33 +41,35 @@ void AudioCapture::receive() {
             break;
         }
         remaining -= received;
-        receivedSamples = receivedSamples + received / 2;
+        receivedSamples.store(receivedSamples.load(std::memory_order_relaxed) + received / 2,
+            std::memory_order_relaxed);
         for (int i = 0; i < received / 2; ++i)
             if (!audioQueue.push(pdmBuffer[i]))
                 missed = true;
     }
 
     if (missed)
-        missedBuffers = missedBuffers + 1;
+        missedBuffers.store(
+            missedBuffers.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
     std::uint32_t depth = audioQueue.available();
-    if (depth > queueHighWater)
-        queueHighWater = depth;
+    if (depth > queueHighWater.load(std::memory_order_relaxed))
+        queueHighWater.store(depth, std::memory_order_relaxed);
 
     if (notifyConsumer)
         notifyConsumer(notificationContext);
 }
 
 bool AudioCapture::begin(Notification notify, void *context) {
-    if (activeReceiver) {
+    if (activeReceiver.load(std::memory_order_acquire)) {
         return false;
     }
 
     notifyConsumer = notify;
     notificationContext = context;
-    activeReceiver = this;
+    activeReceiver.store(this, std::memory_order_release);
     PDM.onReceive(receiveCallback);
     if (!PDM.begin(1, SAMPLE_RATE)) {
-        activeReceiver = nullptr;
+        activeReceiver.store(nullptr, std::memory_order_release);
         notifyConsumer = nullptr;
         notificationContext = nullptr;
         return false;
@@ -85,8 +86,8 @@ void AudioCapture::end() {
     }
 
     running = false;
-    if (activeReceiver == this) {
-        activeReceiver = nullptr;
+    if (activeReceiver.load(std::memory_order_acquire) == this) {
+        activeReceiver.store(nullptr, std::memory_order_release);
     }
 
     notifyConsumer = nullptr;
@@ -100,12 +101,12 @@ std::uint32_t AudioCapture::available() const {
 AudioCapture::Snapshot AudioCapture::snapshot() const {
     const InterruptLock lock;
     return Snapshot{
-        .receivedSamples = receivedSamples,
+        .receivedSamples = receivedSamples.load(std::memory_order_relaxed),
         .droppedSamples = audioQueue.droppedSamples(),
-        .missedBuffers = missedBuffers,
-        .highWater = queueHighWater,
-        .gapMaxUs = callbackGapMaxUs,
-        .lastAudioUs = lastAudioUs,
+        .missedBuffers = missedBuffers.load(std::memory_order_relaxed),
+        .highWater = queueHighWater.load(std::memory_order_relaxed),
+        .gapMaxUs = callbackGapMaxUs.load(std::memory_order_relaxed),
+        .lastAudioUs = lastAudioUs.load(std::memory_order_relaxed),
     };
 }
 
@@ -116,7 +117,7 @@ bool AudioCapture::readHop(AudioHop &samples, std::uint32_t &captureEndUs) {
     std::uint32_t arrival, backlog;
     {
         const InterruptLock lock;
-        arrival = lastAudioUs;
+        arrival = lastAudioUs.load(std::memory_order_relaxed);
         backlog = audioQueue.available();
     }
 

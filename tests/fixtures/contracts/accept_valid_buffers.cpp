@@ -10,7 +10,8 @@ int main() {
     std::uint32_t timestamp = 0;
     float probability = 0;
     capture.readHop(hop, timestamp);
-    extractor.consume(hop);
+    const bool valid = extractor.consume(hop);
+    (void)valid;
     model.predict(features, probability);
     std::array<float, 512> packed{};
     std::array<float, 257> power{};

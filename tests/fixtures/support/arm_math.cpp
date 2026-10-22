@@ -9,6 +9,8 @@
 
 // Scalar host backend for the integration test, not the board's CMSIS implementation.
 bool failFftInitialization = false;
+bool failMelMultiplication = false;
+float injectedMel = 0.0f;
 std::array<float, 512> lastAppliedWindow{};
 
 arm_status arm_rfft_fast_init_f32(arm_rfft_fast_instance_f32 *fft, std::uint16_t length) {
@@ -70,12 +72,14 @@ void arm_mat_init_f32(
 
 arm_status arm_mat_mult_f32(const arm_matrix_instance_f32 *left,
     const arm_matrix_instance_f32 *right, arm_matrix_instance_f32 *output) {
+    if (failMelMultiplication)
+        return ARM_MATH_ARGUMENT_ERROR;
     for (std::uint16_t row = 0; row < left->numRows; ++row) {
         float sum = 0.0f;
         for (std::uint16_t column = 0; column < left->numCols; ++column) {
             sum += left->pData[row * left->numCols + column] * right->pData[column];
         }
-        output->pData[row] = sum;
+        output->pData[row] = sum + injectedMel;
     }
     return ARM_MATH_SUCCESS;
 }

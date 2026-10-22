@@ -1,6 +1,7 @@
 #include "telemetry.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -15,10 +16,12 @@ void Telemetry::pump() {
         return;
     const auto count =
         std::min({length - offset, std::size_t{64}, static_cast<std::size_t>(available)});
-    offset += Serial.write(reinterpret_cast<const std::uint8_t *>(buffer.data()) + offset, count);
+    offset += std::min(
+        count, Serial.write(reinterpret_cast<const std::uint8_t *>(buffer.data()) + offset, count));
 }
 
 void Telemetry::begin() {
+    reporting = false;
     Serial.begin(115200);
     std::uint32_t start = millis();
 
@@ -29,6 +32,12 @@ void Telemetry::begin() {
 
 void Telemetry::report(
     const AudioCapture::Snapshot &audio, const PipelineMetrics &metrics, bool deviceOn) {
+    if (!reporting) {
+        // Start the reporting interval after initialization, not before capture startup.
+        lastReport = millis();
+        reporting = true;
+        return;
+    }
     if (millis() - lastReport >= 2000 && offset >= length) {
         lastReport = millis();
         std::uint32_t samples = audio.receivedSamples, missed = audio.missedBuffers;
@@ -39,7 +48,8 @@ void Telemetry::report(
             "ms=%lu samples=%lu dropped=%lu missed_buffers=%lu queue_max=%lu gap_max_us=%lu "
             "audio_age_us=%lu "
             "dsp_us=%lu/%lu infer_us=%lu/%lu process_us=%lu/%lu response_us=%lu/%lu "
-            "inferences=%lu errors=%lu p_milli=%d triggers=%lu led=%d event_drops=%lu "
+            "inferences=%lu errors=%lu dsp_errors=%lu p_milli=%d triggers=%lu led=%d "
+            "event_drops=%lu "
             "stale_events=%lu notify_errors=%lu event_us=%lu/%lu stack_free=%lu/%lu\n",
             static_cast<unsigned long>(millis()), static_cast<unsigned long>(samples),
             static_cast<unsigned long>(dropped), static_cast<unsigned long>(missed),
@@ -55,7 +65,10 @@ void Telemetry::report(
             static_cast<unsigned long>(metrics.responseTiming.maximum),
             static_cast<unsigned long>(metrics.inferenceTiming.count),
             static_cast<unsigned long>(metrics.inferenceErrors),
-            static_cast<int>(metrics.latestProbability * 1000),
+            static_cast<unsigned long>(metrics.dspErrors),
+            std::isfinite(metrics.latestProbability)
+                ? static_cast<int>(std::clamp(metrics.latestProbability, 0.0f, 1.0f) * 1000)
+                : 0,
             static_cast<unsigned long>(metrics.confirmedKeywords), static_cast<int>(deviceOn),
             static_cast<unsigned long>(metrics.eventDrops),
             static_cast<unsigned long>(metrics.staleEvents),

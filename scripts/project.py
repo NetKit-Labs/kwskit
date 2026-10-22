@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -23,6 +24,7 @@ SKETCH = BUILD / "zephyr-sketch" / "KWS_Arm_CortexM4F"
 LIBRARIES = BUILD / "arduino-user" / "libraries"
 OUTPUT = BUILD / "zephyr-artifacts"
 CPP_STANDARD = "gnu++20"
+CPP_SAFETY_FLAGS = "-fno-exceptions -fno-rtti -Werror=vla"
 
 
 def sha256(path):
@@ -275,6 +277,7 @@ def compile_sketch(jobs, output):
     # Preinclude chrono before Arduino's abs macro, including in upstream C++ sources.
     cpp_flags = "-std=" + CPP_STANDARD + ' -include "' + str(SKETCH / "cpp_standard.h") + '"'
     cpp_flags += " -DPDM_NUMBER_OF_SAMPLES=256 -DPDM_THREAD_PRIORITY=3"
+    cpp_flags += " " + CPP_SAFETY_FLAGS
     cli(
         "compile",
         "--fqbn",
@@ -291,6 +294,60 @@ def compile_sketch(jobs, output):
         output,
         SKETCH,
     )
+
+
+def audit_realtime_objects(output):
+    """Reject direct heap, exception and out-of-line atomic calls in sketch objects."""
+    archive = BUILD / "zephyr-objects/sketch/objs.a"
+    if not archive.is_file():
+        raise RuntimeError("Missing sketch archive for real-time object audit")
+    symbols = subprocess.check_output(
+        [
+            str(toolchain_directory() / "bin/arm-zephyr-eabi-nm"),
+            "--undefined-only",
+            "--demangle",
+            "--print-file-name",
+            str(archive),
+        ],
+        text=True,
+    )
+    imports = []
+    forbidden = []
+    heap_api = re.compile(
+        r"^(?:(?:z_impl_)?k_(?:malloc|calloc|realloc|free|aligned_alloc|"
+        r"object_alloc|object_free|thread_stack_alloc|thread_stack_free|"
+        r"msgq_alloc_init|stack_alloc_init|pipe_alloc_init)|"
+        r"(?:z_impl_)?(?:k|sys)_heap_(?:alloc|aligned_alloc|calloc|realloc|aligned_realloc|free)|"
+        r"(?:__libc_)?(?:malloc|calloc|realloc|free)|_(?:malloc|calloc|realloc|free)_r|"
+        r"reallocarray|aligned_alloc|posix_memalign|memalign|valloc|pvalloc|sbrk|_sbrk|alloca)$"
+    )
+    for line in symbols.splitlines():
+        match = re.match(r"^(.+?):\s+[Uw]\s+(.+)$", line)
+        if not match:
+            continue
+        owner, symbol = match.groups()
+        entry = {"object": owner.rsplit(":", 1)[-1], "symbol": symbol}
+        imports.append(entry)
+        placement_new = symbol.startswith("operator new(") and symbol.endswith(", void*)")
+        if (
+            heap_api.fullmatch(symbol)
+            or (symbol.startswith(("operator new", "operator delete")) and not placement_new)
+            or symbol.startswith(("__atomic_", "__cxa_throw", "__cxa_allocate_exception"))
+        ):
+            forbidden.append(entry)
+    if not imports:
+        raise RuntimeError("No imports found in sketch archive; cannot verify real-time policy")
+    if forbidden:
+        raise RuntimeError("Forbidden real-time imports: " + json.dumps(forbidden))
+    report = {
+        "result": "passed",
+        "scope": "Direct undefined references in all maintained sketch objects",
+        "limits": "Not a transitive call-graph, loader heap or WCET proof",
+        "cpp_safety_flags": CPP_SAFETY_FLAGS,
+        "imports": imports,
+    }
+    (output / "realtime-audit.json").write_text(json.dumps(report, indent=2) + "\n")
+    print("PASS: sketch object allocation/exception/atomic audit", flush=True)
 
 
 def build(jobs):
@@ -321,8 +378,10 @@ def build(jobs):
         "compatibility_headers": tree_manifest(ROOT / "build-support/tflm-compat"),
         "host": platform.platform(),
         "cpp_standard": CPP_STANDARD,
+        "cpp_safety_flags": CPP_SAFETY_FLAGS,
     }
     compile_sketch(jobs, OUTPUT)
+    audit_realtime_objects(OUTPUT)
     # Capture the exact inputs beside the ELF/BIN/HEX for review and CI artifacts.
     (OUTPUT / "build-manifest.json").write_text(json.dumps(provenance, indent=2) + "\n")
 

@@ -28,10 +28,14 @@ std::uint32_t millis() {
 
 bool captureFails = true, captureRunning = false, mutexBusy = false;
 bool modelFails = false, featuresFail = false, delayAction = false, invalidateAction = false;
-bool queueFull = false, emitEvent = false;
+bool queueFull = false, emitEvent = false, forceBacklog = false;
 int audioWaits = 0, audioSteps = 0;
 PipelineMetrics lastMetrics;
 int threadCount = 0, creates = 0, starts = 0, schedulerDepth = 0, actions = 0, lastDelay = 0;
+k_thread mainThread{};
+k_tid_t executingThread = &mainThread;
+int telemetryCalls = 0;
+bool telemetryBlocked = false;
 std::array<k_tid_t, 2> tasks{};
 AudioCapture::Notification notifier;
 void *notifyContext;
@@ -40,6 +44,16 @@ std::vector<KeywordEvent> scores;
 std::size_t nextScore;
 
 struct StopTask {};
+
+void runWorker(std::size_t index) {
+    const auto previous = executingThread;
+    executingThread = tasks[index];
+    try {
+        tasks[index]->entry(tasks[index]->context, nullptr, nullptr);
+    } catch (const StopTask &) {
+    }
+    executingThread = previous;
+}
 
 void k_mutex_init(k_mutex *m) {
     m->held = false;
@@ -116,7 +130,7 @@ k_tid_t k_thread_create(k_thread *t, char *stack, std::size_t size,
 }
 
 void k_thread_start(k_tid_t t) {
-    assert(captureRunning && !t->started);
+    assert(captureRunning && !t->started && mainThread.priority == 6);
     t->started = true;
     ++starts;
 }
@@ -125,14 +139,20 @@ void k_thread_abort(k_tid_t) {
     --threadCount;
 }
 
+k_tid_t k_current_get() {
+    return executingThread;
+}
+
+void k_thread_priority_set(k_tid_t thread, int priority) {
+    assert(thread == &mainThread && priority == 6 && starts == 0);
+    thread->priority = priority;
+}
+
 void k_sched_lock() {
     if (invalidateAction) {
         invalidateAction = false;
         audioWaits = audioSteps = 0;
-        try {
-            tasks[0]->entry(tasks[0]->context, nullptr, nullptr);
-        } catch (const StopTask &) {
-        }
+        runWorker(0);
     }
     if (delayAction)
         nowUs += 300000;
@@ -205,12 +225,19 @@ bool DeviceControl::isOn() const {
 
 void Telemetry::begin() {
     (void)buffer;
+    (void)reporting;
     length = offset = lastReport = 0;
 }
 
-void Telemetry::pump() {}
+void Telemetry::pump() {
+    assert(executingThread == &mainThread && mainThread.priority == 6);
+    ++telemetryCalls;
+    if (telemetryBlocked)
+        throw StopTask{};
+}
 
 void Telemetry::report(const AudioCapture::Snapshot &, const PipelineMetrics &m, bool) {
+    assert(executingThread == &mainThread);
     // Stock loader has no stack-watermark support; never fabricate headroom.
     assert(m.audioStackFree == 0 && m.controlStackFree == 0);
     lastMetrics = m;
@@ -221,7 +248,12 @@ AudioStep AudioPipeline::process(KeywordEvent &) {
     (void)extractor;
     (void)model;
     (void)seenDrops;
+    (void)seenMissedBuffers;
     (void)audioHop;
+    if (forceBacklog) {
+        ++audioSteps;
+        return {true, false, false};
+    }
     if (audioSteps++ == 0)
         return {true, emitEvent, !emitEvent};
     return {};
@@ -245,6 +277,8 @@ int main() {
     featuresFail = false;
     assert(!KwsPipeline::begin());
     assert(threadCount == 0 && starts == 0 && !notifier);
+    KwsPipeline::poll();
+    assert(lastDelay == 1000 && telemetryCalls == 0);
     captureFails = false;
     assert(KwsPipeline::begin());
     assert(threadCount == 2 && starts == 2 && tasks[0]->priority < tasks[1]->priority);
@@ -253,7 +287,7 @@ int main() {
     notifier(notifyContext);
     assert(notification->count == 1); // Bursts coalesce without overflowing.
     KwsPipeline::poll();
-    assert(lastDelay == 1000);
+    assert(lastDelay == 20 && telemetryCalls == 1);
     const auto runControl = [] {
         scores.clear();
         nextScore = 0;
@@ -262,14 +296,22 @@ int main() {
             const auto ms = 1000 + i * 128;
             scores.push_back({i < 3 ? 1.0f : 0.0f, ms * 1000 - 60000, ms * 1000, ms, i, 0});
         }
-        try {
-            tasks[1]->entry(tasks[1]->context, nullptr, nullptr);
-        } catch (const StopTask &) {
-        }
+        const auto previousCalls = telemetryCalls;
+        runWorker(1);
+        assert(telemetryCalls == previousCalls); // Control never enters Serial code.
         assert(schedulerDepth == 0);
     };
     runControl();
     assert(actions == 1);
+    telemetryBlocked = true;
+    try {
+        KwsPipeline::poll();
+        assert(false);
+    } catch (const StopTask &) {
+    }
+    runControl();
+    assert(actions == 1); // A stalled diagnostic transport does not own detection.
+    telemetryBlocked = false;
     delayAction = true;
     runControl();
     assert(actions == 0); // A dequeued event can expire before the action.
@@ -283,10 +325,12 @@ int main() {
     assert(actions == 0); // Audio invalidated this generation before locking.
     queueFull = emitEvent = true;
     audioWaits = audioSteps = 0;
-    try {
-        tasks[0]->entry(tasks[0]->context, nullptr, nullptr);
-    } catch (const StopTask &) {
-    }
+    runWorker(0);
     runControl();
+    KwsPipeline::poll();
     assert(actions == 0 && lastMetrics.eventDrops == 1 && lastMetrics.staleEvents > 0);
+    forceBacklog = true;
+    audioWaits = audioSteps = 0;
+    runWorker(0);
+    assert(audioSteps == 8 && lastDelay == 1); // Finite work and a scheduling opportunity.
 }

@@ -78,6 +78,42 @@ hardware-session SHA-256 and flash/RAM sizes above. This review changed comments
 documentation and an unused include; no fresh upload or hardware test was needed
 or performed.
 
+## C++20 real-time hardening validation
+
+The subsequent hardening build changes runtime behavior and has a new packaged
+application SHA-256:
+
+```text
+1b9aaf930585b028a327ee1e7dc02b5f42d8a52b53fe21ff9ccce563cc2f73a7
+```
+
+Arduino reports 206,808 bytes sketch flash and 118,096 bytes sketch RAM. The model
+and mel tables are unchanged. The [source/evidence summary](zephyr-realtime-validation.json)
+records the staged source hashes, C++20 safety flags and capture identities.
+The official cross-build and its 115-import sketch audit passed. Formatting and
+all 16 host regression entries passed, including ten build-tooling cases and new
+DSP-error, timing-rebase, finite-batch and diagnostic-isolation checks.
+
+| Hardware check | Observed result |
+| --- | --- |
+| [Normal capture](zephyr-realtime-normal.json) | 60 seconds requested, 31 records, approximately 16 kHz sample progress; zero reported sample loss, missed buffers, inference/DSP errors, score drops or stale scores |
+| [Control-stall capture](zephyr-realtime-stress.json) | 25 seconds requested, 13 records, injected 1500 ms stall; four expected score drops and nine stale rejections, no reported audio or inference/DSP failure |
+| [Restored normal capture](zephyr-realtime-restored.json) | Normal image restored, 30 seconds requested, 16 records, acquisition/inference progress and zero reported losses/errors |
+
+An initial live check rejected a buffered record generated before the first
+microphone block. The reporter now starts its two-second epoch on its first
+post-initialization call; a unit test covers that interval, and the normal
+hardware check was repeated successfully. No checks were disabled to accept the
+startup record. The original speech/LED observation above is historical; no new
+spoken keyword or physical LED observation is claimed for this build.
+
+The updated four-page PDF was rendered and every page visually checked. See the
+[real-time review](realtime-review.md) for the allocation boundary, Serial wait
+isolation and remaining upstream PDM error-retry limitation. These checks
+establish exercised behavior, not whole-system hard real-time safety.
+All 139 local Markdown file/anchor links and the documentation JSON parsed
+successfully; recorded firmware source hashes match the maintained files.
+
 ## Limits and reproducibility
 
 Run [unit/regression checks](testing.md), follow [build/upload](build.md), then

@@ -163,12 +163,18 @@ also deferred until fewer than 256 samples remain queued, giving audio catch-up
 priority. Frame overlap and the rolling feature context persist across calls;
 the entire 61-row context is not rebuilt from scratch for every decision.
 
-If the ring reports sample loss, the audio task discards pending samples and
+If capture reports sample loss or a failed/malformed read, the audio task discards pending samples and
 resets the overlap/readiness counters. The next hop primes a new frame; 61 new
 rows must replace the old feature contents before inference resumes. The reset
 does not immediately zero the feature matrix, but the readiness gate prevents
 old rows from being used. The RTOS coordinator also advances the generation so
 older queued scores cannot become command evidence.
+
+Uninitialized extraction, failed matrix multiplication or negative/nonfinite mel
+energy rejects the hop before any unsafe float-to-int conversion. DSP failure
+increments `dsp_errors`, resets readiness and invalidates detection evidence;
+61 new valid rows are required before inference resumes. Ordinary finite
+features retain their original quantization.
 
 A failed model invocation invalidates detection evidence and increments its
 error counter; it does not reset DSP overlap/context. A full score queue also

@@ -63,7 +63,8 @@ unchanged file timestamps. It strips ambient `ARDUINO_*` settings from CLI child
 processes and selects the locked FQBN. Arduino's normal recipes compile/link the
 sketch; this is not an independent startup or linker build.
 
-C++ sources receive `-std=gnu++20` and a forced include of `cpp_standard.h`.
+C++ sources receive `-std=gnu++20 -fno-exceptions -fno-rtti -Werror=vla` and a
+forced include of `cpp_standard.h`.
 That header rejects older modes, loads `<chrono>` before Arduino's conflicting
 `abs` macro and strips inference error strings from the blocking logger.
 Imported C sources use the core's C recipe. The official core selects Cortex-M4F
@@ -78,12 +79,18 @@ PDM driver consistently with the application.
 .build/zephyr-artifacts/KWS_Arm_CortexM4F.ino.hex
 .build/zephyr-artifacts/KWS_Arm_CortexM4F.ino.bin-zsk.bin
 .build/zephyr-artifacts/build-manifest.json
+.build/zephyr-artifacts/realtime-audit.json
 ```
 
 Use `make flash`; Arduino's static-mode upload recipe selects the packaged
 `bin-zsk.bin`, not an arbitrary intermediate ELF/BIN/HEX. The manifest records
 staged firmware hashes, dependency pins, compatibility headers, build-script
-hash, language mode and host identity. Preserve it with artifacts. Byte-identical
+hash, language/safety flags and host identity. After compilation, the official
+`arm-zephyr-eabi-nm` checks all sketch objects for direct heap/deallocation,
+exception and out-of-line atomic imports. Placement construction in supplied
+storage is allowed. A failure stops the build; `realtime-audit.json` records the
+passed imports. This is a direct-reference policy, not a transitive analysis of
+core/library/loader internals or a worst-case execution-time proof. Preserve it with artifacts. Byte-identical
 outputs across different host systems, paths or future core versions are not
 promised. Object/core caches may differ while input manifests remain reviewable.
 
@@ -136,7 +143,7 @@ sources, static link mode and C++20/PDM flags. A `platform.local.txt` beside the
 IDE core's `platform.txt` can supply:
 
 ```text
-compiler.cpp.extra_flags=-std=gnu++20 -include "/absolute/path/to/project/firmware/cpp_standard.h" -DPDM_NUMBER_OF_SAMPLES=256 -DPDM_THREAD_PRIORITY=3
+compiler.cpp.extra_flags=-std=gnu++20 -fno-exceptions -fno-rtti -Werror=vla -include "/absolute/path/to/project/firmware/cpp_standard.h" -DPDM_NUMBER_OF_SAMPLES=256 -DPDM_THREAD_PRIORITY=3
 ```
 
 Open `firmware/KWS_Arm_CortexM4F.ino`, select the Nano under Arduino Zephyr Boards

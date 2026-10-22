@@ -18,7 +18,7 @@ std::uint32_t millis() {
     return clockUs / 1000;
 }
 
-bool predictOk = true, hop = true, due = true;
+bool predictOk = true, hop = true, due = true, dspFails = false;
 int queued = 0, predictions = 0, resets = 0, discards = 0;
 AudioCapture::Snapshot audio{};
 
@@ -56,11 +56,13 @@ void FeatureExtractor::reset() {
     (void)frameCount;
     (void)framesSinceInference;
     (void)firstFrame;
+    (void)ready;
     ++resets;
 }
 
-void FeatureExtractor::consume(const AudioHop &) {
+bool FeatureExtractor::consume(const AudioHop &) {
     clockUs += 2000;
+    return !dspFails;
 }
 
 bool FeatureExtractor::inferenceDue() const {
@@ -121,4 +123,14 @@ int main() {
     assert(step.reset && discards == 1 && resets == 1);
     step = pipeline.process(event);
     assert(!step.reset && discards == 1);
+    audio.missedBuffers = 1;
+    step = pipeline.process(event);
+    assert(step.reset && discards == 2 && resets == 2);
+    step = pipeline.process(event);
+    assert(!step.reset && discards == 2);
+    dspFails = true;
+    const auto previousPredictions = predictions;
+    step = pipeline.process(event);
+    assert(step.processed && step.reset && !step.hasEvent);
+    assert(pipeline.statistics().dspErrors == 1 && predictions == previousPredictions);
 }

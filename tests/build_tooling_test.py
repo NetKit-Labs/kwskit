@@ -119,6 +119,7 @@ class BuildToolingTests(unittest.TestCase):
                 self.assertIn("-std=gnu++20", flags)
                 self.assertIn("-DPDM_NUMBER_OF_SAMPLES=256", flags)
                 self.assertIn("-DPDM_THREAD_PRIORITY=3", flags)
+                self.assertIn("-fno-exceptions -fno-rtti -Werror=vla", flags)
                 self.assertFalse(any(str(arg).startswith("compiler.path=") for arg in args))
                 self.assertIn(project.BUILD / "zephyr-objects", args)
                 self.assertEqual(
@@ -138,11 +139,14 @@ class BuildToolingTests(unittest.TestCase):
             mock.patch.object(project, "verify_libraries"),
             mock.patch.object(project, "verify_toolchain"),
             mock.patch.object(project, "compile_sketch") as compile_sketch,
+            mock.patch.object(project, "audit_realtime_objects") as audit,
         ):
             project.build(2)
             compile_sketch.assert_called_once_with(2, output)
+            audit.assert_called_once_with(output)
             manifest = json.loads((output / "build-manifest.json").read_text())
             self.assertEqual(manifest["cpp_standard"], "gnu++20")
+            self.assertEqual(manifest["cpp_safety_flags"], project.CPP_SAFETY_FLAGS)
             self.assertEqual(manifest["firmware"], project.tree_manifest(sketch))
             self.assertIn("cpp_standard.h", manifest["firmware"])
             header = sketch / "cpp_standard.h"
@@ -154,6 +158,45 @@ class BuildToolingTests(unittest.TestCase):
             self.assertEqual(
                 header.read_bytes(), (project.ROOT / "firmware/cpp_standard.h").read_bytes()
             )
+
+    def test_realtime_audit_allows_fixed_placement_and_rejects_unsafe_imports(self):
+        archive = self.root / "zephyr-objects/sketch/objs.a"
+        archive.parent.mkdir(parents=True)
+        with self.assertRaisesRegex(RuntimeError, "Missing sketch archive"):
+            project.audit_realtime_objects(self.root)
+        archive.touch()
+        safe = "sketch.a:keyword_model.cpp.o: U operator new(unsigned int, void*)\n"
+        safe += "sketch.a:feature_extractor.cpp.o: U arm_rfft_fast_f32\n"
+        with mock.patch.object(project.subprocess, "check_output", return_value=safe):
+            project.audit_realtime_objects(self.root)
+            report = json.loads((self.root / "realtime-audit.json").read_text())
+            self.assertEqual(report["result"], "passed")
+            self.assertEqual(len(report["imports"]), 2)
+        for symbol in (
+            "malloc",
+            "calloc",
+            "realloc",
+            "free",
+            "k_malloc",
+            "z_impl_k_thread_stack_alloc",
+            "k_heap_aligned_alloc",
+            "sys_heap_realloc",
+            "z_impl_k_msgq_alloc_init",
+            "_malloc_r",
+            "operator new(unsigned int)",
+            "operator new[](unsigned int)",
+            "operator delete(void*, unsigned int)",
+            "__atomic_load_8",
+            "__cxa_throw",
+        ):
+            with self.subTest(symbol=symbol):
+                unsafe = safe + "sketch.a:audio_pipeline.cpp.o: U " + symbol + "\n"
+                with mock.patch.object(project.subprocess, "check_output", return_value=unsafe):
+                    with self.assertRaisesRegex(RuntimeError, "Forbidden real-time imports"):
+                        project.audit_realtime_objects(self.root)
+        with mock.patch.object(project.subprocess, "check_output", return_value=""):
+            with self.assertRaisesRegex(RuntimeError, "No imports"):
+                project.audit_realtime_objects(self.root)
 
     def test_official_compiler_version_and_missing_installation(self):
         with mock.patch.object(project, "toolchain_directory", return_value=self.root):

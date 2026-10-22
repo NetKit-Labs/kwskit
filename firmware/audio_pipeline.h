@@ -21,7 +21,7 @@ class AudioPipeline {
     KeywordModel &model;
 
     PipelineMetrics metrics;
-    std::uint32_t seenDrops = 0;
+    std::uint32_t seenDrops = 0, seenMissedBuffers = 0;
     AudioHop audioHop{};
 
 public:

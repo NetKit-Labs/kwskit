@@ -29,12 +29,12 @@ formatters described in [source style](source-style.md).
 | [keyword_filter](../tests/keyword_filter_test.cpp) | Qualification, isolated/held suppression, release, cooldown and millis rollover |
 | [keyword_detector](../tests/keyword_detector_test.cpp) | Evidence timing, confirmation/reset and micros rollover |
 | [keyword_event](../tests/keyword_event_test.cpp) | Generation/age/sequence/cadence rejection, dual-clock rollover and latch/cooldown preservation |
-| [timing_stats](../tests/timing_stats_test.cpp) | Empty statistics, average/maximum/last and unsigned elapsed rollover |
+| [timing_stats](../tests/timing_stats_test.cpp) | Empty statistics, average/maximum/last, elapsed/count rollover and average-window rebasing |
 | [device_action](../tests/device_action_test.py) | Real LED module with fake GPIO: initial state and alternating confirmed actions |
 | [audio_capture](../tests/audio_capture_test.py) | Real receiver with PDM and Zephyr IRQ fixtures: failures, exclusive ownership, bounded/partial reads, overflow, full-ring timestamps, discard/destruction/handoff and nested IRQ-key restoration |
-| [feature_extractor](../tests/feature_extractor_test.py) | Real extractor with scalar DSP backend: initialization, priming, cadence, reset, independent contexts, clipping, periodic Hann coefficients and 84,180 frozen quantized bytes |
+| [feature_extractor](../tests/feature_extractor_test.py) | Real extractor with scalar DSP backend: initialization, priming, cadence, reset, independent contexts, matrix/NaN/infinity/negative-energy rejection, clipping, periodic Hann coefficients and 84,180 frozen quantized bytes |
 | [keyword_model](../tests/keyword_model_test.py) | Real adapter with fake TFLite and startup Serial: sixteen process-isolated initialization/metadata cases, input copy, invocation failure and invalid output rejection |
-| [telemetry](../tests/telemetry_test.py) | Actual serial pump: bounded startup wait, disconnected/zero-space behavior, partial sends, 64-byte budget, no repeated record and reconnect |
+| [telemetry](../tests/telemetry_test.py) | Actual serial pump: bounded startup wait, post-startup report interval, disconnected/zero-space behavior, partial sends, 64-byte budget, no repeated record, reconnect and nonfinite/out-of-range diagnostic scores |
 | [buffer_contract](../tests/buffer_contract_test.py) | Eleven compiler probes for valid typed buffers, wrong extents/capacities, raw-pointer reads and noncopyable owners; reject C++11/14/17 |
 
 ## Integration and regression coverage
@@ -43,8 +43,8 @@ formatters described in [source style](source-style.md).
 | --- | --- |
 | [stream](../tests/stream_test.cpp) | Ten simulated seconds of ordered 16 kHz samples with 60 ms consumer pauses |
 | [pipeline](../tests/pipeline_test.py) | Real audio pipeline with fake dependencies: readiness, backlog deferral, timestamps, timing, failure and loss-triggered reset |
-| [build_tooling](../tests/build_tooling_test.py) | Nine Python cases: checksum/cache/path safety, source/lock integrity, Zephyr core-header restoration, ambient CLI isolation, C++20/PDM/static-FQBN properties, official compiler version/missing installation, staged-source provenance and exclusion of unused dependency examples |
-| [zephyr_startup](../tests/zephyr_startup_test.py) | Real coordinator/guards with native `k_*` fixtures: fixed stacks/priorities, model/DSP/capture failure, producer-before-consumer startup, cleanup/idempotence, coalesced semaphore, idle delay, metrics contention, nested scheduler locks, final-action expiry/generation invalidation and event-overflow recovery |
+| [build_tooling](../tests/build_tooling_test.py) | Ten Python cases: checksum/cache/path safety, source/lock integrity, Zephyr core-header restoration, ambient CLI isolation, C++20/PDM/static-FQBN properties, official compiler version/missing installation, safety flags and object-audit rejection, staged-source provenance and exclusion of unused dependency examples |
+| [zephyr_startup](../tests/zephyr_startup_test.py) | Real coordinator/guards with native `k_*` fixtures: fixed stacks/priorities, model/DSP/capture failure, producer-before-consumer startup, cleanup/idempotence, coalesced semaphore, eight-hop batch/yield, low-priority main diagnostics, blocked-telemetry isolation, failure idle, metrics contention, nested scheduler locks, final-action expiry/generation invalidation and event-overflow recovery |
 
 The suite has twelve unit entries and four additional regression entries. Entries contain
 many assertions; suite counts are not assertion counts. Zephyr fixtures represent
@@ -62,7 +62,7 @@ python3 scripts/rtos_stress.py --port /dev/cu.usbmodem11301 --seconds 25 \
 ```
 
 Normal capture requires advancing audio/inference counts, zero reported sample
-losses, missed buffers, inference/notification errors, score drops and stale
+losses, missed buffers, DSP/inference/notification errors, score drops and stale
 scores, bounded ring occupancy and recent audio. Stock-loader `stack_free=0/0`
 is accepted only by the explicit option. Any measured nonzero stack values still
 must exceed the 512-byte smoke-test floor. This is not a complete memory budget.

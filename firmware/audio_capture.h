@@ -3,6 +3,7 @@
 #include "kws_config.h"
 
 #include <array>
+#include <atomic>
 #include <cstdint>
 
 #include "audio_queue.h"
@@ -26,7 +27,7 @@ public:
     AudioCapture(const AudioCapture &) = delete;
     AudioCapture &operator=(const AudioCapture &) = delete;
 
-    // This object must outlive capture. The application gives it static lifetime.
+    // Startup/shutdown belong to main; this object must outlive the producer.
     bool begin(Notification notify = nullptr, void *context = nullptr);
     void end();
     bool readHop(AudioHop &samples, std::uint32_t &captureEndUs);
@@ -38,7 +39,8 @@ private:
     static void receiveCallback();
     void receive();
 
-    static AudioCapture *activeReceiver;
+    static std::atomic<AudioCapture *> activeReceiver;
+    static_assert(std::atomic<AudioCapture *>::is_always_lock_free);
     Notification notifyConsumer = nullptr;
     void *notificationContext = nullptr;
     bool running = false;
@@ -46,6 +48,7 @@ private:
     std::array<std::int16_t, PDM_BUFFER_SIZE> pdmBuffer{};
     AudioQueue<8192> audioQueue;
 
-    volatile std::uint32_t receivedSamples = 0, missedBuffers = 0, lastAudioUs = 0;
-    volatile std::uint32_t queueHighWater = 0, callbackGapMaxUs = 0;
+    // PDM owns writes. Readers use relaxed atomics plus short coherent IRQ snapshots.
+    std::atomic<std::uint32_t> receivedSamples{0}, missedBuffers{0}, lastAudioUs{0};
+    std::atomic<std::uint32_t> queueHighWater{0}, callbackGapMaxUs{0};
 };

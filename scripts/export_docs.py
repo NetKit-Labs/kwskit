@@ -168,8 +168,8 @@ def export():
                 code = (
                     "PDM microphone -> core PDM thread -> circular audio buffer\n"
                     "Audio task: frame overlap / FFT / log-mel -> int8 model\n"
-                    "  -> eight-entry Zephyr value queue -> control task\n"
-                    "Control task: confidence filter -> LED; USB telemetry"
+                    "  -> eight-entry Zephyr value queue -> control task / LED\n"
+                    "Main task (priority 6): best-effort USB telemetry"
                 )
             block = [Preformatted(ascii_text(code), STYLES["CodeKWS"], maxLineLength=99)]
             if (

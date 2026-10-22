@@ -1,4 +1,5 @@
 #include <cassert>
+#include <limits>
 #include <string>
 
 #include <Arduino.h>
@@ -38,6 +39,13 @@ int main() {
     AudioCapture::Snapshot audio{32000, 0, 0, 768, 16022, 1999000};
     PipelineMetrics metrics;
     telemetry.report(audio, metrics, false);
+    Serial.connected = true;
+    Serial.space = 128;
+    telemetry.pump();
+    assert(Serial.writes == 0); // The first report starts a post-startup interval.
+    nowMs += 2000;
+    telemetry.report(audio, metrics, false);
+    Serial.connected = false;
     Serial.space = 128;
     telemetry.pump();
     assert(Serial.writes == 0); // Disconnection cannot block or consume the record.
@@ -65,4 +73,17 @@ int main() {
     for (int i = 0; i < 20; ++i)
         telemetry.pump();
     assert(Serial.output.find("led=1") != std::string::npos);
+    for (const auto probability : {std::numeric_limits<float>::quiet_NaN(),
+             std::numeric_limits<float>::infinity(), std::numeric_limits<float>::max(), -1.0f}) {
+        nowMs += 2000;
+        metrics.latestProbability = probability;
+        Serial.output.clear();
+        telemetry.report(audio, metrics, false);
+        for (int i = 0; i < 20; ++i)
+            telemetry.pump();
+        assert(Serial.output.find("stack_free=0/0\n") != std::string::npos);
+        assert(Serial.output.find("dsp_errors=0") != std::string::npos);
+        assert(Serial.output.find("p_milli=1000") != std::string::npos ||
+            Serial.output.find("p_milli=0") != std::string::npos);
+    }
 }

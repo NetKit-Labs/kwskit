@@ -18,14 +18,18 @@ void FeatureExtractor::computeHannWindow() {
     }
 }
 
-void FeatureExtractor::computeLogMel() {
+bool FeatureExtractor::computeLogMel() {
     arm_mult_f32(audioFrame.data(), hannWindow.data(), windowed.data(), FRAME_SIZE);
     arm_rfft_fast_f32(&fft, windowed.data(), fftOutput.data(), 0);
     fftPower(fftOutput, powerSpectrum);
 
-    arm_mat_mult_f32(&melMatrix, &spectrumVector, &melVector);
+    if (arm_mat_mult_f32(&melMatrix, &spectrumVector, &melVector) != ARM_MATH_SUCCESS)
+        return false;
 
     for (std::size_t m = 0; m < melRow.size(); ++m) {
+        // Do not convert NaN to an integer or publish a partially valid feature row.
+        if (!std::isfinite(melRow[m]) || melRow[m] < 0.0f)
+            return false;
         const float logMel = std::log(melRow[m] + 1e-6f);
         // Saturate in floating point before conversion, including overflow to infinity.
         const auto quantized =
@@ -35,16 +39,19 @@ void FeatureExtractor::computeLogMel() {
 
     std::copy(featureBuffer.begin() + NUM_MEL, featureBuffer.end(), featureBuffer.begin());
     std::copy(quantizedMelRow.begin(), quantizedMelRow.end(), featureBuffer.end() - NUM_MEL);
+    return true;
 }
 
-void FeatureExtractor::consume(const AudioHop &samples) {
+bool FeatureExtractor::consume(const AudioHop &samples) {
+    if (!ready)
+        return false;
     if (firstFrame) {
         audioFrame.fill(0.0f);
         firstFrame = false;
         for (int i = 0; i < HOP_SIZE; ++i) {
             audioFrame[i + HOP_SIZE] = samples[i] / 32768.0f;
         }
-        return;
+        return true;
     }
 
     std::copy(audioFrame.begin() + HOP_SIZE, audioFrame.end(), audioFrame.begin());
@@ -52,16 +59,21 @@ void FeatureExtractor::consume(const AudioHop &samples) {
         audioFrame[i + HOP_SIZE] = samples[i] / 32768.0f;
     }
 
-    computeLogMel();
+    if (!computeLogMel()) {
+        reset();
+        return false;
+    }
 
     if (frameCount < NUM_FRAMES) {
         ++frameCount;
     }
     if (framesSinceInference < INFERENCE_HOP)
         ++framesSinceInference;
+    return true;
 }
 
 bool FeatureExtractor::begin(float scale, std::int32_t zeroPoint) {
+    ready = false;
     if (!std::isfinite(scale) || scale <= 0 || zeroPoint < -128 || zeroPoint > 127 ||
         arm_rfft_fast_init_f32(&fft, FRAME_SIZE) != ARM_MATH_SUCCESS) {
         return false;
@@ -77,6 +89,7 @@ bool FeatureExtractor::begin(float scale, std::int32_t zeroPoint) {
 
     computeHannWindow();
     reset();
+    ready = true;
     return true;
 }
 

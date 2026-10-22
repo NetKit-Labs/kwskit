@@ -33,8 +33,20 @@ namespace {
         k_sem audioReady{};
         bool rtosInitialized = false;
 
-        std::atomic<std::uint32_t> generation{0}, eventDrops{0}, notifyErrors{0};
+        // Audio is the sole writer. Loads/stores avoid retrying atomic RMW loops.
+        std::atomic<std::uint32_t> generation{0}, eventDrops{0};
         PipelineMetrics sharedAudio;
+
+        struct ControlMetrics {
+            TimingStats response, queueLatency;
+            std::uint32_t triggers = 0, staleEvents = 0;
+            bool deviceOn = false;
+        } sharedControl;
+
+        PipelineMetrics latestTelemetry;
+        bool latestDeviceOn = false;
+        std::uint32_t lastStackCheck = 0;
+        bool haveStackSample = false;
         bool started = false;
 
         AudioCapture capture;
@@ -54,25 +66,33 @@ namespace {
                 sharedAudio = audioPipeline.statistics();
         }
 
+        void invalidateGeneration() {
+            generation.store(
+                generation.load(std::memory_order_relaxed) + 1, std::memory_order_release);
+        }
+
         void processAudio() {
             std::uint32_t sequence = 0;
 
             while (true) {
-                // Notifications coalesce; drain the ring completely before waiting again.
+                // Notifications coalesce; drain complete hops within a finite activation budget.
                 k_sem_take(&audioReady, K_MSEC(100));
-                while (true) {
+                constexpr unsigned maxStepsPerWake = 8;
+                unsigned steps = 0;
+                for (; steps < maxStepsPerWake; ++steps) {
                     KeywordEvent event{};
                     AudioStep step = audioPipeline.process(event);
 
                     if (step.reset)
-                        ++generation;
+                        invalidateGeneration();
 
                     if (step.hasEvent) {
                         event.sequence = ++sequence;
-                        event.generation = generation.load();
+                        event.generation = generation.load(std::memory_order_relaxed);
                         if (k_msgq_put(&eventQueue, &event, K_NO_WAIT) != 0) {
-                            ++eventDrops;
-                            ++generation; // Invalidate any older queued evidence after a gap.
+                            eventDrops.store(eventDrops.load(std::memory_order_relaxed) + 1,
+                                std::memory_order_relaxed);
+                            invalidateGeneration(); // Queued evidence now has a gap.
                         }
                     }
 
@@ -81,15 +101,17 @@ namespace {
                     else
                         break;
                 }
+                if (steps == maxStepsPerWake) {
+                    // Bound each activation even under sustained backlog, then let control run.
+                    k_sem_give(&audioReady);
+                    k_msleep(1);
+                }
             }
         }
 
         void controlDevice() {
             KeywordEventFilter filter;
             TimingStats response, queueLatency;
-            PipelineMetrics latestAudio;
-            std::uint32_t lastStackCheck = 0, audioStackFree = 0, controlStackFree = 0;
-            bool haveStackSample = false;
             std::uint32_t triggers = 0, staleEvents = 0;
 #ifdef KWS_RTOS_STRESS_TEST
             bool stressDone = false;
@@ -107,7 +129,8 @@ namespace {
 #endif
                     std::uint32_t now = micros();
                     queueLatency.record(now - event.decisionUs);
-                    auto result = filter.consume(event, generation.load(), now, millis());
+                    auto result = filter.consume(
+                        event, generation.load(std::memory_order_acquire), now, millis());
                     if (result.discarded)
                         ++staleEvents;
                     if (result.detection.confirmed) {
@@ -115,8 +138,8 @@ namespace {
                         // GPIO was initialized before capture; this cannot allocate or wait.
                         const SchedulerLock lock;
                         if (lock &&
-                            KeywordEventFilter::isCurrent(
-                                event, generation.load(), micros(), millis())) {
+                            KeywordEventFilter::isCurrent(event,
+                                generation.load(std::memory_order_acquire), micros(), millis())) {
                             device.applyKeywordAction();
                             ++triggers;
                             if (result.detection.hasResponse)
@@ -126,39 +149,10 @@ namespace {
                     }
                 }
 
-                {
-                    const MutexLock lock(metricsMutex);
-                    if (lock)
-                        latestAudio = sharedAudio;
-                }
-
-                auto snapshot = latestAudio;
-                snapshot.confirmedKeywords = triggers;
-                snapshot.responseTiming = response;
-                snapshot.eventLatency = queueLatency;
-                snapshot.eventDrops = eventDrops.load();
-                snapshot.staleEvents = staleEvents;
-                snapshot.notifyErrors = notifyErrors.load();
-
-                // Stack diagnostics require loader support; sample infrequently when enabled.
-                const auto nowMs = millis();
-                if (!haveStackSample || nowMs - lastStackCheck >= 2000) {
-#if defined(CONFIG_INIT_STACKS) && defined(CONFIG_THREAD_STACK_INFO)
-                    std::size_t audioFree = 0, controlFree = 0;
-                    if (k_thread_stack_space_get(audioThread, &audioFree) == 0)
-                        audioStackFree = audioFree;
-                    if (k_thread_stack_space_get(controlThread, &controlFree) == 0)
-                        controlStackFree = controlFree;
-#endif
-                    lastStackCheck = nowMs;
-                    haveStackSample = true;
-                }
-
-                snapshot.audioStackFree = audioStackFree;
-                snapshot.controlStackFree = controlStackFree;
-
-                telemetry.pump();
-                telemetry.report(capture.snapshot(), snapshot, device.isOn());
+                // Diagnostics may miss a publication; detection never waits for them.
+                const MutexLock lock(metricsMutex);
+                if (lock)
+                    sharedControl = {response, queueLatency, triggers, staleEvents, device.isOn()};
             }
         }
 
@@ -233,6 +227,8 @@ namespace {
                 return false;
             }
 
+            // Serial has internal waits: keep diagnostics below both critical workers.
+            k_thread_priority_set(k_current_get(), 6);
             k_thread_start(controlThread);
             k_thread_start(audioThread);
 
@@ -241,8 +237,44 @@ namespace {
         }
 
         void poll() {
-            // Arduino's existing main task has no pipeline work; let application tasks run.
-            k_msleep(1000);
+            if (!started) {
+                k_msleep(1000); // Startup failure must yield instead of busy-spinning.
+                return;
+            }
+
+            std::uint32_t audioStackFree = latestTelemetry.audioStackFree;
+            std::uint32_t controlStackFree = latestTelemetry.controlStackFree;
+            {
+                const MutexLock lock(metricsMutex);
+                if (lock) {
+                    latestTelemetry = sharedAudio;
+                    latestTelemetry.confirmedKeywords = sharedControl.triggers;
+                    latestTelemetry.responseTiming = sharedControl.response;
+                    latestTelemetry.eventLatency = sharedControl.queueLatency;
+                    latestTelemetry.staleEvents = sharedControl.staleEvents;
+                    latestDeviceOn = sharedControl.deviceOn;
+                }
+            }
+            latestTelemetry.eventDrops = eventDrops.load(std::memory_order_relaxed);
+
+            // Optional stack scans and Serial calls belong only to this best-effort thread.
+            const auto nowMs = millis();
+            if (!haveStackSample || nowMs - lastStackCheck >= 2000) {
+#if defined(CONFIG_INIT_STACKS) && defined(CONFIG_THREAD_STACK_INFO)
+                std::size_t audioFree = 0, controlFree = 0;
+                if (k_thread_stack_space_get(audioThread, &audioFree) == 0)
+                    audioStackFree = audioFree;
+                if (k_thread_stack_space_get(controlThread, &controlFree) == 0)
+                    controlStackFree = controlFree;
+#endif
+                lastStackCheck = nowMs;
+                haveStackSample = true;
+            }
+            latestTelemetry.audioStackFree = audioStackFree;
+            latestTelemetry.controlStackFree = controlStackFree;
+            telemetry.pump();
+            telemetry.report(capture.snapshot(), latestTelemetry, latestDeviceOn);
+            k_msleep(20);
         }
     };
 

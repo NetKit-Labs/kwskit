@@ -13,8 +13,9 @@ AudioStep AudioPipeline::process(KeywordEvent &event) {
     AudioStep result{};
 
     const auto audio = capture.snapshot();
-    if (audio.droppedSamples != seenDrops) {
+    if (audio.droppedSamples != seenDrops || audio.missedBuffers != seenMissedBuffers) {
         seenDrops = audio.droppedSamples;
+        seenMissedBuffers = audio.missedBuffers;
         capture.discardPending();
         extractor.reset();
         result.reset = true;
@@ -26,8 +27,15 @@ AudioStep AudioPipeline::process(KeywordEvent &event) {
 
     result.processed = true;
     std::uint32_t dspStart = micros();
-    extractor.consume(audioHop);
+    const bool featuresValid = extractor.consume(audioHop);
     metrics.dspTiming.record(micros() - dspStart);
+
+    if (!featuresValid) {
+        ++metrics.dspErrors;
+        result.reset = true;
+        metrics.processingTiming.record(micros() - start);
+        return result;
+    }
 
     if (extractor.inferenceDue() && capture.available() < HOP_SIZE) {
         extractor.markInferred();

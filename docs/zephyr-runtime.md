@@ -50,10 +50,15 @@ capture. The recorded use was 12,500 bytes of the fixed 65,536-byte arena.
 
 ## Serial and diagnostic limits
 
-Control writes at most 64 bytes per telemetry pump after checking connection and
-`availableForWrite`. It never asks Serial to accept more than the available
-space. Startup may wait up to two seconds for a monitor; runtime does not require
+Main runs telemetry at priority 6, below audio and keyword control. It requests
+at most 64 bytes per pump after checking connection and `availableForWrite`.
+The core still takes internal `K_FOREVER` semaphore waits and can sleep on a new
+USB connection; the space check does not prove a nonblocking Serial call. These
+calls never execute in either critical application worker. Main holds no metrics,
+scheduler or IRQ lock while accessing Serial. Startup may wait up to two seconds for a monitor; runtime does not require
 one. A pending record can be delivered on reconnect before fresh records.
+The first runtime report starts a two-second interval after initialization, so
+startup time is not presented as an aged pre-capture audio record.
 
 The stock loader disables `CONFIG_INIT_STACKS` and does not export
 `k_thread_stack_space_get`. `stack_free=0/0` is explicitly unavailable data. Use

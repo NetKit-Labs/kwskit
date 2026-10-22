@@ -60,12 +60,15 @@ flowchart LR
     MODEL --> EVENTS["Zephyr queue: 8 score values"]
     EVENTS --> CONTROL["Control thread: priority 5"]
     CONTROL --> LED["Freshness / confidence filter / LED"]
-    CONTROL --> USB["Bounded USB telemetry"]
+    CONTROL -. "metrics copy" .-> MAIN["Main thread: priority 6"]
+    AUDIO -. "metrics copy" .-> MAIN
+    MAIN --> USB["Best-effort USB telemetry"]
 ```
 
 Lower Zephyr priority numbers run first. The audio thread owns feature extraction,
-the model, and stream recovery. Control owns temporal detection, the LED, and
-telemetry. A queue copies score/timestamp/sequence/generation values, never
+the model, and stream recovery. Control owns temporal detection and the LED.
+The lower-priority main thread owns telemetry, isolating internal Serial waits
+from keyword control. A queue copies score/timestamp/sequence/generation values, never
 pointers into shared audio or tensor buffers. A delayed control thread can lose
 scores without blocking the audio consumer. An overflowing audio ring rejects
 new samples and explicitly resets detection evidence.
@@ -78,14 +81,19 @@ new samples and explicitly resets detection evidence.
 | `feature_extractor` / `fft_power` | PCM scaling, frame overlap, periodic Hann, packed real FFT, power, mel/log and int8 features |
 | `keyword_model` | Single interpreter, four operator types, fixed 64 KiB tensor arena and score decoding |
 | `keyword_event` / `keyword_filter` | Freshness, sequence continuity, confidence smoothing, hysteresis and cooldown |
-| `device_control` / `telemetry` | LED action and bounded diagnostic output |
+| `device_control` / `telemetry` | LED action and separate best-effort diagnostic output |
 
 The application and model runtime have static lifetime. Fixed application
 stacks reserve 8192 bytes for audio and 6144 for control. A nonblocking mutex
 protects only short metrics copies. Zephyr IRQ keys preserve nested capture
 snapshots; scheduler locking covers the final freshness check and initialized
 GPIO write while leaving interrupts enabled. See [RTOS design](docs/rtos-design.md)
-and [C++ ownership](docs/cpp-idioms.md).
+and [C++ ownership](docs/cpp-idioms.md). Application buffers and kernel resources
+use fixed storage, including the inference arena. The build rejects direct heap
+allocation/deallocation imports in sketch objects, disables exceptions/RTTI and
+rejects variable-length arrays. Each audio activation handles at most eight hops;
+a full batch yields for 1 ms before resuming. These controls do not establish a
+whole-system WCET or prove that loader/driver code never allocates.
 
 ## Features, model, and detection
 
@@ -140,6 +148,11 @@ watermarks are unavailable: `stack_free=0/0` means unmeasured. General system he
 framework/interrupt stacks, extended endurance, cold power-cycle, and calibrated
 acoustic accuracy remain separate validation work. See [real-time limits](docs/realtime-review.md).
 
+The table preserves the original image's evidence. The later C++20 hardening
+build uses 206,808 bytes flash; normal, control-stall and restored-image checks
+passed with the new runtime. [Current validation](docs/validation.md#c20-real-time-hardening-validation)
+records its source hashes, captures and limits; speech/LED was not repeated.
+
 The saved training notebook reports 93.48% floating-point held-out test accuracy,
 97.90% validation accuracy, and 98.02% final training accuracy. These are training
 artifacts, not measured recognition rates for the quantized model on this board.
@@ -169,7 +182,7 @@ observe the LED separately. Ending a capture leaves the firmware running.
 | `queue_max`, `gap_max_us`, `audio_age_us` | Ring high-water mark, maximum callback gap, age of last received audio |
 | `dsp_us`, `infer_us`, `process_us` | Average / observed maximum DSP, inference and one pipeline step |
 | `response_us` | Last / maximum response from estimated first high-confidence window end to action; not acoustic-onset latency |
-| `inferences`, `errors`, `p_milli` | Invocation count, failures and latest class-0 score scaled by 1000 |
+| `inferences`, `errors`, `dsp_errors`, `p_milli` | Invocation count, inference/DSP failures and latest class-0 score scaled by 1000 |
 | `triggers`, `led` | Confirmed action count and logical LED state |
 | `event_drops`, `stale_events` | Dropped classification results and rejected expired/old-generation results |
 | `notify_errors` | Reserved diagnostic counter; Zephyr binary-semaphore give has no failure return |

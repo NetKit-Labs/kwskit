@@ -10,26 +10,28 @@
 #include <limits>
 
 // Single PDM producer, single audio-task consumer. Never overwrite unread audio.
-static_assert(ATOMIC_INT_LOCK_FREE == 2, "Audio queue requires lock-free atomics");
+static_assert(std::atomic<std::uint32_t>::is_always_lock_free,
+    "Audio queue requires lock-free 32-bit atomics");
 
 template <std::size_t Capacity> class AudioQueue {
     static_assert(std::has_single_bit(Capacity), "Nonzero power-of-two capacity required");
     static_assert(
         Capacity <= std::numeric_limits<std::uint32_t>::max(), "Capacity must fit ring indices");
     std::array<std::int16_t, Capacity> samples{};
-    std::uint32_t droppedCount = 0;
+    std::atomic<std::uint32_t> droppedCount{0};
     std::atomic<std::uint32_t> head{0}, tail{0};
 
 public:
-    // Producer-owned counter; the audio task reads it in a short IRQ-locked snapshot.
+    // Single writer; relaxed atomic snapshots do not publish sample storage.
     std::uint32_t droppedSamples() const {
-        return droppedCount;
+        return droppedCount.load(std::memory_order_relaxed);
     }
 
     bool push(std::int16_t sample) {
         std::uint32_t h = head.load(std::memory_order_relaxed);
         if (h - tail.load(std::memory_order_acquire) == Capacity) {
-            ++droppedCount;
+            droppedCount.store(
+                droppedCount.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
             return false;
         }
         samples[h & (Capacity - 1)] = sample;

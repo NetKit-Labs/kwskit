@@ -17,14 +17,14 @@ public:
 
     bool begin(float scale, std::int32_t zeroPoint);
     void reset();
-    void consume(const AudioHop &samples);
+    [[nodiscard]] bool consume(const AudioHop &samples);
     bool inferenceDue() const;
     void markInferred();
     const FeatureTensor &features() const;
 
 private:
     void computeHannWindow();
-    void computeLogMel();
+    bool computeLogMel();
 
     float inputScale = 0.0f;
     std::int32_t inputZeroPoint = 0;
@@ -32,6 +32,7 @@ private:
     int frameCount = 0;
     int framesSinceInference = 0;
     bool firstFrame = true;
+    bool ready = false;
 
     std::array<float, FRAME_SIZE> audioFrame{};
     std::array<float, FRAME_SIZE> windowed{};

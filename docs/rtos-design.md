@@ -2,18 +2,21 @@
 
 ## Why two application threads
 
-The audio thread owns DSP/inference and stream recovery; control owns detection,
-LED state and telemetry. The core's PDM thread acquires audio outside these two
-application threads. Separate scheduling lets acquisition preempt a roughly
+The audio thread owns DSP/inference and stream recovery; control owns detection
+and LED state. Main owns best-effort telemetry and optional stack diagnostics.
+The core's PDM thread acquires audio outside these two application threads.
+Separate scheduling lets acquisition preempt a roughly
 55 ms inference and lets audio run while control is delayed. All work executes
 on one Cortex-M4F CPU; these are preemptible contexts, not parallel CPUs.
-The Arduino main thread only initializes and sleeps for one second per poll.
+After initialization, Arduino main runs at priority 6 and sleeps 20 ms between
+diagnostic pumps. It adds no application thread stack. Startup failure instead
+sleeps for one second per poll, avoiding a busy-spin.
 
 ## Scheduling and memory
 
 The Arduino core starts Zephyr before calling the sketch. The sketch creates
 its application workers through the native kernel API; it does not start a
-second scheduler or run a separate kernel. All three pipeline contexts are
+second scheduler or run a separate kernel. PDM, audio, control and main are
 preemptible threads. The microphone's low-level hardware interrupts are handled
 by the core/driver; the application callback runs in the core PDM thread.
 
@@ -21,8 +24,9 @@ by the core/driver; the application callback runs in the core PDM thread.
 | --- | --- | --- |
 | Core PDM thread | Priority 3, configured with the library build flag | Read microphone blocks, invoke the application callback |
 | Audio application thread | Priority 4, fixed 8192-byte member kernel stack | Drain ring, DSP, inference, nonblocking score sends |
-| Control application thread | Priority 5, fixed 6144-byte member kernel stack | Score filtering, actions, telemetry |
-| Arduino main and system threads | Core configuration | Startup, USB, kernel and other platform services |
+| Control application thread | Priority 5, fixed 6144-byte member kernel stack | Score filtering and actions |
+| Arduino main | Core-provided stack, priority set to 6 before workers start | Startup, best-effort telemetry and optional stack scans |
+| System threads | Core configuration | USB, kernel and other platform services |
 
 Lower numbers mean higher priority. The PDM callback reads/publishes at most one
 256-sample block per invocation and performs no feature extraction or inference.
@@ -37,34 +41,42 @@ does not establish that the whole framework never allocates.
 ## Ownership and synchronization
 
 Only the PDM callback advances the ring head; only audio advances the tail.
-Release/acquire atomics publish samples without overwriting unread data. Short
+Release/acquire atomics publish samples without overwriting unread data. Capture
+counters and the active callback pointer use lock-free atomics; `volatile` is
+not used for inter-thread synchronization. Single-writer counters use relaxed
+loads/stores rather than retrying atomic read/modify/write loops. Short
 `irq_lock`/`irq_unlock` snapshots preserve the caller's IRQ key on this single-core
 board, covering producer-owned counters and arrival/backlog timestamps.
 A binary semaphore with limit one coalesces notifications safely because sample
-ownership lives in the ring. Audio drains complete hops before waiting again;
+ownership lives in the ring. Audio drains at most eight complete hops per
+activation; a full batch re-arms the semaphore and sleeps 1 ms so lower-priority
+control can run even under sustained backlog. Otherwise it returns to the wait;
 `k_sem_take` also has a 100 ms recovery timeout. `k_sem_give` has no failure return,
 so the retained `notify_errors` field is zero for this backend.
 
-A priority-inheriting `k_mutex` protects only the short metrics copy. Both threads
-use `K_NO_WAIT`; audio can skip publication and control can retain its last
+A priority-inheriting `k_mutex` protects only the short metrics copy. Audio,
+control and main use `K_NO_WAIT`; workers can skip publication and main can retain its last
 snapshot on contention. No mutex spans DSP, inference, queue waits, GPIO or USB.
-Control receives scores with a 20 ms timeout, servicing telemetry when idle.
-USB output checks connection and available space and writes at most 64 bytes per
-pump. Firmware continues processing when the serial monitor is closed.
+Control receives scores with a 20 ms timeout and publishes optional action metrics.
+Main copies audio/control metrics, releases the mutex, then checks connection/space
+and requests at most 64 Serial bytes. Core Serial methods can wait internally;
+keeping them at priority 6 isolates them from both critical workers. Firmware
+continues processing when the serial monitor is closed.
 
 | Mechanism | Producer / consumer | Wait and contention policy |
 | --- | --- | --- |
 | Atomic sample ring | PDM callback / audio | No wait; reject new samples when full, then recover the stream |
 | Binary `k_sem` | PDM callback / audio | Give without waiting; take for at most 100 ms, then inspect the ring again |
 | Eight-entry `k_msgq` | Audio / control | Send with `K_NO_WAIT`; receive for at most 20 ms; overflow invalidates queued evidence |
-| Metrics `k_mutex` | Audio publication / control snapshot | Both use `K_NO_WAIT`; skip the copy if busy |
+| Metrics `k_mutex` | Audio/control publication / main snapshot | All use `K_NO_WAIT`; skip the copy if busy |
 | `irq_lock` / `irq_unlock` | Capture snapshots | Short scalar snapshots; restore the caller's IRQ key, including nested scopes |
 | `k_sched_lock` / `k_sched_unlock` | Control's final action | Short validation/GPIO scope; interrupts stay enabled and no blocking operation is allowed |
 
 The semaphore is a wakeup hint, not a count of audio blocks. Multiple callbacks
-may leave only one token, so the audio thread always drains all complete hops.
-The timeout also lets it inspect capture state when no callback arrives. Queue
-timeouts let control pump serial regularly without polling in a tight loop.
+may leave only one token, so audio inspects the ring rather than treating one
+token as one block. Full batches explicitly request another activation.
+The timeout also lets it inspect capture state when no callback arrives. The
+bounded receive wait lets control publish diagnostics without a tight polling loop.
 
 ## Events and overload
 
@@ -72,8 +84,9 @@ Each successful inference emits probability, estimated capture-window end,
 decision timestamps, sequence and stream generation. Low scores also travel to
 control so release/rearming has negative evidence. Nonblocking score sends
 preserve audio progress: queue overflow increments `event_drops` and the generation.
-Sample loss or model failure also invalidates the generation. Audio loss discards
-pending samples and resets feature readiness before rebuilding a full context;
+Sample loss, malformed/failed PDM reads, DSP failure or model failure also
+invalidates the generation. Audio loss discards pending samples and resets
+feature readiness before rebuilding a full context;
 a failed inference invalidates evidence without resetting DSP overlap.
 
 Control rejects old generations and scores more than 250 ms old using both
@@ -111,16 +124,19 @@ sequenceDiagram
     Main->>Main: Initialize GPIO, serial, model and DSP
     Main->>Main: Initialize kernel objects; create dormant workers
     Main->>PDM: Start mono 16 kHz capture
+    Main->>Main: Set main priority to 6
     Main->>Control: k_thread_start
     Main->>Audio: k_thread_start
-    Note over Main: poll sleeps for 1000 ms
+    Note over Main: Best-effort diagnostics; poll sleeps 20 ms
     loop While capture runs
         PDM->>PDM: Publish bounded block into sample ring
         PDM->>Audio: k_sem_give (coalesced)
         Audio->>Audio: Drain complete hops; run DSP/inference when ready
         Audio->>Control: k_msgq_put score (K_NO_WAIT)
         Control->>Control: Check evidence, freshness and generation
-        Control->>Control: Apply confirmed LED action; pump telemetry
+        Control->>Control: Apply confirmed LED action
+        Control-->>Main: Publish optional metrics (K_NO_WAIT)
+        Main->>Main: Snapshot metrics; release lock; pump telemetry
     end
 ```
 
@@ -145,12 +161,13 @@ not a measurement of stack exhaustion or free memory.
 | API | Use |
 | --- | --- |
 | `k_thread_create`, `k_thread_start`, `k_thread_abort` | Fixed-storage workers, gated startup and cleanup |
+| `k_current_get`, `k_thread_priority_set` | Lower main to priority 6 before releasing the workers |
 | `k_sem_init`, `k_sem_give`, `k_sem_take` | Coalesced capture notifications and audio wait |
 | `k_msgq_init`, `k_msgq_put`, `k_msgq_get`, `k_msgq_purge` | Eight-value queue, nonblocking producer and bounded consumer wait |
 | `k_mutex_init`, `k_mutex_lock`, `k_mutex_unlock` | Optional statistics protection |
 | `k_sched_lock`, `k_sched_unlock` | Final freshness/generation check and GPIO action |
 | `irq_lock`, `irq_unlock` | Nested capture snapshots |
-| `k_msleep` | Idle Arduino main and test-only control delay |
+| `k_msleep` | Diagnostic main pacing, full audio-batch yield, startup-failure idle and test-only control delay |
 
 Implementation: [coordinator](../firmware/kws_pipeline.cpp),
 [capture](../firmware/audio_capture.cpp), [guards](../firmware/scheduler_lock.h).

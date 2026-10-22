@@ -42,6 +42,11 @@ the model or extractor safe; their thread ownership remains exclusive.
 
 ## Scoped synchronization and API boundaries
 
+Capture counters use always-lock-free `std::atomic<std::uint32_t>`; the callback
+owner uses an always-lock-free atomic pointer. Counter updates have one writer
+and use bounded loads/stores. IRQ masking supplies a coherent multi-field
+snapshot on this single-core target; atomics supply C++ data-race safety.
+
 `InterruptLock` saves the Zephyr IRQ key and restores it, preserving nested masks.
 `MutexLock` tries `k_mutex_lock` with `K_NO_WAIT` and unlocks only when acquired.
 `SchedulerLock` balances recursive Zephyr scheduler locks and leaves interrupts
@@ -54,7 +59,8 @@ optional FlatBuffer metadata and inactive callback owners appropriately use
 pointers. CMSIS-DSP receives raw `.data()` buffers only at its API boundary.
 Its matrix API requires a mutable coefficient pointer although multiplication
 reads the flash table; the confined `const_cast` addresses that API signature.
-Serial writes use explicit byte views. Bounded `std::snprintf` avoids introducing
+Serial writes use explicit byte views and execute only in lower-priority main,
+after releasing all application locks. Bounded `std::snprintf` avoids introducing
 an allocating formatting dependency.
 
 C++20 designated initialization names event/snapshot members, `constinit` sets

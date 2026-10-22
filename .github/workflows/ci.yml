@@ -44,7 +44,7 @@ jobs:
                 name: Install pinned CLI, core, and libraries
                 run: make setup
             -
-                name: Compile Nano 33 BLE firmware
+                name: Compile Nano firmware and audit real-time imports
                 run: make build JOBS=2
             -
                 name: Archive firmware and build provenance

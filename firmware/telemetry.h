@@ -7,7 +7,7 @@
 #include "audio_capture.h"
 #include "pipeline_metrics.h"
 
-// Used only by the control task after initialization.
+// Best-effort output owned by main at priority 6; never called by critical workers.
 class Telemetry {
 public:
     Telemetry() = default;
@@ -23,4 +23,5 @@ private:
     std::size_t length = 0;
     std::size_t offset = 0;
     std::uint32_t lastReport = 0;
+    bool reporting = false;
 };

@@ -10,10 +10,14 @@
 #include "feature_extractor.h"
 
 extern bool failFftInitialization;
+extern bool failMelMultiplication;
+extern float injectedMel;
 extern std::array<float, FRAME_SIZE> lastAppliedWindow;
 
 int main() {
     FeatureExtractor extractor;
+    AudioHop uninitialized{};
+    assert(!extractor.consume(uninitialized));
     assert(!extractor.begin(0.0f, 0));
     assert(!extractor.begin(-1.0f, 0));
     assert(!extractor.begin(std::numeric_limits<float>::quiet_NaN(), 0));
@@ -37,7 +41,7 @@ int main() {
                                  : static_cast<std::int16_t>(
                                        static_cast<std::int32_t>(random >> 16) - 32768));
             }
-            extractor.consume(samples);
+            assert(extractor.consume(samples));
             const bool expectedDue = hop >= NUM_FRAMES && (hop - NUM_FRAMES) % INFERENCE_HOP == 0;
             assert(extractor.inferenceDue() == expectedDue);
             if (extractor.inferenceDue()) {
@@ -61,7 +65,7 @@ int main() {
         assert(std::abs(lastAppliedWindow.back() - 0.00003764908f) < 0.0000001f);
         extractor.reset();
         for (int i = 0; i < NUM_FRAMES; ++i) {
-            extractor.consume(samples);
+            assert(extractor.consume(samples));
             assert(!extractor.inferenceDue());
         }
     }
@@ -72,8 +76,8 @@ int main() {
     assert(tone.begin(0.09529872239f, 17));
     std::array<std::int16_t, HOP_SIZE> zero{};
     for (int hop = 0; hop <= NUM_FRAMES; ++hop) {
-        silence.consume(zero);
-        tone.consume(samples);
+        assert(silence.consume(zero));
+        assert(tone.consume(samples));
     }
     assert(silence.inferenceDue() && tone.inferenceDue());
     assert(
@@ -84,17 +88,30 @@ int main() {
     // Tiny positive scales overflow the float quotient; conversion must saturate safely.
     assert(extractor.begin(std::numeric_limits<float>::min(), 0));
     for (int hop = 0; hop <= NUM_FRAMES; ++hop)
-        extractor.consume(zero);
+        assert(extractor.consume(zero));
     assert(extractor.inferenceDue());
     for (const auto feature : extractor.features())
         assert(feature == -128);
     // Backlog can defer inference arbitrarily without an ever-growing signed counter.
     for (int hop = 0; hop < 1000; ++hop)
-        extractor.consume(zero);
+        assert(extractor.consume(zero));
     assert(extractor.inferenceDue());
     extractor.markInferred();
     for (int hop = 0; hop < INFERENCE_HOP; ++hop) {
-        extractor.consume(zero);
+        assert(extractor.consume(zero));
         assert(extractor.inferenceDue() == (hop == INFERENCE_HOP - 1));
     }
+    for (const auto invalid :
+        {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::infinity(), -1.0f}) {
+        injectedMel = invalid;
+        assert(!extractor.consume(zero));
+        assert(!extractor.inferenceDue());
+        injectedMel = 0.0f;
+        for (int hop = 0; hop <= NUM_FRAMES; ++hop)
+            assert(extractor.consume(zero));
+        assert(extractor.inferenceDue());
+    }
+    failMelMultiplication = true;
+    assert(!extractor.consume(zero) && !extractor.inferenceDue());
+    assert(!extractor.begin(0.0f, 0) && !extractor.consume(zero));
 }

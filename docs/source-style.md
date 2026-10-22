@@ -2,7 +2,8 @@
 
 Maintained firmware, the host model inspector and native tests require C++20.
 Host tests use `-std=c++20`; firmware uses `-std=gnu++20` with Arduino's official
-GCC 14.3.0 toolchain. `cpp_standard.h` rejects older modes and preloads `<chrono>`
+GCC 14.3.0 toolchain with exceptions/RTTI disabled and variable-length arrays
+rejected. `cpp_standard.h` rejects older modes and preloads `<chrono>`
 before Arduino's `abs` macro. The `.ino` entry point is compiled as C++ and only
 calls application startup/poll. No project-owned `.c` units need conversion.
 Downloaded core/DSP/inference dependencies retain their own C/C++ recipes.
