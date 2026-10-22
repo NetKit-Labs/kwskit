@@ -20,6 +20,13 @@ between groups. The intentional `cpp_standard.h`/`kws_config.h` prelude remains
 before dependent platform headers; its macros/include order are functional.
 The grouping is configured in [.clang-format](../.clang-format).
 
+Keep comments focused on ownership, units, timing and the reason for a constraint.
+For kernel calls, explain the execution context and wait policy where they affect
+correctness. Keep those contracts consistent with the [RTOS design](rtos-design.md).
+Use the existing scoped guards for short mutex, IRQ and scheduler sections rather
+than duplicating acquire/release paths. Formatting changes must preserve generated
+model data and runtime behavior.
+
 ## Four-space policy and tools
 
 C++ uses four spaces, a 100-column target, namespace indentation and blank lines

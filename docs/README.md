@@ -9,7 +9,7 @@ guides below. All runtime descriptions and hardware evidence here refer to Zephy
 | [Build and CI](build.md) | Host prerequisites, locked dependencies, local setup, upload, artifacts, IDE flags, troubleshooting and PDF generation |
 | [Zephyr runtime](zephyr-runtime.md) | Official loader, static linking, PDM configuration, memory and stack-diagnostic limits |
 | [Engineering overview](engineering-overview.md) | Requirements, design decisions, source map, evidence and remaining work |
-| [RTOS design](rtos-design.md) | Scheduling, thread ownership, kernel APIs, startup, synchronization and overload |
+| [RTOS design](rtos-design.md) | Thread priorities/ownership, startup sequence, kernel APIs, wait policies, synchronization and overload |
 | [DSP pipeline](dsp-pipeline.md) | Exact feature dimensions/formulas, periodic Hann, packed FFT, quantization and training alignment |
 | [TinyML inference](tinyml-inference.md) | Deployed graph, model identity, parameter counts, quantization, storage and training results |
 | [C++ ownership](cpp-idioms.md) | Fixed-size contracts, RAII, callbacks, references, resource lifetimes and C++20 facilities |

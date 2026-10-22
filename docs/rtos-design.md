@@ -11,6 +11,12 @@ The Arduino main thread only initializes and sleeps for one second per poll.
 
 ## Scheduling and memory
 
+The Arduino core starts Zephyr before calling the sketch. The sketch creates
+its application workers through the native kernel API; it does not start a
+second scheduler or run a separate kernel. All three pipeline contexts are
+preemptible threads. The microphone's low-level hardware interrupts are handled
+by the core/driver; the application callback runs in the core PDM thread.
+
 | Context | Priority / allocation | Work |
 | --- | --- | --- |
 | Core PDM thread | Priority 3, configured with the library build flag | Read microphone blocks, invoke the application callback |
@@ -45,6 +51,20 @@ snapshot on contention. No mutex spans DSP, inference, queue waits, GPIO or USB.
 Control receives scores with a 20 ms timeout, servicing telemetry when idle.
 USB output checks connection and available space and writes at most 64 bytes per
 pump. Firmware continues processing when the serial monitor is closed.
+
+| Mechanism | Producer / consumer | Wait and contention policy |
+| --- | --- | --- |
+| Atomic sample ring | PDM callback / audio | No wait; reject new samples when full, then recover the stream |
+| Binary `k_sem` | PDM callback / audio | Give without waiting; take for at most 100 ms, then inspect the ring again |
+| Eight-entry `k_msgq` | Audio / control | Send with `K_NO_WAIT`; receive for at most 20 ms; overflow invalidates queued evidence |
+| Metrics `k_mutex` | Audio publication / control snapshot | Both use `K_NO_WAIT`; skip the copy if busy |
+| `irq_lock` / `irq_unlock` | Capture snapshots | Short scalar snapshots; restore the caller's IRQ key, including nested scopes |
+| `k_sched_lock` / `k_sched_unlock` | Control's final action | Short validation/GPIO scope; interrupts stay enabled and no blocking operation is allowed |
+
+The semaphore is a wakeup hint, not a count of audio blocks. Multiple callbacks
+may leave only one token, so the audio thread always drains all complete hops.
+The timeout also lets it inspect capture state when no callback arrives. Queue
+timeouts let control pump serial regularly without polling in a tight loop.
 
 ## Events and overload
 
@@ -81,6 +101,34 @@ calls release control and audio afterward. Repeated successful `begin` calls
 create no duplicate resources. On capture failure, cleanup stops the producer,
 aborts created consumers, then purges the initialized message queue. Setup
 reports failures and halts instead of running a partially initialized application.
+
+```mermaid
+sequenceDiagram
+    participant Main as Arduino main
+    participant PDM as Core PDM (priority 3)
+    participant Audio as Audio (priority 4)
+    participant Control as Control (priority 5)
+    Main->>Main: Initialize GPIO, serial, model and DSP
+    Main->>Main: Initialize kernel objects; create dormant workers
+    Main->>PDM: Start mono 16 kHz capture
+    Main->>Control: k_thread_start
+    Main->>Audio: k_thread_start
+    Note over Main: poll sleeps for 1000 ms
+    loop While capture runs
+        PDM->>PDM: Publish bounded block into sample ring
+        PDM->>Audio: k_sem_give (coalesced)
+        Audio->>Audio: Drain complete hops; run DSP/inference when ready
+        Audio->>Control: k_msgq_put score (K_NO_WAIT)
+        Control->>Control: Check evidence, freshness and generation
+        Control->>Control: Apply confirmed LED action; pump telemetry
+    end
+```
+
+Arrows show ownership and API calls, not a promise of execution order after a
+thread becomes ready. The higher-priority PDM/audio contexts can preempt control;
+control can run while audio waits for more samples. The first inference needs
+61 feature rows, and later inference is eligible after eight new rows; neither
+the callback nor Arduino's `loop` performs this work.
 
 The application is a noncopyable function-local static constructed after board
 globals. Its destructor performs cleanup, and the capture owner also unregisters

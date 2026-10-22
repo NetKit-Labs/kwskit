@@ -4,6 +4,7 @@
 
 #include <zephyr/kernel.h>
 
+// Optional metrics copies never wait; release only a lock acquired by this scope.
 class MutexLock {
 public:
     explicit MutexLock(k_mutex *mutex) : mutex(mutex), owned(k_mutex_lock(mutex, K_NO_WAIT) == 0) {}

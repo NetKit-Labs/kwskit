@@ -21,6 +21,7 @@ namespace {
     private:
         static constexpr std::uint32_t eventCapacity = 8;
 
+        // Fixed kernel storage outlives both workers; neither thread owns these objects.
         K_KERNEL_STACK_MEMBER(audioStack, 8192);
         K_KERNEL_STACK_MEMBER(controlStack, 6144);
         k_thread audioControlBlock{}, deviceControlBlock{};
@@ -43,7 +44,7 @@ namespace {
         AudioPipeline audioPipeline{capture, features, KeywordModel::instance()};
 
         void notifyAudio() {
-            // A binary semaphore coalesces callbacks and can be given from an ISR.
+            // The core PDM thread publishes samples before this coalesced wakeup.
             k_sem_give(&audioReady);
         }
 
@@ -206,7 +207,8 @@ namespace {
             k_msgq_init(&eventQueue, queueStorage.data(), sizeof(KeywordEvent), eventCapacity);
             k_sem_init(&audioReady, 0, 1);
             rtosInitialized = true;
-            // Delay both starts until capture and all shared state are initialized.
+            // K_FOREVER creates dormant workers. Lower Zephyr priority numbers run first.
+            // Start them only after capture and all shared state are initialized.
             audioThread = k_thread_create(
                 &audioControlBlock, audioStack, K_KERNEL_STACK_SIZEOF(audioStack),
                 [](void *context, void *, void *) {

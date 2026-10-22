@@ -2,8 +2,6 @@
 
 #include "cpp_standard.h"
 
-#include <cstdint>
-
 #include <zephyr/kernel.h>
 
 // Zephyr scheduler locks are recursive and leave interrupts enabled.

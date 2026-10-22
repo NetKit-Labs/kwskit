@@ -33,11 +33,12 @@ The [summary](zephyr-validation.json) preserves identity and final counters.
 
 ## Remote verification
 
-[GitHub Actions run 39785916551](https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/runs/39785916551)
-passed the Zephyr firmware build, formatting and shared host tests for commit
-`48b774c`. Its Zephyr firmware/provenance artifact was uploaded. That run predates
-the single-target cleanup; it is not evidence that a later commit ran remotely.
-The maintained workflow now contains only the Zephyr firmware target.
+[GitHub Actions run 39791624039](https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/runs/39791624039)
+completed successfully for the Zephyr-only cleanup commit `2fcbb09`. The Zephyr
+firmware build, complete host regression suite, formatting and firmware/provenance
+artifact upload passed. The maintained workflow contains only the Zephyr firmware
+target. This identified run is evidence for that commit; later changes need their
+own checks.
 
 ## Single-target cleanup verification
 
@@ -59,6 +60,23 @@ overview and topic guides describe the single Zephyr runtime. Historical platfor
 records were removed from the active documentation, and the refreshed four-page
 PDF was rendered and all pages visually inspected. A source/docs audit found no
 retired-platform API, target-selection code, or documentation references.
+
+## Documentation and source consistency review
+
+The October 22 follow-up review checked all 123 tracked paths and readable file
+contents, plus freshly extracted PDF text, for retired-platform names/APIs.
+None were present in the maintained project. The RTOS guide now includes the
+worker lifecycle, startup sequence diagram, ownership and synchronization wait
+policies. Source comments identify the actual PDM thread callback context and
+fixed kernel-object lifetimes.
+
+`make format-check`, all 16 `make test-regression` entries (including nine
+build-tooling cases), the Zephyr cross-build, JSON parsing and all 131 local
+Markdown links/anchors passed. Formatting is consistent across the maintained
+C++, Python and notebook sources. The packaged application still matches the
+hardware-session SHA-256 and flash/RAM sizes above. This review changed comments,
+documentation and an unused include; no fresh upload or hardware test was needed
+or performed.
 
 ## Limits and reproducibility
 
