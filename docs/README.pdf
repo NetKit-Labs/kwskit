@@ -43,7 +43,7 @@ endobj
 endobj
 8 0 obj
 <<
-/Annots [ 4 0 R 6 0 R 7 0 R ] /Contents 27 0 R /MediaBox [ 0 0 612 792 ] /Parent 26 0 R /Resources <<
+/Annots [ 4 0 R 6 0 R 7 0 R ] /Contents 28 0 R /MediaBox [ 0 0 612 792 ] /Parent 27 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 
   /Trans <<
@@ -55,109 +55,119 @@ endobj
 <<
 /A <<
 /S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/rtos-design.md)
->> /Border [ 0 0 0 ] /Rect [ 117.3903 459.04 173.2089 470.2 ] /Subtype /Link /Type /Annot
+>> /Border [ 0 0 0 ] /Rect [ 117.3903 108.64 173.2089 119.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 10 0 obj
 <<
 /A <<
 /S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/cpp-idioms.md)
->> /Border [ 0 0 0 ] /Rect [ 193.8921 459.04 256.4346 470.2 ] /Subtype /Link /Type /Annot
+>> /Border [ 0 0 0 ] /Rect [ 193.8921 108.64 256.4346 119.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 11 0 obj
 <<
-/A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/build-support/pdm/README.md)
->> /Border [ 0 0 0 ] /Rect [ 158.2173 386.04 230.0505 397.2 ] /Subtype /Link /Type /Annot
->>
-endobj
-12 0 obj
-<<
-/A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/dsp-pipeline.md)
->> /Border [ 0 0 0 ] /Rect [ 79.1301 130.04 127.7133 141.2 ] /Subtype /Link /Type /Annot
->>
-endobj
-13 0 obj
-<<
-/A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/tinyml-inference.md)
->> /Border [ 0 0 0 ] /Rect [ 378.9249 130.04 450.2466 141.2 ] /Subtype /Link /Type /Annot
->>
-endobj
-14 0 obj
-<<
-/Annots [ 9 0 R 10 0 R 11 0 R 12 0 R 13 0 R ] /Contents 28 0 R /MediaBox [ 0 0 612 792 ] /Parent 26 0 R /Resources <<
+/Annots [ 9 0 R 10 0 R ] /Contents 29 0 R /MediaBox [ 0 0 612 792 ] /Parent 27 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 
   /Trans <<
 
 >> /Type /Page
+>>
+endobj
+12 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/build-support/pdm/README.md)
+>> /Border [ 0 0 0 ] /Rect [ 158.2173 694.64 230.0505 705.8 ] /Subtype /Link /Type /Annot
+>>
+endobj
+13 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/dsp-pipeline.md)
+>> /Border [ 0 0 0 ] /Rect [ 79.1301 438.64 127.7133 449.8 ] /Subtype /Link /Type /Annot
+>>
+endobj
+14 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/tinyml-inference.md)
+>> /Border [ 0 0 0 ] /Rect [ 378.9249 438.64 450.2466 449.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 15 0 obj
 <<
 /A <<
 /S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/validation.md)
->> /Border [ 0 0 0 ] /Rect [ 115.3071 677.64 154.5903 688.8 ] /Subtype /Link /Type /Annot
+>> /Border [ 0 0 0 ] /Rect [ 115.3071 348.84 154.5903 360 ] /Subtype /Link /Type /Annot
 >>
 endobj
 16 0 obj
 <<
-/A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/realtime-review.md)
->> /Border [ 0 0 0 ] /Rect [ 255.3744 326.84 315.3036 338 ] /Subtype /Link /Type /Annot
+/Annots [ 12 0 R 13 0 R 14 0 R 15 0 R ] /Contents 30 0 R /MediaBox [ 0 0 612 792 ] /Parent 27 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
 >>
 endobj
 17 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/validation.md#pdm-read-error-backoff-validation)
->> /Border [ 0 0 0 ] /Rect [ 513.5703 306.64 544.5765 317.8 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/realtime-review.md)
+>> /Border [ 0 0 0 ] /Rect [ 255.3744 637.84 315.3036 649 ] /Subtype /Link /Type /Annot
 >>
 endobj
 18 0 obj
 <<
 /A <<
 /S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/validation.md#pdm-read-error-backoff-validation)
->> /Border [ 0 0 0 ] /Rect [ 60 293.44 99.2832 304.6 ] /Subtype /Link /Type /Annot
+>> /Border [ 0 0 0 ] /Rect [ 513.5703 617.64 544.5765 628.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 19 0 obj
 <<
-/Annots [ 15 0 R 16 0 R 17 0 R 18 0 R ] /Contents 29 0 R /MediaBox [ 0 0 612 792 ] /Parent 26 0 R /Resources <<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/validation.md#pdm-read-error-backoff-validation)
+>> /Border [ 0 0 0 ] /Rect [ 60 604.44 99.2832 615.6 ] /Subtype /Link /Type /Annot
+>>
+endobj
+20 0 obj
+<<
+/Annots [ 17 0 R 18 0 R 19 0 R ] /Contents 31 0 R /MediaBox [ 0 0 612 792 ] /Parent 27 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 
   /Trans <<
 
 >> /Type /Page
->>
-endobj
-20 0 obj
-<<
-/A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/testing.md)
->> /Border [ 0 0 0 ] /Rect [ 274.5045 301.64 304.9992 312.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 21 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/README.md)
->> /Border [ 0 0 0 ] /Rect [ 60 234.84 147.3549 246 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/testing.md)
+>> /Border [ 0 0 0 ] /Rect [ 274.5045 625.04 304.9992 636.2 ] /Subtype /Link /Type /Annot
 >>
 endobj
 22 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/README.pdf)
->> /Border [ 0 0 0 ] /Rect [ 60 221.64 115.2978 232.8 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/README.md)
+>> /Border [ 0 0 0 ] /Rect [ 60 558.24 147.3549 569.4 ] /Subtype /Link /Type /Annot
 >>
 endobj
 23 0 obj
 <<
-/Annots [ 20 0 R 21 0 R 22 0 R ] /Contents 30 0 R /MediaBox [ 0 0 612 792 ] /Parent 26 0 R /Resources <<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/README.pdf)
+>> /Border [ 0 0 0 ] /Rect [ 60 545.04 115.2978 556.2 ] /Subtype /Link /Type /Annot
+>>
+endobj
+24 0 obj
+<<
+/Annots [ 21 0 R 22 0 R 23 0 R ] /Contents 32 0 R /MediaBox [ 0 0 612 792 ] /Parent 27 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 
   /Trans <<
@@ -165,52 +175,1195 @@ endobj
 >> /Type /Page
 >>
 endobj
-24 0 obj
-<<
-/PageMode /UseNone /Pages 26 0 R /Type /Catalog
->>
-endobj
 25 0 obj
 <<
-/Author (James Lavrenz) /CreationDate (D:20261022104754-05'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20261022104754-05'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
-  /Subject (\(unspecified\)) /Title (Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
+/PageMode /UseNone /Pages 27 0 R /Type /Catalog
 >>
 endobj
 26 0 obj
 <<
-/Count 4 /Kids [ 8 0 R 14 0 R 19 0 R 23 0 R ] /Type /Pages
+/Author (James Lavrenz) /CreationDate (D:20000101000000+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20000101000000+00'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
+  /Subject (Source: README.md; SHA-256: d5cb2432ff33ea8026d9e6677876669ff7a8b56a0a8c4cbb205da879bea889d7) /Title (Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
 >>
 endobj
 27 0 obj
 <<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 2851
+/Count 5 /Kids [ 8 0 R 11 0 R 16 0 R 20 0 R 24 0 R ] /Type /Pages
 >>
-stream
-Gatm<rGUH'&cTIn`F6Y<GHk`&nlJ_2=Q789hD]_L2g-l_-rA8'D6o?qQ)'q[GlRQpOco'Yf^#uSJF(A<nNNOkmZ&H4n:0YnE<^A?KD$RDYR@c@KY=#`ZR`PQ^%q@K(`mn=rXaZY0+&s#*7?dUrU<9C^B_GI&9T.KIXb=G:LX*sPW'e+a2+F5(3GR`@5ri]ljlR<#_F[cN'K%16WiW,6G(,X_G(n)If8FDP_@N?CD\R=q.&a%2h=3O7]W^T[]h;N_V`5s/'Ru^8*nC_7mXoIh%:Fj/GpN*X&]]k0Gk7O0"QWcrZNjT&9UNWH\*V)[rn70NEa]VQ5(9mHbOc%3WYEpCP?#ZL/^c%[K\nBla^WkfM\n]Va!M]U>nOPLn?j1pC"ZdA$9!jY)cgQ,IEGP4"E^f!0[^kDX=&qqo>JS+&@Rad&//&'"N)+I_V#E&j9'i_SB?3QpZfcZqAFd9S1`H4B[PVSEcm];Sd8[+&N/R<u3RPdVrlP]Ue],UL'kR<1i&]JhEiE8+2`;0:o@*)U9&GM1IAE">@^sFb"'S%[i-\b#_30c7HGYjp!SpU0*N`Hs-d\E<#HT'?8YQbA$9iH3=)mC)1"UWEQ_cT#-(8\$P=HNs5u+0fRH%V'i6gJ1G&D'K<2Z83A06SL.BZU0VWpoYS+&\MoKW2dZ1J`NDq&4E;Te`Y1nQ`P`?\U/\O*VVDKM,;O(.8@Z5j%tG($H(Kn\d7Wu1E?Xp.9K0A^%kE2DEqR4*:RYru_K1_JC"!Ni"Y_W8$^Qt%KN1&m#eGJ@>k&GK;2<BjY<c4o>Bol[Q$P4ur(JcS75H#"N/s!jQtf]k1W5%,3Rc4C1=!F20fOj&[EpBj0<TM,lodh3ncANds"LjMDU,FYahZnSKqOeOQK9PSmm(!.QGb"-cZ4q->bElaba\53h7'7[h)6LJNo'#2PZP#PCrl2PZmqBBSIkJkO;XBu-)Q?#.rT8)VeN_"H,VTF6Md>[f,qcr1@Fr"mVqC$Fm+:=Vg9)+L7Y2q>Dd/VIe)/ijJcV1TsK*`rm(\k/U-0q&AdK34p]ZtRb_I)DDi85JCsOn#p3fdRjl@10EDQX&MCN5bOgOS1:Bg(W6W6SkicSa`[].dQl7$!>nIpc*>26TmkdTI"(o\0Hc1-2gNT#i$R'e9``Ht.PcfK;;rfr./:`\uT;EI=/0fSGE&Gk(8rZd<DI,k<5dqPOH9_KiKs5BbDY_>PcfJ>D-(Q,MG\^kaX&^(d8k<GpRNe`T2c*B<q!,-k;H]nm.f>?\<@>6/ILo0b(1S0/^YEL_hT_Fq4Lr:Ur8HWtm/#pE!2u%m^d9MV#dFfuklV.err!]e]kp=!nNGT6C]C5?Y*g&qfKI4hgI-+'$+R)=6aBK?nds5Ai]Me&-EZ$3?BLuXP%%3)s'3\e*ag*d$OVL)Fe66:5=]]FdMLmXO7-G>S0qGid:/)DHnP4O[KY*%/u5:Pi>4(JOa91JJ`PV6,J*?CAC%BmHodb2n%E?/fSA=[Ml5]MqgD>u)j,uM^;]Unl5#QoWBGJUA<AXRJt#QFZhJ=tk]U26Kp`VCARQEu_G\/INF3H[Y^cL`F>>H1`X5pX+k`e\,@rk/hG)=HEqLGaBCSN#^]K?=ZS2Zd(Y%D;Z$(1L^4)ncJT7]o1L^tI0)A(&/%I@3*87:!-WI/r_/@P!a_]["Sfg:Hd8Z$XLe1WM95,ap^^@+r.>>Zh!9^@Irb,0:12qRp]pO@Q?p'_Ilg(<'NtpYg6f^Nmi^j-BYUN&9i%PmJKU$AbK6%gcZR(A$'&fCI70$-7]W@^6BX5#S\d+Y!4$4"iT@_)oC.V+GKL@sodL!\>N6h]L+Xq7^e1pp(jtrp!IG\:#:E6kO,;%"YZ'6)pjCQC7QVQpLU4)P[N#O.1WLC/8>:Rd'Q@WS\a!6<d2F_)JZS)s]8nFaBn,X?>4:R^K'*1p#Q<\ItW6<t;)m:r;L!:"kBb=DPNL_^(*&YO`=G<PQm#2ek;FS[?VLE_#CGB\FK"C-sCo9=)Gj;Vbo)%*YLnmZBY"7]'ET1PYadA/;'$2>T&?$tUOS<+<'AfL^&B4N:J6+H?d^#L".5IkR1<sf%A@n7dFXm`eE+"F:`Z+[&anill9P:KU]q!?d5A4!*^DX!qp:9^%4Jr"+.-Q&->H@7)46lHj+WXo6TT&oW_59m2bh][GeVn0,-dLZ8W;TF81ocZ^`nUmA<P_b3r6@Zi%Bs;d>W_U`qr(.!jaqEY!ZW[MP`k_j0X&OZn`>6_f$u]!(Y0Q,=#TT/[BOq#P`SgQmc<csq$!$^8nn2@`sEqgZU4B(2r:r$kE@CoW,"VNc>ZaXoD`UEDm<$4>7@ChQ(X8E-ln/_a0f',r1FtU^oR"?[rB_K)!u+tBV*qGbZfR@_\_Zu=nG>M\4E#?VkeUC=R9Gme;mAKgn3Lqa3[^69e"8Z%?nmBT@NRoU>3ELVPe`)d!IC2/).of%Vo79QYVm&*530#./!-I*HVk8`:8.8k9DMQpR`D8``?Eu%1GG84i*#89c@B3hlLT.YQWrRJqk>U^^@PZs"XQI#JkB:7F;hZoT_kQDR.@G(j`b'!3@'XQ8\uZ6R\\H<;.E`7>RnB](;SM['@,'K;p0K?Fl)rRirDTE?\F%.BU=lW2ZZ.W(9M3<ioop]Xjk3m6"oNf6gNaUomj1(*WcUYI)!h@)SjY`38T5l5BW/N,#G7=2bJdD9<Hl,$Eb\R,g*4\$qdj_-j8mRO`T`le.OF\$qQmpEFX5FmN8Je^1Sb1q)Ab(/*LF\hnAs?[542,G`2n4"$%6,I]T7\C2-0Na6TR*R5Jb2-f_=FA9A(G<H?!r(u3H32c@<\g7r1Ys[+U\7-BkA9K/1rg]G8c+a:6!K/K~>endstream
 endobj
 28 0 obj
 <<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 3235
+/Length 4559
 >>
 stream
-Gatm<?$"a[&q&$/R$XlEm7K3,OnuRMAY"')\+(cL<OGp&P(H4q6;/"#5YBGTrV5[Z84cQmg"CFEM("5]#*#4G*_$k'DrgoD8to\TFFG*)'[qG$;%b-2In+G>0>>()-F5[(-PT7<;)I:Y$")*QY:h@t'2$,L'N7S;3pj'X\p;]J2s':9_75sd#\Q^C9dtnHnT6mf+Qb+CA6(f8l=.W+nK\r[:e><7s)CE;U0#rJFJ2DR^CIH19DU;i0`&-")HsNuQ[bq/B:Ak=9,u9ANe0*IO!]dG*rLi-ohUT88u$)S"VeW0knnoS;r7:oL/.q8)0;#W*fo=mn>'JZ6X3@-86Z#b,'6cZNAr1NLLe'<EPE:.@0/jp;GR>sCBbI/J:f\7gs!Dfk!$E*H!A?O)`un[S4p/JB3t15g0.QY/QAF4h1KL(.@Q:jW;c"dU[OM^h:bZ4Wb%m(7lMDrl5s1g!a-Sumsel]hAL(Z7Z,t2BW8_gS89FU>C<c_'_PWKM9?;LoVIg)^6GoX.^OQ!B4VJI%S0U";5-m:MFN0MU<4o8Uo<#D'Td#K`-t)JU")YZK\F?@VDHW^8q4uOh6b0HH*lln3iDE&I^3jEgXr:B-P>q0fs(MGqMI%*'FTFc7^nAW<WcOh[`WRoh168$],`M`P[m3c(R"',;5h\^4P1`@VYR\j%bJ;c,9?W7[[&[BfLTLJSH71;YNF4+AG1gCREkiQg>?E:qW<Fb58L[mO.e/tC+-LllrDS6)HgWZn4Ha0Ga]ObA`M]`</DhZJ^\GdkPR,4FX[KXoTT4,(m-]04Gg5aAb2nP>A5.rFZOk=VI!Ln!0Gl-d%q>N,e]>;&G:QgBp?nC7_ae[_H.lJfiuhbjW$3=fE5&F=e+M?*8[]1VUWG$MOrjBY7T#'[;rb,-N@'1>S`BOQqj5/iGX6R_)+P@ectARJ>R2nl'f_mTu4KGmT"M%d-p69C1LoG'*qhLL2@HtQfMC`JH$m38)leNSq4=5IW?[6k"1g)7k@Zf4O2\@rR&3&$M$hDC[JOF8r,Tm++dT\C0T3^!FIKgZhUs\[;OQUip3.(Usc81M0$X0lQXs8l3,W$Zf.FtNQU<0%bBk'8O,5?OBe4rp+8G0T1s7]]m3<`YJ/dr=UQoddR)Z".$mRD>KW45<SB@X#Sah\D=.`!TD8-u!DUFQML\1&EB(dIikNBnK>Cc);PP,AmaBcfJ'G,9*ZgBZd8$V0.)f5!4>:q'j0TmhT(W8+`P^J:UdrkjGLu_!U@b[S]C(0:p&h1IVr;.^]C)u>n#Wn2mk4M7@<XMLG<UIK,to/!jlW'0#orD^NbLB]7ZM/W+SJ3]d%QC>,MIMs8^qm$.bm$FE?kYHTV1snZ'"AZq#h)5P^G9[9.*WX,J@r9"k@#!1]l2C]1,u&*!D4;JX_'---8?Upns/5!PP4"<t"^aa?t!VP%pa2oKsD=;R%IYAkI1M'E`+sD*XYOI=(pTTJdQq\epP*%AGsCKMFQY;.HKC^-l729C=SEougrPgFPHAg)j=gN\,Si+Zp.9k%e&]FYWcs+5X`0X\n$TG-.G,0YJEsaXOo;lfOib&Fi14o71^dl.k*M8C(pi4b%q`KstesFjE7!N\7D'B>"$8B7beFK54IO3[[\`k^436EllDl6FYBB9G(u9^bQmLCZW9Wcpk)^pB+RG*nR8F`cU[dHq=^%$+OYK_62b'46]ufmXWnee-(E*rVG]f4FA;PemO*KFC]<$PH@D0guncn>6am/oWO[aH'CJ,T$Q<*%J4FQKMh[>Y`RD8=X,=>G+d>(JLN\+6JsbNeMW(jAeO#E,`SU'XV%M7_'D=i[OC&o3LHA#7D=gj(^=Ccc_a7QXf$P7V1hMo\V(('QCXq+_TG%_J:g<T?kFY"9YX"Y+IGX"Q4$Y`IpBXS'.-)(JEtGu;&*9qd[]JiJ]*p)k8`+ob&6Dek\rrT4C$&r)SuF.B,jD"?PXQ0cD%P3eRHKg50d;KPe%=S%.</Ti1R<.PdUGoBiIUJ9UqA5VWQs_XQp`*\o+Q9<UFsO<f1+,I#d54M.[=;L5T<-QU;kM^..iA8M$#(.#L`';kpU.>;S\gjhq>0C8!9L7S'DCFRbY#QZYe!Prr,A3;gM-3Vapt'eh-tC?PM^`Ho'o)0G*1nT$^Ih3i?1#4/K,a:lW,ei\BAn`8&V4`hllfoUGsJ54DW3gt<Re_0eMY9a8eD(\u5Z)pqJ`8et#3l'gt!I!DqgcTY'*2hh*f0=>3/Fne!1.T&8MYgb.A$]/HJMd:/hr/hDpIuRl*07_\p0^]#@sI3XicN%M`%$M1eQ,sWKSISB6aXX3!Y[PFiPH=7BPAnle@q*J0dC`R^Em;*dVjUFW+%SL#&]u:KOD5<+@qV7NX'd^!f-Ns[Og4>CU1[]!i=\eQgl"57mj&\:27#B^?3[:Z&pVal'7<f]E)4IP&4U$+jRM4]5IPi6Y1*NhIr[\DP0k*IJog6/1\7W/FCW:5[oA7Lm-/]CY-t*X,YHR8sc[`8+DfG6aNPh;h(sO)c<+NEua&gXnQB%$gO##]$NMA4&'>I+^:G].:n4;<\<9!^=SEO=,;m%@/s'X<iEnqD(2g!:CisDK,i6BJ7_(NTY&T?lRG]f,?fj_V_\fu&%apbXTR2XMc,1S,8`*\^t=//EQ.elU2Z8:G/V,.jH^J`Z"WS8RB+me:6$Bt`Jt\QRlhe$$Xk..+_\:h(YDL\H9eZ2N7V9FAUib*c)Z?)W,LO"cECRQ)iRoKg\;RAee?U:h<.D-V,KSIbd*;>o-VZf4*D.R`OW'W3jn@dC#;CTLut$%-!1'jHKV#R+h;<?@ECFU>Du=UqaPu%5u*Rr8q-Q;`@2\:n=IG=O/(G`4R-5Xo]GF=7fWmKF?i<3c[AFo0_kULop\DYEZPDu4OIt&$NhB^.uA[l6'huu8[)e;l9Z95MD.R*?.)1kFK)YENYlqRj,QHTXZ=jYiJUW`kiKPM5!OAZ[XnNmUQu5HaN%n]:lF.Ip'Z4/NN*H%F,YhE<l_n`lUrLI%c48TmJN(54I8ZQg!LB+!!P,l@5YeNmG;P1N@kO[]37MK=`jAfl)a>ih/9kA<#+skjm8O/@D9XF:9u*9mX93p9t6nr@53(+o>'f]F,$j%O#n]^V"e$"T[s)o*nRGZm*N0;pS4TI"sC.M9&M^S>153-eaD_Y+jZ_q:?1Ulc@G>qX#jN';+!(!CYI\X)k6)D])Yg_g:IfUV(<3l=)tSTV)6r#Pq@!-h]<`Mp`JCtfhV~>endstream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+.792157 .843137 .878431 RG
+n 54 40.32 m 558 40.32 l S
+BT /F1 8 Tf 9.6 TL ET
+.094118 .156863 .231373 rg
+BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
+BT 1 0 0 1 553.552 27.36 Tm (1) Tj T* ET
+Q
+q
+1 0 0 1 60 687.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 30 Tm /F2 22 Tf 26 TL (Real-time keyword spotting on ARM) Tj T* (Cortex-M4F) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 658 cm
+q
+.070588 .396078 .470588 rg
+BT 1 0 0 1 0 3.9 Tm /F1 9.3 Tf 13.2 TL (Build and test) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 598.2 cm
+q
+BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (Continuous voice control on an ) Tj /F2 9.3 Tf (Arduino Nano 33 BLE Sense / nRF52840) Tj /F1 9.3 Tf (, running ) Tj /F2 9.3 Tf (Arduino Zephyr Boards 1.0.0) Tj /F1 9.3 Tf (.) Tj T* (The microphone captures mono audio at 16 kHz, CMSIS-DSP extracts log-mel features, and an int8 TensorFlow Lite) Tj T* (Micro model scores the keyword ) Tj /F2 9.3 Tf (") Tj (yes.) Tj (") Tj /F1 9.3 Tf ( Confirmed detections toggle the built-in LED. The application runs continuously) Tj T* (while powered, independently of a serial monitor.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 551.6 cm
+q
+BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (Zephyr is the sole build target. Two C++ application threads separate audio processing from device control. The core) Tj (') Tj (s) Tj T* (PDM thread acquires samples; it can preempt inference, preserving acquisition while the audio thread spends roughly) Tj T* (55 ms on a model invocation. All threads share one 64 MHz Cortex-M4F CPU.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 521.6 cm
+q
+.070588 .396078 .470588 rg
+BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Build, test, and upload) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 475 cm
+q
+BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (Requirements: Git, Make, Python 3.9+, HTTPS access for setup, and a host ) Tj /F3 9.3 Tf (c++) Tj /F1 9.3 Tf ( compiler with C++20 and) Tj T* (AddressSanitizer/UndefinedBehaviorSanitizer support. macOS Command Line Tools and Ubuntu 24.04 are suitable) Tj T* (host environments. The cross-compiler is installed by Arduino CLI, not supplied by the host compiler.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 387.5 cm
+%PreformattedPara
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 72.3 Tm /F3 8.2 Tf 11.5 TL (make setup                         # Install locked tools and libraries locally) Tj T* (make test-unit                     # Isolated component tests) Tj T* (make test-regression               # Units plus integration and build-tool checks) Tj T* (make test-pdm-driver               # Actual pinned driver fault test; needs setup) Tj T* (make build JOBS=4                  # Compile for Zephyr) Tj T* (make boards                        # Find the connected Nano) Tj T* (make flash PORT=/dev/cu.usbmodem11301 JOBS=4) Tj T* ET
+Q
+q
+1 0 0 1 60 338.9 cm
+q
+BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (Substitute your actual USB port; Linux commonly uses ) Tj /F3 9.3 Tf (/dev/ttyACM0) Tj /F1 9.3 Tf (. Close any other serial monitor before) Tj T* (uploading. Arduino CLI installs/updates the official Zephyr loader automatically. Double-press RESET if bootloader) Tj T* (recovery is needed. On Apple Silicon, the packaged Intel uploader requires Rosetta 2.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 279.1 cm
+q
+BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (All tools, downloads, libraries, staged sources, objects, and binaries stay under ignored ) Tj /F3 9.3 Tf (.build/) Tj /F1 9.3 Tf (. Existing global) Tj T* (Arduino installations are not used. Edit ) Tj /F3 9.3 Tf (firmware/) Tj /F1 9.3 Tf (, never the generated sketch. Outputs and their exact input manifest) Tj T* (are in ) Tj /F3 9.3 Tf (.build/zephyr-artifacts/) Tj /F1 9.3 Tf (. The selected FQBN is) Tj T* /F3 9.3 Tf (arduino:zephyr_main:nano33ble:link_mode=static) Tj /F1 9.3 Tf (.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 219.3 cm
+q
+BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The locked inputs are Arduino CLI 1.5.1, Arduino Zephyr Boards 1.0.0, its official ) Tj /F3 9.3 Tf (arm-zephyr-eabi@1.0.1) Tj /F1 9.3 Tf ( compiler) Tj T* (\(GCC 14.3.0\), Arduino_CMSIS-DSP 5.7.0, and the exact TensorFlow Lite source revision recorded in) Tj T* .070588 .396078 .470588 rg (dependencies.lock.json) Tj .094118 .156863 .231373 rg (. Firmware and host tests use C++20. See ) Tj .070588 .396078 .470588 rg (build and CI) Tj .094118 .156863 .231373 rg ( for provenance, prerequisites, optional) Tj T* (IDE settings, troubleshooting, and PDF generation.) Tj T* ET
+Q
+Q
+ 
+endstream
 endobj
 29 0 obj
 <<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 2824
+/Length 10498
 >>
 stream
-Gatm=D/\1M&cV3*0fU;SH7)U<J%6[DdNm,G]sKuX5_6fR_2;Jh[)lV1ma@,QrqObi?R._<'IRo4Mrp2/Zd69I1\/B"J%kke1]W$;L;g\6IK7tMn09lDlX/W,p">sMDOLfZS:[5!Tc_]q8lp!-r_,Qs60,Rb!"Hkd2I+jQFZ.=a86kR0K/D3',N$h_p#@;j6?!#>)1l&@$iZe4$4Tll`0VC0rUW6T+9fElquCZ21Am@-+ZbDY_1e%2]J-SXWfmAsY&E7p8(qEZ:)pib*:*t>pE'5AcSdtTG`W,\)^#i:@P@E6%(-N8`(TVVlMl=3V$@US>au&WLDI:^:-&3eRI1bBiHO-r[L*`#?#B4dSKI6iUbP2HpO9>4LiCc`IYb"tCdKt&m:K-=$+&q,LR"rVH!cCcaJJ%aNgWKH%>AV;:!!SJ54n<\a<an!"EOj]+;n290NHsc`BeRInN@[bj;(@j$WSdhI95r*Wfi_/\RnjZef:&*iEiP=>-`/Y65o\n)lI)4UTKnm_JlZ[6mufq7+];]X6S-Ib/>%u^PAZkZ/NQ5+AL5(_GmRNDaVcR'PD[(Kh?m/rNtZoG/rmJZnMoL4q403aB2l:N5fnE"Fi*N-pj(:5>bs[OJ<)/4NIS[]a1.DF&</Frl6h@$L0dr#+T=3-^_bfg'N?Vfm2Z1`!u.uVS,c7jLN!i9O$tr,pE-Gl%1>&URZShbJ@&15^42Ngci`jF/jYl=OYh8!9>@In'KC7<"5n%@')^CNl#a5F^DPZP+OF!XMao)4O8(r>*G7W0/TCKb!Y(idH#K.YKah.,i2j5!(19FEYh*?5YEsC(%%Hb!1d(89YZr\(D+2EPXD4>7>i<;\nb-=NGK,Vj+SoC`8FU(`>'0mruQtkW`U7OGodPeZ0Ph`C^sDZn?_W6LnFth<"[(&d>#,;$c4>MM6W@:_3'p/_$T_bl`R=bUF;=BWqFBB`s>^jFEMs&gaCVs9eqe\aF'47A;rqn7/dLVf3nV^C1IIU:iiJ;Xrg(4)9alm"EL(..5cS;8n&ZPM$K=K#_Q#rBI`p2O\;c0D"6t"q"D;E-fTZX"IVYd\\P]\r!k5%PY/A&U]PBMb-j5>_X-A3N:3fJhJrY+I#Ff"KOViWUJ@-<?Qb@RLnj%Ebms7b+)TOc?&cq\EQYtq8l>.jKk6;uU!nEb*pt7Ue;.TD^V5%VTki_8D<ig+qh)RDgCCAIqr%O>Bm.@$H-9tKWj_KqZ0+tE6+)]8[C'h!%+QVODY+q>gN2$si1F3><tMc&:IBkA#sL><7\5:\V>-$uNnEsalk?shZB=g*o$YQBIK84Q3FT%]31[eFVV&\aApT)Pl14M&A&t6@O2+EN*d4%]5XBHE:LL^j#P2C9T/'`4/8g#B*=Ri,$A8D][N=1^6epUaWq`8PpX5^!s3%B'_i'7LK(SYeH(H&^-pF%kf3E"];=*-B,P'_*Vo@<CQ'>"7B"S4:Vc+t"kAclNWs!K9#u:Tl&,^qKj:'u;r>GJ#IG`p.^2#)<f]2YV2#2)HH5)jb/.9<3<R'dI^qL])j/\;t$"eG4?IPru`M[^tY[XfV'gL%6./cbf4ftO/rH.K\EhuXHrd%`Sib=JQH<eQ^V=L0HaC<0$p2[g,$tBu\0;fJ.PFD2c]^H:g4aZA$06GcZg?442pT`&c^/3pcZ-#4Z4@2oVWn-Bg^hUhk8Mc$omRg0g95-<">&55bMLas%\A_]I*,oeB-CSo;Q5+dbajB,(f%9fP`\-a1^!Afam_;Yi_hPMKKnkM<[KB/YM.QDPO%uo@<n2"ho:Pn_a5T3$:HPndHmF9H]S/9q:LMC[:SCY*\G%i<R(_Yab9U--/Md1BW\[/i=MsB^Mb9WXWb]i^!rlf@TZi#&42h>2:rjQsJ@t'f.CMZ.TRt+T>#GYR![0XBWa]&LM?7-;[KB2Wc>m;OV6M-f1^MOWfa_2iG"gF/)m#KC?u4^_i<f(34$P:d.A`8Ini&pj_u?WZ'Q#42;H<$T:npUGZ^r<<V>nn5&np9)nD9RJgN1%'l)2>'_`9?*@.e$9N[Qn&_CUN>Ut1lBpGcu-3i2Q46-gF2%2D>7U(&%:%<@O>mRg0#R'6.A6>qsPTNf^"blX:W]!f&25pSCZguGUnU?K.!EZCS:fk3.0225]WX%&fC&WEXq?V5T*O=^oekXO556r>-Df^#sY_Z3'!/fiU_5_KT*%QoLdl]h-Qhf3jUCcBe1@E/!BP\NoVD*C.!mB!jXp"c@Z7KpoCmO+u4jrj$BU9^7ce=adcd#q3'feHp8s3cEaQFqqm$^mDW7C`l@#D6c(%,5<c^M.`9$<c/a':/(HH-@&l/$kp:Ze_kdh+oqR$mX;2e+n?fqjrrH0B50@:mV%%n<u;kW9k`;r;>4]WmK"_nt!N'gH33ip55on:5FF/etrq5Mn;SQ60$KU=[J'E0Ff+79C3#EqX[",rN')q`J*;%HIH8P>[VIIl2r;tn2.R;:eO5)n>T7D$/-t7;hX'cJ5+**\2K$l`d,<d2^aCVdc+_=M+'(OKX=a;+S;V>>A[5_oa8n5<st^0daRd-!Aq:AK&]Za_P6+8MkY8S]d/q^Hp@7Npu@EL#J_G%l0"t50Q\:(hgIJ2-.B-Lb9;A7$B7iS9=O-8K6Fqbg`*pC0#n[(Y<lDl>oBV+C4kbGJ%O:Q$Qn[kLtpVHo.R5OE9rug<N,b2LXSQ@&gtMGZZ^AbW4-7YmIXH:IHuOS);Dr)*ZCQ_?QHnPfk2io%G':[W63;']J.F]<?qC+:KJ7#QeH%*G5M)__<*7]=Z=X*L4QI,MUL>K9-Y80M:-"h.9(*.`o9ZAfT`-l6+Qc1U4]fP""Q.(Q2~>endstream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+.792157 .843137 .878431 RG
+n 54 40.32 m 558 40.32 l S
+BT /F1 8 Tf 9.6 TL ET
+.094118 .156863 .231373 rg
+BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
+BT 1 0 0 1 553.552 27.36 Tm (2) Tj T* ET
+Q
+q
+1 0 0 1 60 722.2 cm
+q
+.070588 .396078 .470588 rg
+BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Runtime architecture and ownership) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 470.8 cm
+q
+.866667 .921569 .941176 rg
+n 0 244.4 504 -18.8 re f*
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 229.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (From) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 229.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Connection) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 229.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (To) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 210.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (16 kHz PDM microphone) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 210.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Flow) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 210.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Core PDM thread: priority 3) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 192 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Core PDM thread: priority 3) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 192 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Flow) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 192 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (8192-sample SPSC ring) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 173.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Core PDM thread: priority 3) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 173.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (binary semaphore) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 173.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Audio thread: priority 4) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 154.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (8192-sample SPSC ring) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 154.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Flow) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 154.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Audio thread: priority 4) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 135.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Audio thread: priority 4) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 135.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Flow) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 135.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (512-point FFT / 20 log-mel bands) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 116.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (512-point FFT / 20 log-mel bands) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 116.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Flow) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 116.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (61 x 20 int8 context / inference) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 98 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (61 x 20 int8 context / inference) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 98 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Flow) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 98 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Zephyr queue: 8 score values) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 79.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Zephyr queue: 8 score values) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 79.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Flow) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 79.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Control thread: priority 5) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 60.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Control thread: priority 5) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 60.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Flow) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 60.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Freshness / confidence filter / LED) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 41.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Control thread: priority 5) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 41.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (metrics copy) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 41.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Main thread: priority 6) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 22.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Audio thread: priority 4) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 22.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (metrics copy) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 22.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Main thread: priority 6) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Main thread: priority 6) Tj T* ET
+Q
+Q
+q
+1 0 0 1 202.56 4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Flow) Tj T* ET
+Q
+Q
+q
+1 0 0 1 313.44 4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Best-effort USB telemetry) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.070588 .396078 .470588 RG
+.6 w
+n 0 225.6 m 504 225.6 l S
+.847059 .882353 .905882 RG
+.25 w
+n 0 206.8 m 504 206.8 l S
+n 0 188 m 504 188 l S
+n 0 169.2 m 504 169.2 l S
+n 0 150.4 m 504 150.4 l S
+n 0 131.6 m 504 131.6 l S
+n 0 112.8 m 504 112.8 l S
+n 0 94 m 504 94 l S
+n 0 75.2 m 504 75.2 l S
+n 0 56.4 m 504 56.4 l S
+n 0 37.6 m 504 37.6 l S
+n 0 18.8 m 504 18.8 l S
+n 0 0 m 504 0 l S
+Q
+Q
+Q
+q
+1 0 0 1 60 461.8 cm
+Q
+q
+1 0 0 1 60 395.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 56.7 Tm /F1 9.3 Tf 13.2 TL (Lower Zephyr priority numbers run first. The audio thread owns feature extraction, the model, and stream recovery.) Tj T* (Control owns temporal detection and the LED. The lower-priority main thread owns telemetry, isolating internal Serial) Tj T* (waits from keyword control. A queue copies score/timestamp/sequence/generation values, never pointers into shared) Tj T* (audio or tensor buffers. A delayed control thread can lose scores without blocking the audio consumer. An overflowing) Tj T* (audio ring rejects new samples and explicitly resets detection evidence.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 168.4 cm
+q
+.866667 .921569 .941176 rg
+n 0 220.4 504 -20.8 re f*
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 204.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Module) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 204.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Responsibility) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 183.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (kws_pipeline) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 173 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Zephyr threads, fixed stacks, semaphore, score queue, metrics) Tj T* (mutex, initialization and cleanup) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 152.2 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (audio_capture) Tj /F1 8.1 Tf ( / ) Tj /F3 8.1 Tf (audio_queue) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 141.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (PDM callback routing, bounded reads, lock-free sample publication,) Tj T* (complete-hop reads and loss counters) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 120.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (audio_pipeline) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 120.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (DSP readiness, backlog-aware inference, generation reset and timing) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 99.8 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (feature_extractor) Tj /F1 8.1 Tf ( / ) Tj /F3 8.1 Tf (fft_power) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 89 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (PCM scaling, frame overlap, periodic Hann, packed real FFT, power,) Tj T* (mel/log and int8 features) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 68.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (keyword_model) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 57.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Single interpreter, four operator types, fixed 64 KiB tensor arena and) Tj T* (score decoding) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 36.6 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (keyword_event) Tj /F1 8.1 Tf ( / ) Tj /F3 8.1 Tf (keyword_filter) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 25.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Freshness, sequence continuity, confidence smoothing, hysteresis) Tj T* (and cooldown) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 5 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (device_control) Tj /F1 8.1 Tf ( / ) Tj /F3 8.1 Tf (telemetry) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 5 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (LED action and separate best-effort diagnostic output) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.070588 .396078 .470588 RG
+.6 w
+n 0 199.6 m 504 199.6 l S
+.847059 .882353 .905882 RG
+.25 w
+n 0 168 m 504 168 l S
+n 0 136.4 m 504 136.4 l S
+n 0 115.6 m 504 115.6 l S
+n 0 84 m 504 84 l S
+n 0 52.4 m 504 52.4 l S
+n 0 20.8 m 504 20.8 l S
+n 0 0 m 504 0 l S
+Q
+Q
+Q
+q
+1 0 0 1 60 159.4 cm
+Q
+q
+1 0 0 1 60 80.2 cm
+q
+BT 1 0 0 1 0 69.9 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The application and model runtime have static lifetime. Fixed application stacks reserve 8192 bytes for audio and 6144) Tj T* (for control. A nonblocking mutex protects only short metrics copies. Zephyr IRQ keys preserve nested capture) Tj T* (snapshots; scheduler locking covers the final freshness check and initialized GPIO write while leaving interrupts) Tj T* (enabled. See ) Tj .070588 .396078 .470588 rg (RTOS design) Tj .094118 .156863 .231373 rg ( and ) Tj .070588 .396078 .470588 rg (C++ ownership) Tj .094118 .156863 .231373 rg (. Application buffers and kernel resources use fixed storage, including) Tj T* (the inference arena. The build rejects direct heap allocation/deallocation imports in sketch objects, disables) Tj T* (exceptions/RTTI and rejects variable-length arrays. Each audio activation handles at most eight hops; a full batch yields) Tj T* ET
+Q
+Q
+ 
+endstream
 endobj
 30 0 obj
 <<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 2535
+/Length 7534
 >>
 stream
-Gatm=CNJ7A&cM-)Yohd`'#fWtbpV,'F48i!M="&NqS`Q!OG&uHGQC^J3rSS3$U1B]+Y1$Z-Se'kMoFA%ZO8`8+$Y>RN&.3C4j`+JTHL%c"U.838.RZOq;L\$1N,#VK@,@bkqEGgr]T3Uh0h<,Bf)WZmmSC21`B)XG"VLANP-d1RsF&6Rci"O5qjT<(lbHRLqJgD7V%fI+D?.Sd;\)6(mNGD5Q5e$3i@nJ>Ir=]PgB<_iALS#^)?l:`[*2eQ,p_e_[h(gNMkF<1Q&im.,6U:h!=_UCMS9WI2[i-D[In;`R?R@@AUX+nI31koOQ0Pk3*jHGXh[oqOrs)7ag;*1Z+V#(ZLPK*Kjid@lG3XZRHHbV`G.rT0dJ5$ZM2RJ[<R!_tNnY9P#PDZ_`A=C%B^[pX^5l-Wn`P-bkoj=8DFC8[6piUrE!YUTLB/Fjq=Zh^pn8XIEtNQ1H%SO#dC+<b+WKm>"O)>WVs#s"$d-8J6;8EKsP'.+ML!isJ<i970NK^85ir.2HVY(\,rtjKRlDKj/#.;97f8n1nRW9HNBI@Nj":(q*22!5Ub=3uSqR:oZn.!SX2XBqrfcV:q4;Q*3WVcrl7eI5_1:2"neM!Vo53/,>Qhk@:/iMLrH(<_'Dq</K%a@O^(2LL:W_d%F_I5(FKaM`_*U;Ti'i,>)Yu'BZ9LcY&MC=bf1L4["CLU_f7&>B[)ch6#:J-lDrf<M*3og(m1fX)a<taM*AUZ*a4l.-suU!r?9*V."<JUutbs(5k'P=81TujOPIF\CMLf9.Ema;h]rXAT7_C?lJuXTo37QBr!>&DNCK*!6Z`7km]FdcsbA65msGDOr!=5=?IAATV!HMXRcUq"$kELFJJCpDb'rG;Nlo0V=RKIlOn&?_+<?oUF#\@@c6qkWh]':_U:mI.#po0ZoP-6mucXW6a'IXWXn,N$r/69?h:[c"c%[@KY6+#q>f$CKhuJpRU!XZ6%EGNOR;pU@r6DJ[Etp7aTfKJ*ss&]\'kX\C"./PO+TEW+4b+PcCI4%/pS8#%'\6'Y;*2be4Tt`kiVIO1^(T85\r>?@3$`I1+s`[.QOZ).hU?&2s<WRREePtbcA<kWl_+RWZ`gi=J]S'8(/5*o!qRd-3KecrM@`3jkR=TAi&QL^uK,Z-RTI>.%4=UpNQT;a@;AW()+!q?AT<<>dL<YP`t5CrEC&<XeE;JL"Z1%bXA_Q#,W[_b:@!E`>rL6[Kj`^Ab#rETu-]5gZ:;52)RVDD?%YPLN7m6hDtg.(?7a6&J$;u3NY,!mCVAeVILfKEB$gd0`,?1`_VX',N%+1Q;o<-<8[HJE9p(,4`#W`f9h0p#HI>%`t`W462-K\8>/)p,!d5bX.mt<`84J%[%G]<UK@E"Fl.C4NT?+crZdCDnAcKKq`FfW^j7@,BSuINZ`ua2mpZ1nm`QIRZ#NhJi@I;WF-d#PS*rbX.<h>F2k>]N#Y<0a@-C(7UNYiH`1i`pY0B>iRo.g%+,.>)a;)Vd\SJZmK%[5HU2G0n`pF2ilCNUTXeiVb]`EaH9<R*bRC33p]A=rog8D+,5*(<@LhjHFrT9gBSpZ#Z?_<')JR:O#VR'X\XU-ea-J?V$*6BBXD"=CN.*+G+BC?,P.\DPL'n"_,n=<Uk55T#Wi8E\D-$C[IZ;o*r#9HjZ[Cg#*:3O0lXidb-_5\JU4.T;4/bZM@(K;Kg60PVdeo;H(^&rb4J.60nma^1M_Ib)S3U&m$V$n?gFKS5Q]_BAG.$"!tI%/hC;&n-uU/7g$S2;$Z[`OA_#(07pT/,>/F,,dAYD\9HUBPLN=GWDb*P<C*:I#/&F>ZKCkaY>3>6gZ5)5:>.WiRGU7,^L(4^V1aHSq]/=!cP7;Rqo=6<O=V*#MN42&5=A=,:LP..2lUaiL=;YjZ0#VRs;fAQhkj+8\Kiob2tnRFgjVbX>K`<U<rWi.=be31<g#o0T6Rf?45b\A6iQ"Y[W:oWUXd"rS/6TmW.Q<d%OgK8:84DA'3&MR4sN17_Blj5TK/'#8!4Pq/39^Ko[hkj.(!*ZQk+UqQUqM@hUdhE4AnUUa4I-!0@Qr@Ud\*d.(o/'/SeZ,VB$,`IBqR>OjOX`0`j8q0YV/4@$`TR3;o2<!94a$[5L>&8$)>W/p0U35"ib#E'cDN8].M[.nUk7G?Z0K7XdK=MS>]\5AD+?[;:QEh8I5)NrM=J2%+FPYl3/`kj1kEXt(l<:&h!*C(k/7q?/>;1(aP"Mt`.[IHpdICAZ<@N-r?f'Xh^$dc:&(`bu$0BgD`gm8Mr(j\]Jg\Ps"4?Bo4^7'/nW:&d1*YR57u2QG:TD"[,ojd)H#gH>-e-OGY3X"#@Dr+a.n=LZ]9@nU-OK6_jD&%Z!)Ol35NW>a'hiaSXbWRf.j,N^*5*.I0g3r(<;Ld7MOjpYn*Y_hEeP?DirId`e6W/paRd$i(K\)<]cpU,m'*Lt%7_!/'+*fS:HY=Wi&P,T5E^85>AmT$Q.8LHK1[AQ9,HNQS88(VKk,cke/J"hR&@$9HhGf_@`AW>i3e$=nQ4/jcLe^J91I:]rr@VTiMH~>endstream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+.792157 .843137 .878431 RG
+n 54 40.32 m 558 40.32 l S
+BT /F1 8 Tf 9.6 TL ET
+.094118 .156863 .231373 rg
+BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
+BT 1 0 0 1 553.552 27.36 Tm (3) Tj T* ET
+Q
+q
+1 0 0 1 60 712.8 cm
+q
+BT 1 0 0 1 0 17.1 Tm -0.002983 Tw 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (for 1 ms before resuming. These controls do not establish a whole-system WCET or prove that loader/driver code never) Tj T* 0 Tw (allocates.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 666.2 cm
+q
+BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The build also stages a ) Tj .070588 .396078 .470588 rg (PDM driver patch) Tj .094118 .156863 .231373 rg ( that sleeps 1 ms before retrying a failed device read. Run ) Tj /F3 9.3 Tf (make) Tj T* -0.064429 Tw (test-pdm-driver) Tj /F1 9.3 Tf ( after setup to fault-test the actual worker; CI runs this additional gate. The installed core and official) Tj T* 0 Tw (compiler/loader remain intact.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 636.2 cm
+q
+.070588 .396078 .470588 rg
+BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Features, model, and detection) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 576.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 43.5 Tm /F1 9.3 Tf 13.2 TL (Each 256-sample hop advances a 512-sample frame with 50% overlap. The extractor uses a periodic Hann window,) Tj T* (257 correctly unpacked FFT power bins, a 20-band mel matrix spanning 20-4000 Hz, natural log with epsilon 1e-6, and) Tj T* (model-supplied int8 quantization. The 61-row context covers 992 ms of audio. First inference requires a full context;) Tj T* (subsequent attempts require eight new rows and a drained hop backlog, giving a nominal 128 ms decision interval.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 516.6 cm
+q
+BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The deployed 8496-byte model classifies ) Tj /F3 9.3 Tf (yes) Tj /F1 9.3 Tf (, unknown speech, and silence. Its six convolution operators contain 992) Tj T* (int8 weights and 83 int32 biases: ) Tj /F2 9.3 Tf (1075 deployed parameter values) Tj /F1 9.3 Tf (, or 1324 parameter payload bytes. Its eight) Tj T* (operators use Conv2D, DepthwiseConv2D, MEAN and SOFTMAX registrations. The model and mel coefficients are) Tj T* (compiled into flash; the 64 KiB arena holds mutable inference data. Startup reports actual tensor allocation.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 456.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 43.5 Tm /F1 9.3 Tf 13.2 TL (Control uses class-0 confidence, EMA weight 0.5, raw/smoothed thresholds 0.8/0.75, two qualifying decisions, release) Tj T* (below 0.4, and a 1500 ms cooldown. Events expire after 250 ms; sequence/generation gaps discard partial evidence) Tj T* (while retaining latch and cooldown state. A final scheduler-locked check prevents an obsolete score from triggering an) Tj T* (action after audio invalidates its generation.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 423.4 cm
+q
+BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (See ) Tj .070588 .396078 .470588 rg (DSP details) Tj .094118 .156863 .231373 rg ( for formulas, packed FFT layout and training alignment, and ) Tj .070588 .396078 .470588 rg (TinyML inference) Tj .094118 .156863 .231373 rg ( for the exact model) Tj T* (graph, quantization, training results, inspection commands and accuracy limits.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 393.4 cm
+q
+.070588 .396078 .470588 rg
+BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Measured Zephyr results) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 346.8 cm
+q
+BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The following observations come from the October 22, 2026 Zephyr hardware session. They describe the recorded) Tj T* (image and workload, not worst-case guarantees. The cleanup build and any new measurements are identified) Tj T* (separately in ) Tj .070588 .396078 .470588 rg (validation) Tj .094118 .156863 .231373 rg (.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 78.6 cm
+q
+.866667 .921569 .941176 rg
+n 0 261.2 504 -20.8 re f*
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 245.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Measurement) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 245.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Recorded result) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 224.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Sampling rate over normal capture) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 224.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Approximately 15,999.7 samples/second) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 203.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Normal DSP average / observed maximum) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 203.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (2.217 / 5.249 ms per consumed hop) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 183 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Normal inference average / observed maximum) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 183 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (54.994 / 55.054 ms) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 162.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Normal processing-step maximum) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 162.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (57.342 ms) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 141.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Audio-ring high-water mark) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 141.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (768 of 8192 samples) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 120.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Normal losses and errors) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 109.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Zero reported sample losses, missed buffers, inference errors,) Tj T* (notification errors, event drops or stale events) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 89 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Spoken keyword check) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 78.2 cm
+q
+BT 1 0 0 1 0 13.5 Tm 10.8 TL /F1 8.1 Tf .094118 .156863 .231373 rg (16 cumulative confirmed actions; user confirmed physical LED) Tj T* (toggling on ") Tj (yes) Tj (") Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 57.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Deliberate 1500 ms control stall) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 46.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Four expected event drops, nine stale scores rejected, no reported) Tj T* (audio loss or inference errors) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 25.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Recorded sketch flash / RAM) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 25.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (206,032 / 118,096 bytes) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 5 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Stock loader sketch RAM region) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 5 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (131,072 bytes; recorded remainder 12,976 bytes) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.070588 .396078 .470588 RG
+.6 w
+n 0 240.4 m 504 240.4 l S
+.847059 .882353 .905882 RG
+.25 w
+n 0 219.6 m 504 219.6 l S
+n 0 198.8 m 504 198.8 l S
+n 0 178 m 504 178 l S
+n 0 157.2 m 504 157.2 l S
+n 0 136.4 m 504 136.4 l S
+n 0 104.8 m 504 104.8 l S
+n 0 73.2 m 504 73.2 l S
+n 0 41.6 m 504 41.6 l S
+n 0 20.8 m 504 20.8 l S
+n 0 0 m 504 0 l S
+Q
+Q
+Q
+ 
+endstream
+endobj
+31 0 obj
+<<
+/Length 8295
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+.792157 .843137 .878431 RG
+n 54 40.32 m 558 40.32 l S
+BT /F1 8 Tf 9.6 TL ET
+.094118 .156863 .231373 rg
+BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
+BT 1 0 0 1 553.552 27.36 Tm (4) Tj T* ET
+Q
+q
+1 0 0 1 60 697.6 cm
+q
+.866667 .921569 .941176 rg
+n 0 41.6 504 -20.8 re f*
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 25.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Measurement) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 25.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Recorded result) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 5 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Tensor arena reserved / measured used) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 5 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (65,536 / 12,500 bytes) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.070588 .396078 .470588 RG
+.6 w
+n 0 20.8 m 504 20.8 l S
+.847059 .882353 .905882 RG
+.25 w
+n 0 20.8 m 504 20.8 l S
+n 0 0 m 504 0 l S
+Q
+Q
+Q
+q
+1 0 0 1 60 688.6 cm
+Q
+q
+1 0 0 1 60 635.8 cm
+q
+BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The RAM figure already includes both application stacks, ring, DSP workspace, and reserved arena. The remainder is) Tj T* (not measured free heap. Stock loader stack watermarks are unavailable: ) Tj /F3 9.3 Tf (stack_free=0/0) Tj /F1 9.3 Tf ( means unmeasured.) Tj T* (General system heap, framework/interrupt stacks, extended endurance, cold power-cycle, and calibrated acoustic) Tj T* (accuracy remain separate validation work. See ) Tj .070588 .396078 .470588 rg (real-time limits) Tj .094118 .156863 .231373 rg (.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 602.4 cm
+q
+BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The table preserves the original image) Tj (') Tj (s evidence. The later C++20 hardening build uses 206,824 bytes flash. ) Tj .070588 .396078 .470588 rg (Current) Tj T* (validation) Tj .094118 .156863 .231373 rg ( records its source hashes, captures and limits; speech/LED was not repeated.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 555.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 30.3 Tm /F1 9.3 Tf 13.2 TL (The saved training notebook reports 93.48% floating-point held-out test accuracy, 97.90% validation accuracy, and) Tj T* (98.02% final training accuracy. These are training artifacts, not measured recognition rates for the quantized model on) Tj T* (this board. Speech/LED checks establish functionality without an accuracy denominator.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 525.8 cm
+q
+.070588 .396078 .470588 rg
+BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Hardware checks and telemetry) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 505.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 3.9 Tm /F1 9.3 Tf 13.2 TL (Install PySerial in a local environment, then capture normal operation:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 429.6 cm
+%PreformattedPara
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 60.8 Tm /F3 8.2 Tf 11.5 TL (python3 -m venv .build/hardware-venv) Tj T* (.build/hardware-venv/bin/python -m pip install pyserial==3.5) Tj T* (.build/hardware-venv/bin/python tests/hardware_capture.py --port /dev/cu.usbmodem11301 \\) Tj T* (    --seconds 60 --allow-unavailable-stack-metrics --output .build/normal.json) Tj T* (.build/hardware-venv/bin/python scripts/rtos_stress.py --port /dev/cu.usbmodem11301 \\) Tj T* (    --seconds 25 --output .build/stress.json) Tj T* ET
+Q
+q
+1 0 0 1 60 394.2 cm
+q
+BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The stress script uploads a test-only control-stall image and restores the normal image in ) Tj /F3 9.3 Tf (finally) Tj /F1 9.3 Tf (; confirm restoration) Tj T* (succeeds. Speak ") Tj (yes) Tj (" with pauses and observe the LED separately. Ending a capture leaves the firmware running.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 72.8 cm
+q
+.866667 .921569 .941176 rg
+n 0 314.4 504 -20.8 re f*
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 298.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Telemetry field) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 298.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Meaning) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 277.8 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (ms) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (samples) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 277.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Uptime and cumulative samples received by the callback) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 257 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (dropped) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (missed_buffers) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 257 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Rejected ring samples and callbacks with lost/invalid reads) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 236.2 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (queue_max) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (gap_max_us) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (audio_age_us) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 225.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Ring high-water mark, maximum callback gap, age of last received) Tj T* (audio) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 204.6 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (dsp_us) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (infer_us) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (process_us) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 204.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Average / observed maximum DSP, inference and one pipeline step) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 183.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (response_us) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 173 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Last / maximum response from estimated first high-confidence) Tj T* (window end to action; not acoustic-onset latency) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 152.2 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (inferences) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (errors) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (dsp_errors) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (p_milli) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 141.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Invocation count, inference/DSP failures and latest class-0 score) Tj T* (scaled by 1000) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 120.6 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (triggers) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (led) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 120.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Confirmed action count and logical LED state) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 99.8 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (event_drops) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (stale_events) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 89 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Dropped classification results and rejected expired/old-generation) Tj T* (results) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 68.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (notify_errors) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 57.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Reserved diagnostic counter; Zephyr binary-semaphore give has no) Tj T* (failure return) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 36.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (event_us) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 36.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Average / maximum inference-completion to control-validation delay) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 15.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (stack_free) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 5 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL -0.026033 Tw (Audio/control unused stack bytes if loader support exists; stock loader) Tj T* 0 Tw (reports zero/zero) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.070588 .396078 .470588 RG
+.6 w
+n 0 293.6 m 504 293.6 l S
+.847059 .882353 .905882 RG
+.25 w
+n 0 272.8 m 504 272.8 l S
+n 0 252 m 504 252 l S
+n 0 220.4 m 504 220.4 l S
+n 0 199.6 m 504 199.6 l S
+n 0 168 m 504 168 l S
+n 0 136.4 m 504 136.4 l S
+n 0 115.6 m 504 115.6 l S
+n 0 84 m 504 84 l S
+n 0 52.4 m 504 52.4 l S
+n 0 31.6 m 504 31.6 l S
+n 0 0 m 504 0 l S
+Q
+Q
+Q
+q
+1 0 0 1 60 63.8 cm
+Q
+ 
+endstream
+endobj
+32 0 obj
+<<
+/Length 2492
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+.792157 .843137 .878431 RG
+n 54 40.32 m 558 40.32 l S
+BT /F1 8 Tf 9.6 TL ET
+.094118 .156863 .231373 rg
+BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
+BT 1 0 0 1 553.552 27.36 Tm (5) Tj T* ET
+Q
+q
+1 0 0 1 60 712.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 17.1 Tm /F1 9.3 Tf 13.2 TL (Counters are cumulative and may precede a host recording. Compare successive records to infer activity within an) Tj T* (interval. A buffered telemetry line may precede the fresh lines received when reopening a monitor.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 682.8 cm
+q
+.070588 .396078 .470588 rg
+BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Tests and documentation) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 623 cm
+q
+BT 1 0 0 1 0 43.5 Tm 13.2 TL /F3 9.3 Tf .094118 .156863 .231373 rg (make test) Tj /F1 9.3 Tf ( runs the same complete host gate as GitHub Actions: twelve unit entries and four additional regression) Tj T* (entries. ) Tj /F3 9.3 Tf (make test-pdm-driver) Tj /F1 9.3 Tf ( is a separate gate after setup and also runs in firmware CI. These suites exercise) Tj T* (actual Zephyr application modules with deterministic PDM, IRQ, serial, DSP, model and kernel fixtures. Hardware) Tj T* (checks cover the real microphone/DSP/model path. ) Tj .070588 .396078 .470588 rg (Testing) Tj .094118 .156863 .231373 rg ( describes coverage and limits.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 576.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 30.3 Tm /F1 9.3 Tf 13.2 TL (Line/branch coverage percentages are not measured. Fixtures do not exhaustively reproduce thread interleavings or) Tj T* (execute the real CMSIS-DSP/TFLite numerical path; feature parity, recognition accuracy and long-duration timing need) Tj T* (separate evidence.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 516.6 cm
+q
+BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .070588 .396078 .470588 rg (Documentation index) Tj .094118 .156863 .231373 rg ( links setup, architecture, DSP, inference, ownership, real-time behavior and validation evidence.) Tj T* .070588 .396078 .470588 rg (README.pdf) Tj .094118 .156863 .231373 rg ( is generated from this root README; CI checks that the export is current. Its architecture table retains) Tj T* (every node and connection in the Markdown diagram. The other topic guides are maintained as Markdown without PDF) Tj T* (counterparts. Model assets and the training notebook remain available under ) Tj /F3 9.3 Tf (models/) Tj /F1 9.3 Tf ( and ) Tj /F3 9.3 Tf (training/) Tj /F1 9.3 Tf (.) Tj T* ET
+Q
+Q
+ 
+endstream
 endobj
 xref
-0 31
+0 33
 0000000000 65535 f 
 0000000073 00000 n 
 0000000124 00000 n 
@@ -223,35 +1376,37 @@ xref
 0000001333 00000 n 
 0000001558 00000 n 
 0000001783 00000 n 
-0000002017 00000 n 
-0000002243 00000 n 
-0000002474 00000 n 
-0000002716 00000 n 
-0000002941 00000 n 
-0000003169 00000 n 
-0000003428 00000 n 
-0000003680 00000 n 
-0000003916 00000 n 
-0000004138 00000 n 
-0000004351 00000 n 
-0000004567 00000 n 
-0000004796 00000 n 
-0000004866 00000 n 
-0000005181 00000 n 
-0000005262 00000 n 
-0000008205 00000 n 
-0000011532 00000 n 
-0000014448 00000 n 
+0000002004 00000 n 
+0000002238 00000 n 
+0000002464 00000 n 
+0000002695 00000 n 
+0000002918 00000 n 
+0000003154 00000 n 
+0000003382 00000 n 
+0000003641 00000 n 
+0000003893 00000 n 
+0000004122 00000 n 
+0000004344 00000 n 
+0000004559 00000 n 
+0000004775 00000 n 
+0000005004 00000 n 
+0000005074 00000 n 
+0000005466 00000 n 
+0000005554 00000 n 
+0000010165 00000 n 
+0000020716 00000 n 
+0000028302 00000 n 
+0000036649 00000 n 
 trailer
 <<
 /ID 
-[<d8bd7c70929ad8672d7b99771276573d><d8bd7c70929ad8672d7b99771276573d>]
+[<1d87232d1815c62ed4ac46c44d5050ed><1d87232d1815c62ed4ac46c44d5050ed>]
 % ReportLab generated PDF document -- digest (http://www.reportlab.com)
 
-/Info 25 0 R
-/Root 24 0 R
-/Size 31
+/Info 26 0 R
+/Root 25 0 R
+/Size 33
 >>
 startxref
-17075
+39193
 %%EOF

@@ -56,5 +56,7 @@ maintained as data; do not change their values for presentation. Refresh setup
 when tracked compatibility headers change.
 
 The CI source-style job runs `make format-check`. Independent host and Zephyr
-firmware jobs verify behavior and compilation. Formatting alone does not prove
+firmware jobs verify behavior and compilation. The documentation job checks that
+the root README's PDF matches its Markdown source and current exporter.
+Formatting alone does not prove
 runtime equivalence; [validation](validation.md) identifies actual checks.

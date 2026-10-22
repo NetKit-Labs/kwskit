@@ -19,7 +19,12 @@ guides below. All runtime descriptions and hardware evidence here refer to Zephy
 | [Validation](validation.md) | Identified hardware sessions, builds, CI, cleanup verification and raw captures |
 | [Model metadata](model-metadata.json) | Inspected graph, tensor shapes, quantization and parameter counts |
 | [Model diagram](kws_1class_depthwise_int8.tflite.svg) | Exported network graph |
-| [PDF project guide](README.pdf) | Current PDF export of the project README |
+| [PDF project guide](README.pdf) | Export of the root `README.md`, checked for freshness in CI |
+
+The PDF comes from the root project overview, not this documentation index.
+Topic guides have no PDF counterparts; their Markdown files are authoritative.
+See [PDF generation](build.md#troubleshooting-and-pdf-generation) to regenerate
+the overview and check parity.
 
 The original Zephyr session is recorded in [normal](zephyr-normal.json),
 [stress](zephyr-stress.json), [restored](zephyr-restored.json) telemetry and its

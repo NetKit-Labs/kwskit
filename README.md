@@ -213,5 +213,8 @@ feature parity, recognition accuracy and long-duration timing need separate evid
 
 [Documentation index](docs/README.md) links setup, architecture, DSP, inference,
 ownership, real-time behavior and validation evidence. [README.pdf](docs/README.pdf)
-is the exported version of this guide. Model assets and the training notebook
+is generated from this root README; CI checks that the export is current.
+Its architecture table retains every node and connection in the Markdown diagram.
+The other topic guides are maintained as Markdown without PDF counterparts.
+Model assets and the training notebook
 remain available under `models/` and `training/`.

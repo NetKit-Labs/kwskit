@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Export the maintained project README to docs/README.pdf."""
+import argparse
+import hashlib
 from html import escape
+from io import BytesIO
 from pathlib import Path
-import shutil
+import re
 
 from markdown_it import MarkdownIt
 from reportlab.lib import colors
@@ -134,8 +137,64 @@ def footer(canvas, document):
     canvas.restoreState()
 
 
-def export():
-    tokens = MarkdownIt("commonmark").enable("table").parse((ROOT / "README.md").read_text())
+def mermaid_table(source):
+    """Keep every node/edge in the README's diagram, without a separate synopsis.
+
+    Support the quoted nodes and directed links used by this guide. Fail on new
+    Mermaid syntax so a future diagram edit cannot silently lose PDF content.
+    """
+    lines = source.strip().splitlines()
+    if not lines or lines[0].strip() != "flowchart LR":
+        raise ValueError("Unsupported Mermaid diagram; update the PDF renderer")
+    node = r'([A-Za-z_][A-Za-z_0-9]*)(?:\["([^"\n]+)"\])?'
+    edge = re.compile(node + r'\s+(-->|-\.\s+"([^"\n]+)"\s+\.->)\s+' + node)
+    labels = {}
+    connections = []
+    for line in lines[1:]:
+        match = edge.fullmatch(line.strip())
+        if not match:
+            raise ValueError(f"Unsupported Mermaid connection: {line.strip()}")
+        start, start_label, _, signal, end, end_label = match.groups()
+        for name, label in ((start, start_label), (end, end_label)):
+            if label is not None:
+                if name in labels and labels[name] != label:
+                    raise ValueError(f"Conflicting Mermaid node: {name}")
+                labels[name] = label
+        connections.append((start, signal or "Flow", end))
+    if not connections:
+        raise ValueError("Empty Mermaid diagram")
+    rows = [["From", "Connection", "To"]]
+    for start, signal, end in connections:
+        rows.append([labels[start], signal, labels[end]])
+    table = Table(
+        [
+            [Paragraph(escape(ascii_text(value)), STYLES["CellKWS"]) for value in row]
+            for row in rows
+        ],
+        colWidths=[WIDTH * 0.39, WIDTH * 0.22, WIDTH * 0.39],
+        repeatRows=1,
+        hAlign="LEFT",
+    )
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#DDEBF0")),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LINEBELOW", (0, 0), (-1, 0), 0.6, ACCENT),
+                ("LINEBELOW", (0, 1), (-1, -1), 0.25, colors.HexColor("#D8E1E7")),
+                ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ]
+        )
+    )
+    return table
+
+
+def render():
+    source = (ROOT / "README.md").read_bytes()
+    tokens = MarkdownIt("commonmark").enable("table").parse(source.decode("utf-8"))
     story = []
     index = 0
     in_list = 0
@@ -165,12 +224,9 @@ def export():
         elif token.type == "fence":
             code = token.content.rstrip()
             if token.info.strip() == "mermaid":
-                code = (
-                    "PDM microphone -> core PDM thread -> circular audio buffer\n"
-                    "Audio task: frame overlap / FFT / log-mel -> int8 model\n"
-                    "  -> eight-entry Zephyr value queue -> control task / LED\n"
-                    "Main task (priority 6): best-effort USB telemetry"
-                )
+                story.extend([mermaid_table(code), Spacer(1, 9)])
+                index += 1
+                continue
             block = [Preformatted(ascii_text(code), STYLES["CodeKWS"], maxLineLength=99)]
             if (
                 story
@@ -218,10 +274,9 @@ def export():
         elif token.type == "hr":
             story.append(HRFlowable(width="100%", thickness=0.5, color=ACCENT))
         index += 1
-    output = ROOT / "output/pdf/README.pdf"
-    output.parent.mkdir(parents=True, exist_ok=True)
+    output = BytesIO()
     document = SimpleDocTemplate(
-        str(output),
+        output,
         pagesize=(8.5 * inch, 11 * inch),
         leftMargin=0.75 * inch,
         rightMargin=0.75 * inch,
@@ -229,10 +284,34 @@ def export():
         bottomMargin=0.75 * inch,
         title="Real-time keyword spotting on ARM Cortex-M4F",
         author="James Lavrenz",
+        subject="Source: README.md; SHA-256: " + hashlib.sha256(source).hexdigest(),
+        invariant=1,
+        pageCompression=0,
     )
     document.build(story, onFirstPage=footer, onLaterPages=footer)
-    shutil.copyfile(output, ROOT / "docs/README.pdf")
-    print("Updated docs/README.pdf from README.md")
+    return output.getvalue()
+
+
+def export():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check", action="store_true", help="Check freshness without writing files"
+    )
+    args = parser.parse_args()
+    content = render()
+    tracked = ROOT / "docs/README.pdf"
+    if args.check:
+        if not tracked.exists() or tracked.read_bytes() != content:
+            parser.exit(
+                1, "docs/README.pdf is stale; run scripts/export_docs.py with the docs venv\n"
+            )
+        print("PASS: docs/README.pdf matches README.md and the current exporter")
+    else:
+        output = ROOT / "output/pdf/README.pdf"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_bytes(content)
+        tracked.write_bytes(content)
+        print("Updated docs/README.pdf from README.md")
 
 
 if __name__ == "__main__":

@@ -24,6 +24,21 @@ jobs:
                 name: Check four-space C++ and Python formatting
                 run: make format-check
 
+    documentation:
+        runs-on: ubuntu-24.04
+        timeout-minutes: 10
+        steps:
+            -
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+            -
+                name: Install pinned PDF tools
+                run: |
+                    python3 -m venv .build/docs-venv
+                    .build/docs-venv/bin/python -m pip install -r requirements-docs.txt
+            -
+                name: Check README PDF matches its Markdown source
+                run: .build/docs-venv/bin/python scripts/export_docs.py --check
+
     host-tests:
         runs-on: ubuntu-24.04
         timeout-minutes: 10

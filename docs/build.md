@@ -137,7 +137,7 @@ restores normal firmware in `finally`; check its restoration result.
 | `make flash PORT=<port>` | Build then upload; an explicit port is required |
 | `make format` / `make format-check` | Apply/check pinned source formatting |
 
-[GitHub Actions](../.github/workflows/ci.yml) has formatting, host-tests and a
+[GitHub Actions](../.github/workflows/ci.yml) has formatting, documentation, host-tests and a
 single Zephyr firmware job. It runs on pushes, pull requests and manual dispatch.
 The firmware job installs dependencies from scratch, builds and uploads
 `nano33ble-zephyr-firmware` containing outputs and provenance. Actions are pinned
@@ -182,7 +182,23 @@ make format-check
 python3 -m venv .build/docs-venv
 .build/docs-venv/bin/python -m pip install -r requirements-docs.txt
 .build/docs-venv/bin/python scripts/export_docs.py
+.build/docs-venv/bin/python scripts/export_docs.py --check
 ```
 
-The export writes `output/pdf/README.pdf` and updates `docs/README.pdf` from the
-root README. Render and visually check the PDF after changing its content.
+The only maintained PDF is `docs/README.pdf`, generated from the root `README.md`.
+It does not export `docs/README.md` or the separate topic guides. Edit Markdown
+first, regenerate, then commit both source and PDF. The export also writes an
+identical ignored copy to `output/pdf/README.pdf`.
+
+The PDF retains the guide's text, tables, commands and links. Its architecture
+diagram becomes a connection table generated from every Mermaid node and edge;
+unsupported diagram syntax fails instead of dropping information. Typography is
+normalized to ASCII and the live CI badge becomes its linked alt text.
+
+The pinned exporter produces deterministic bytes and embeds the root Markdown's
+SHA-256 in PDF metadata. `--check` regenerates in memory and fails if the tracked
+PDF differs or is missing; it writes no files. The CI documentation job runs this
+check, preventing Markdown/exporter changes from leaving a stale PDF. It checks
+source/export parity, not whether descriptions still match firmware behavior.
+Review the relevant Markdown when code changes, and render and visually check
+every PDF page after regenerating.

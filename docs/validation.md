@@ -178,3 +178,25 @@ peripheral/allocation/brownout fault campaign is claimed. Training notebook
 results and inspected model metadata are separate from microphone deployment
 accuracy. See [real-time limits](realtime-review.md) and
 [training evidence](tinyml-inference.md#training-evidence-and-limitations).
+
+## Markdown/PDF parity audit
+
+The October 22, 2026 documentation audit found one maintained PDF:
+`docs/README.pdf`, exported from the root `README.md`. Topic guides have no PDF
+counterparts. The root overview and guides were checked against the current
+Zephyr configuration and retained hardware records; earlier measurements remain
+identified with their original image.
+
+The former PDF diagram synopsis omitted details from the Markdown diagram.
+The exporter now derives a connection table from all twelve diagram edges and
+their node labels. All 144 checked Markdown text, command, table and diagram
+items were found in extracted PDF text. All five refreshed pages were rendered
+and visually inspected; 157 local links/anchors across fifteen Markdown guides
+passed. Documentation and extracted PDF text contain no retired-platform names.
+
+The deterministic freshness check passed for the current export and rejected
+changed Markdown, a changed PDF and a missing PDF without writing files. Rendering
+in a different directory produced identical bytes; unsupported diagram syntax
+was rejected. The CI documentation job now runs this freshness check. Formatting
+and diff-whitespace checks passed. These are documentation/tooling checks, with
+no new firmware flash, speech check or hardware measurement.
