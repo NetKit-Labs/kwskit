@@ -1,6 +1,6 @@
-# Real-time keyword spotting on ARM Cortex-M4F
+# kwskit: Real-time keyword spotting on ARM Cortex-M4F
 
-[![Build and test](https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/workflows/ci.yml/badge.svg)](https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/workflows/ci.yml)
+[![Build and test](https://github.com/NetKit-Labs/kwskit/actions/workflows/ci.yml/badge.svg)](https://github.com/NetKit-Labs/kwskit/actions/workflows/ci.yml)
 
 Continuous voice control on an **Arduino Nano 33 BLE Sense / nRF52840**, running
 **Arduino Zephyr Boards 1.0.0**. The microphone captures mono audio at 16 kHz,

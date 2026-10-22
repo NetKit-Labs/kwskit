@@ -10,7 +10,7 @@
   "reported_sketch_ram_bytes": 118096,
   "source_reference": {
     "file": "zephyr-pdm-validation.json",
-    "sha256": "137fff844bf64221f4f32295c6aab1cc0c5c793d50e7621d70e2316bcf16019f",
+    "sha256": "82375aa628913c1fe8e55b381882ee0f88855dec8820a94467bf93af9822a154",
     "all_firmware_source_hashes_match": true,
     "pdm_driver_hashes_match": true
   },

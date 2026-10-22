@@ -1,4 +1,4 @@
-# Zephyr build and continuous integration
+# kwskit: Zephyr build and continuous integration
 
 ## Prerequisites and fresh checkout
 
@@ -8,8 +8,8 @@ Initial setup needs HTTPS access to GitHub and Arduino downloads and several GB
 of workspace storage. Firmware builds use Arduino's packaged cross-compiler.
 
 ```sh
-git clone https://github.com/NetKit-Labs/KWS_Arm_CortexM4F.git
-cd KWS_Arm_CortexM4F
+git clone https://github.com/NetKit-Labs/kwskit.git
+cd kwskit
 make setup
 make test
 make build JOBS=4
@@ -21,6 +21,11 @@ Choose the port printed for your Nano. On Linux it commonly resembles
 `/dev/ttyACM0` and requires the host's serial-device permissions. Close competing
 monitors before upload. Apple Silicon needs Rosetta 2 for the core's Intel
 `bossac` uploader; the CLI and compiler themselves are native ARM64.
+
+The repository is named `kwskit`. Its Arduino sketch is
+`firmware/KWS_Arm_CortexM4F.ino`; Arduino uses that sketch name for generated
+build directories and firmware artifacts shown below. Existing checkout folders
+can keep their current names; Git uses the configured remote URL.
 
 ## Single supported target and locked inputs
 

@@ -18,7 +18,7 @@ endobj
 4 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/workflows/ci.yml)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/actions/workflows/ci.yml)
 >> /Border [ 0 0 0 ] /Rect [ 60 660.7375 116.3487 673.9375 ] /Subtype /Link /Type /Annot
 >>
 endobj
@@ -30,14 +30,14 @@ endobj
 6 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/dependencies.lock.json)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/dependencies.lock.json)
 >> /Border [ 0 0 0 ] /Rect [ 60 234.54 156.6642 245.7 ] /Subtype /Link /Type /Annot
 >>
 endobj
 7 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/build.md)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/build.md)
 >> /Border [ 0 0 0 ] /Rect [ 333.4479 234.54 383.0727 245.7 ] /Subtype /Link /Type /Annot
 >>
 endobj
@@ -54,14 +54,14 @@ endobj
 9 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/rtos-design.md)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/rtos-design.md)
 >> /Border [ 0 0 0 ] /Rect [ 117.3903 108.64 173.2089 119.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 10 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/cpp-idioms.md)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/cpp-idioms.md)
 >> /Border [ 0 0 0 ] /Rect [ 193.8921 108.64 256.4346 119.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
@@ -78,28 +78,28 @@ endobj
 12 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/build-support/pdm/README.md)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/build-support/pdm/README.md)
 >> /Border [ 0 0 0 ] /Rect [ 158.2173 694.64 230.0505 705.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 13 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/dsp-pipeline.md)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/dsp-pipeline.md)
 >> /Border [ 0 0 0 ] /Rect [ 79.1301 438.64 127.7133 449.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 14 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/tinyml-inference.md)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/tinyml-inference.md)
 >> /Border [ 0 0 0 ] /Rect [ 378.9249 438.64 450.2466 449.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 15 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/validation.md)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md)
 >> /Border [ 0 0 0 ] /Rect [ 115.3071 348.84 154.5903 360 ] /Subtype /Link /Type /Annot
 >>
 endobj
@@ -116,28 +116,28 @@ endobj
 17 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/realtime-review.md)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/realtime-review.md)
 >> /Border [ 0 0 0 ] /Rect [ 255.3744 637.84 315.3036 649 ] /Subtype /Link /Type /Annot
 >>
 endobj
 18 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/validation.md#pdm-read-error-backoff-validation)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md#pdm-read-error-backoff-validation)
 >> /Border [ 0 0 0 ] /Rect [ 513.5703 617.64 544.5765 628.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 19 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/validation.md#pdm-read-error-backoff-validation)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md#pdm-read-error-backoff-validation)
 >> /Border [ 0 0 0 ] /Rect [ 60 604.44 99.2832 615.6 ] /Subtype /Link /Type /Annot
 >>
 endobj
 20 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/validation.md#spoken-keyword-and-physical-led-follow-up)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md#spoken-keyword-and-physical-led-follow-up)
 >> /Border [ 0 0 0 ] /Rect [ 325.1523 604.44 419.7333 615.6 ] /Subtype /Link /Type /Annot
 >>
 endobj
@@ -154,21 +154,21 @@ endobj
 22 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/testing.md)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/testing.md)
 >> /Border [ 0 0 0 ] /Rect [ 274.5045 563.64 304.9992 574.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 23 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/README.md)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/README.md)
 >> /Border [ 0 0 0 ] /Rect [ 60 496.84 147.3549 508 ] /Subtype /Link /Type /Annot
 >>
 endobj
 24 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/README.pdf)
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/README.pdf)
 >> /Border [ 0 0 0 ] /Rect [ 60 483.64 115.2978 494.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
@@ -190,7 +190,7 @@ endobj
 27 0 obj
 <<
 /Author (James Lavrenz) /CreationDate (D:20000101000000+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20000101000000+00'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
-  /Subject (Source: README.md; SHA-256: 8108952075171a50327881052aa2323faf7c1e997c70c014aa295a85eb29d90d) /Title (Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
+  /Subject (Source: README.md; SHA-256: 4fdaa3a0a3b828b5a9ad2f29a54fdc7bcb36f463659cacff84936d2b7d8b12e4) /Title (kwskit: Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
 >>
 endobj
 28 0 obj
@@ -200,7 +200,7 @@ endobj
 endobj
 29 0 obj
 <<
-/Length 4559
+/Length 4552
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -209,14 +209,14 @@ q
 n 54 40.32 m 558 40.32 l S
 BT /F1 8 Tf 9.6 TL ET
 .094118 .156863 .231373 rg
-BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
+BT 1 0 0 1 54 27.36 Tm (kwskit | Project guide) Tj T* ET
 BT 1 0 0 1 553.552 27.36 Tm (1) Tj T* ET
 Q
 q
 1 0 0 1 60 687.2 cm
 q
 .094118 .156863 .231373 rg
-BT 1 0 0 1 0 30 Tm /F2 22 Tf 26 TL (Real-time keyword spotting on ARM) Tj T* (Cortex-M4F) Tj T* ET
+BT 1 0 0 1 0 30 Tm /F2 22 Tf 26 TL (kwskit: Real-time keyword spotting on ARM) Tj T* (Cortex-M4F) Tj T* ET
 Q
 Q
 q
@@ -280,7 +280,7 @@ endstream
 endobj
 30 0 obj
 <<
-/Length 10498
+/Length 10483
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -289,7 +289,7 @@ q
 n 54 40.32 m 558 40.32 l S
 BT /F1 8 Tf 9.6 TL ET
 .094118 .156863 .231373 rg
-BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
+BT 1 0 0 1 54 27.36 Tm (kwskit | Project guide) Tj T* ET
 BT 1 0 0 1 553.552 27.36 Tm (2) Tj T* ET
 Q
 q
@@ -759,7 +759,7 @@ endstream
 endobj
 31 0 obj
 <<
-/Length 7534
+/Length 7519
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -768,7 +768,7 @@ q
 n 54 40.32 m 558 40.32 l S
 BT /F1 8 Tf 9.6 TL ET
 .094118 .156863 .231373 rg
-BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
+BT 1 0 0 1 54 27.36 Tm (kwskit | Project guide) Tj T* ET
 BT 1 0 0 1 553.552 27.36 Tm (3) Tj T* ET
 Q
 q
@@ -1015,7 +1015,7 @@ endstream
 endobj
 32 0 obj
 <<
-/Length 8062
+/Length 8047
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -1024,7 +1024,7 @@ q
 n 54 40.32 m 558 40.32 l S
 BT /F1 8 Tf 9.6 TL ET
 .094118 .156863 .231373 rg
-BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
+BT 1 0 0 1 54 27.36 Tm (kwskit | Project guide) Tj T* ET
 BT 1 0 0 1 553.552 27.36 Tm (4) Tj T* ET
 Q
 q
@@ -1303,7 +1303,7 @@ endstream
 endobj
 33 0 obj
 <<
-/Length 3341
+/Length 3326
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -1312,7 +1312,7 @@ q
 n 54 40.32 m 558 40.32 l S
 BT /F1 8 Tf 9.6 TL ET
 .094118 .156863 .231373 rg
-BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
+BT 1 0 0 1 54 27.36 Tm (kwskit | Project guide) Tj T* ET
 BT 1 0 0 1 553.552 27.36 Tm (5) Tj T* ET
 Q
 q
@@ -1409,39 +1409,39 @@ xref
 0000000124 00000 n 
 0000000231 00000 n 
 0000000343 00000 n 
-0000000562 00000 n 
-0000000667 00000 n 
-0000000889 00000 n 
-0000001108 00000 n 
-0000001333 00000 n 
-0000001558 00000 n 
-0000001783 00000 n 
-0000002004 00000 n 
-0000002238 00000 n 
-0000002464 00000 n 
-0000002695 00000 n 
-0000002918 00000 n 
-0000003154 00000 n 
-0000003382 00000 n 
-0000003641 00000 n 
-0000003893 00000 n 
-0000004160 00000 n 
-0000004396 00000 n 
-0000004618 00000 n 
-0000004831 00000 n 
-0000005047 00000 n 
-0000005276 00000 n 
-0000005346 00000 n 
-0000005738 00000 n 
-0000005826 00000 n 
-0000010437 00000 n 
-0000020988 00000 n 
-0000028574 00000 n 
-0000036688 00000 n 
+0000000551 00000 n 
+0000000656 00000 n 
+0000000867 00000 n 
+0000001075 00000 n 
+0000001300 00000 n 
+0000001514 00000 n 
+0000001728 00000 n 
+0000001949 00000 n 
+0000002172 00000 n 
+0000002387 00000 n 
+0000002607 00000 n 
+0000002819 00000 n 
+0000003055 00000 n 
+0000003272 00000 n 
+0000003520 00000 n 
+0000003761 00000 n 
+0000004017 00000 n 
+0000004253 00000 n 
+0000004464 00000 n 
+0000004666 00000 n 
+0000004871 00000 n 
+0000005100 00000 n 
+0000005170 00000 n 
+0000005570 00000 n 
+0000005658 00000 n 
+0000010262 00000 n 
+0000020798 00000 n 
+0000028369 00000 n 
+0000036468 00000 n 
 trailer
 <<
 /ID 
-[<bb6c5e8da79af3a1a5b4422a13ae3879><bb6c5e8da79af3a1a5b4422a13ae3879>]
+[<b96856c335a9c4869346612d4d3d0010><b96856c335a9c4869346612d4d3d0010>]
 % ReportLab generated PDF document -- digest (http://www.reportlab.com)
 
 /Info 27 0 R
@@ -1449,5 +1449,5 @@ trailer
 /Size 34
 >>
 startxref
-40081
+39846
 %%EOF

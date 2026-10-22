@@ -117,7 +117,7 @@ def inline(children):
         elif token.type == "link_open":
             href = token.attrGet("href")
             if not href.startswith(("http://", "https://", "#")):
-                href = "https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/" + href
+                href = "https://github.com/NetKit-Labs/kwskit/blob/main/" + href
             result.append('<a color="#126578" href="' + escape(href, quote=True) + '">')
         elif token.type == "link_close":
             result.append("</a>")
@@ -132,7 +132,7 @@ def footer(canvas, document):
     canvas.line(0.75 * inch, 0.56 * inch, 7.75 * inch, 0.56 * inch)
     canvas.setFont("Helvetica", 8)
     canvas.setFillColor(INK)
-    canvas.drawString(0.75 * inch, 0.38 * inch, "KWS on ARM Cortex-M4F | Project guide")
+    canvas.drawString(0.75 * inch, 0.38 * inch, "kwskit | Project guide")
     canvas.drawRightString(7.75 * inch, 0.38 * inch, str(document.page))
     canvas.restoreState()
 
@@ -282,7 +282,7 @@ def render():
         rightMargin=0.75 * inch,
         topMargin=0.65 * inch,
         bottomMargin=0.75 * inch,
-        title="Real-time keyword spotting on ARM Cortex-M4F",
+        title="kwskit: Real-time keyword spotting on ARM Cortex-M4F",
         author="James Lavrenz",
         subject="Source: README.md; SHA-256: " + hashlib.sha256(source).hexdigest(),
         invariant=1,

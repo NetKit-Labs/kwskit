@@ -1,4 +1,4 @@
-# Zephyr engineering overview
+# kwskit engineering overview
 
 This application continuously classifies a rolling second of microphone audio
 on a 64 MHz Cortex-M4F. Samples arrive every 16 ms while inference takes roughly

@@ -33,18 +33,18 @@ The [summary](zephyr-validation.json) preserves identity and final counters.
 
 ## Remote verification
 
-[GitHub Actions run 39791624039](https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/runs/39791624039)
+[GitHub Actions run 39791624039](https://github.com/NetKit-Labs/kwskit/actions/runs/39791624039)
 completed successfully for the Zephyr-only cleanup commit `2fcbb09`. The Zephyr
 firmware build, complete host regression suite, formatting and firmware/provenance
 artifact upload passed. The maintained workflow contains only the Zephyr firmware
 target. This identified run is evidence for that commit; later changes need their
 own checks.
 
-[Application-hardening run 39802129083](https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/runs/39802129083)
+[Application-hardening run 39802129083](https://github.com/NetKit-Labs/kwskit/actions/runs/39802129083)
 also completed successfully for `097e520`, covering the C++20 safety flags,
 object audit, firmware artifact and host/style gates.
 
-[PDM-backoff run 39804902644](https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/runs/39804902644)
+[PDM-backoff run 39804902644](https://github.com/NetKit-Labs/kwskit/actions/runs/39804902644)
 completed successfully for `452e738`. Source formatting, all host regressions,
 the actual-driver fault gate, the Zephyr cross-build/object audit and firmware
 artifact upload passed. It verifies the source of the latest recorded Nano image;

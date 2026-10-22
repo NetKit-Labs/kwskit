@@ -1,4 +1,4 @@
-# Zephyr project documentation
+# kwskit documentation
 
 The maintained firmware has one platform: Arduino Zephyr Boards on the Nano 33
 BLE Sense. Start with the [project overview](../README.md), then follow the topic
