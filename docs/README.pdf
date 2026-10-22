@@ -2,7 +2,7 @@
 %“Œ‹ž ReportLab Generated PDF document http://www.reportlab.com
 1 0 obj
 <<
-/F1 2 0 R /F2 3 0 R /F3 5 0 R
+/F1 2 0 R /F2 3 0 R /F3 13 0 R
 >>
 endobj
 2 0 obj
@@ -24,164 +24,144 @@ endobj
 endobj
 5 0 obj
 <<
-/BaseFont /Courier /Encoding /WinAnsiEncoding /Name /F3 /Subtype /Type1 /Type /Font
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md)
+>> /Border [ 0 0 0 ] /Rect [ 503.8797 490.24 543.1629 501.4 ] /Subtype /Link /Type /Annot
 >>
 endobj
 6 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/dependencies.lock.json)
->> /Border [ 0 0 0 ] /Rect [ 60 234.54 156.6642 245.7 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit#measured-zephyr-results)
+>> /Border [ 0 0 0 ] /Rect [ 380.9709 456.84 487.9581 468 ] /Subtype /Link /Type /Annot
 >>
 endobj
 7 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/build.md)
->> /Border [ 0 0 0 ] /Rect [ 333.4479 234.54 383.0727 245.7 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit#measured-zephyr-results)
+>> /Border [ 0 0 0 ] /Rect [ 513.8586 410.24 547.4409 421.4 ] /Subtype /Link /Type /Annot
 >>
 endobj
 8 0 obj
 <<
-/Annots [ 4 0 R 6 0 R 7 0 R ] /Contents 30 0 R /MediaBox [ 0 0 612 792 ] /Parent 29 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 
-  /Trans <<
-
->> /Type /Page
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit#measured-zephyr-results)
+>> /Border [ 0 0 0 ] /Rect [ 60 397.04 82.7478 408.2 ] /Subtype /Link /Type /Annot
 >>
 endobj
 9 0 obj
 <<
 /A <<
 /S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/rtos-design.md)
->> /Border [ 0 0 0 ] /Rect [ 117.3903 108.64 173.2089 119.8 ] /Subtype /Link /Type /Annot
+>> /Border [ 0 0 0 ] /Rect [ 402.6771 363.64 458.4957 374.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 10 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/cpp-idioms.md)
->> /Border [ 0 0 0 ] /Rect [ 193.8921 108.64 256.4346 119.8 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/realtime-review.md)
+>> /Border [ 0 0 0 ] /Rect [ 463.6665 363.64 523.5957 374.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 11 0 obj
 <<
-/Annots [ 9 0 R 10 0 R ] /Contents 31 0 R /MediaBox [ 0 0 612 792 ] /Parent 29 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 
-  /Trans <<
-
->> /Type /Page
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/testing.md)
+>> /Border [ 0 0 0 ] /Rect [ 195.4173 330.24 264.6744 341.4 ] /Subtype /Link /Type /Annot
 >>
 endobj
 12 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/build-support/pdm/README.md)
->> /Border [ 0 0 0 ] /Rect [ 158.2173 694.64 230.0505 705.8 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md)
+>> /Border [ 0 0 0 ] /Rect [ 269.8452 330.24 350.4762 341.4 ] /Subtype /Link /Type /Annot
 >>
 endobj
 13 0 obj
 <<
-/A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/dsp-pipeline.md)
->> /Border [ 0 0 0 ] /Rect [ 79.1301 438.64 127.7133 449.8 ] /Subtype /Link /Type /Annot
+/BaseFont /Courier /Encoding /WinAnsiEncoding /Name /F3 /Subtype /Type1 /Type /Font
 >>
 endobj
 14 0 obj
 <<
-/A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/tinyml-inference.md)
->> /Border [ 0 0 0 ] /Rect [ 378.9249 438.64 450.2466 449.8 ] /Subtype /Link /Type /Annot
+/Annots [ 4 0 R 5 0 R 6 0 R 7 0 R 8 0 R 9 0 R 10 0 R 11 0 R 12 0 R ] /Contents 38 0 R /MediaBox [ 0 0 612 792 ] /Parent 37 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
 >>
 endobj
 15 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md)
->> /Border [ 0 0 0 ] /Rect [ 115.3071 348.84 154.5903 360 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/dependencies.lock.json)
+>> /Border [ 0 0 0 ] /Rect [ 60 668.24 156.6642 679.4 ] /Subtype /Link /Type /Annot
 >>
 endobj
 16 0 obj
 <<
-/Annots [ 12 0 R 13 0 R 14 0 R 15 0 R ] /Contents 32 0 R /MediaBox [ 0 0 612 792 ] /Parent 29 0 R /Resources <<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/build.md)
+>> /Border [ 0 0 0 ] /Rect [ 333.4479 668.24 383.0727 679.4 ] /Subtype /Link /Type /Annot
+>>
+endobj
+17 0 obj
+<<
+/Annots [ 15 0 R 16 0 R ] /Contents 39 0 R /MediaBox [ 0 0 612 792 ] /Parent 37 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 
   /Trans <<
 
 >> /Type /Page
->>
-endobj
-17 0 obj
-<<
-/A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/realtime-review.md)
->> /Border [ 0 0 0 ] /Rect [ 255.3744 637.84 315.3036 649 ] /Subtype /Link /Type /Annot
 >>
 endobj
 18 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md#pdm-read-error-backoff-validation)
->> /Border [ 0 0 0 ] /Rect [ 513.5703 617.64 544.5765 628.8 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/rtos-design.md)
+>> /Border [ 0 0 0 ] /Rect [ 117.3903 688.44 173.2089 699.6 ] /Subtype /Link /Type /Annot
 >>
 endobj
 19 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md#pdm-read-error-backoff-validation)
->> /Border [ 0 0 0 ] /Rect [ 60 604.44 99.2832 615.6 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/cpp-idioms.md)
+>> /Border [ 0 0 0 ] /Rect [ 193.8921 688.44 256.4346 699.6 ] /Subtype /Link /Type /Annot
 >>
 endobj
 20 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md#spoken-keyword-and-physical-led-follow-up)
->> /Border [ 0 0 0 ] /Rect [ 325.1523 604.44 419.7333 615.6 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/build-support/pdm/README.md)
+>> /Border [ 0 0 0 ] /Rect [ 158.2173 615.44 230.0505 626.6 ] /Subtype /Link /Type /Annot
 >>
 endobj
 21 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md#kwskit-sketch-and-checkout-renaming)
->> /Border [ 0 0 0 ] /Rect [ 78.6093 571.04 187.1496 582.2 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/dsp-pipeline.md)
+>> /Border [ 0 0 0 ] /Rect [ 79.1301 359.44 127.7133 370.6 ] /Subtype /Link /Type /Annot
 >>
 endobj
 22 0 obj
 <<
-/Annots [ 17 0 R 18 0 R 19 0 R 20 0 R 21 0 R ] /Contents 33 0 R /MediaBox [ 0 0 612 792 ] /Parent 29 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 
-  /Trans <<
-
->> /Type /Page
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/tinyml-inference.md)
+>> /Border [ 0 0 0 ] /Rect [ 378.9249 359.44 450.2466 370.6 ] /Subtype /Link /Type /Annot
 >>
 endobj
 23 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/testing.md)
->> /Border [ 0 0 0 ] /Rect [ 274.5045 542.84 304.9992 554 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md)
+>> /Border [ 0 0 0 ] /Rect [ 115.3071 269.64 154.5903 280.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 24 0 obj
 <<
-/A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/README.md)
->> /Border [ 0 0 0 ] /Rect [ 60 476.04 147.3549 487.2 ] /Subtype /Link /Type /Annot
->>
-endobj
-25 0 obj
-<<
-/A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/README.pdf)
->> /Border [ 0 0 0 ] /Rect [ 60 462.84 115.2978 474 ] /Subtype /Link /Type /Annot
->>
-endobj
-26 0 obj
-<<
-/Annots [ 23 0 R 24 0 R 25 0 R ] /Contents 34 0 R /MediaBox [ 0 0 612 792 ] /Parent 29 0 R /Resources <<
+/Annots [ 18 0 R 19 0 R 20 0 R 21 0 R 22 0 R 23 0 R ] /Contents 40 0 R /MediaBox [ 0 0 612 792 ] /Parent 37 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 
   /Trans <<
@@ -189,25 +169,101 @@ endobj
 >> /Type /Page
 >>
 endobj
+25 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/realtime-review.md)
+>> /Border [ 0 0 0 ] /Rect [ 255.3744 564.64 315.3036 575.8 ] /Subtype /Link /Type /Annot
+>>
+endobj
+26 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md#pdm-read-error-backoff-validation)
+>> /Border [ 0 0 0 ] /Rect [ 513.5703 544.44 544.5765 555.6 ] /Subtype /Link /Type /Annot
+>>
+endobj
 27 0 obj
 <<
-/PageMode /UseNone /Pages 29 0 R /Type /Catalog
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md#pdm-read-error-backoff-validation)
+>> /Border [ 0 0 0 ] /Rect [ 60 531.24 99.2832 542.4 ] /Subtype /Link /Type /Annot
 >>
 endobj
 28 0 obj
 <<
-/Author (James Lavrenz) /CreationDate (D:20000101000000+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20000101000000+00'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
-  /Subject (Source: README.md; SHA-256: 8e3211aa9d9bfa5ee4a9df5fe6449d1ecb454dd1a97f7c1c0dc0705e45636891) /Title (kwskit: Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md#spoken-keyword-and-physical-led-follow-up)
+>> /Border [ 0 0 0 ] /Rect [ 325.1523 531.24 419.7333 542.4 ] /Subtype /Link /Type /Annot
 >>
 endobj
 29 0 obj
 <<
-/Count 5 /Kids [ 8 0 R 11 0 R 16 0 R 22 0 R 26 0 R ] /Type /Pages
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md#kwskit-sketch-and-checkout-renaming)
+>> /Border [ 0 0 0 ] /Rect [ 78.6093 497.84 187.1496 509 ] /Subtype /Link /Type /Annot
 >>
 endobj
 30 0 obj
 <<
-/Length 4606
+/Annots [ 25 0 R 26 0 R 27 0 R 28 0 R 29 0 R ] /Contents 41 0 R /MediaBox [ 0 0 612 792 ] /Parent 37 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
+>>
+endobj
+31 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/testing.md)
+>> /Border [ 0 0 0 ] /Rect [ 274.5045 479.64 304.9992 490.8 ] /Subtype /Link /Type /Annot
+>>
+endobj
+32 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/README.md)
+>> /Border [ 0 0 0 ] /Rect [ 60 412.84 147.3549 424 ] /Subtype /Link /Type /Annot
+>>
+endobj
+33 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/README.pdf)
+>> /Border [ 0 0 0 ] /Rect [ 60 399.64 115.2978 410.8 ] /Subtype /Link /Type /Annot
+>>
+endobj
+34 0 obj
+<<
+/Annots [ 31 0 R 32 0 R 33 0 R ] /Contents 42 0 R /MediaBox [ 0 0 612 792 ] /Parent 37 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
+>>
+endobj
+35 0 obj
+<<
+/PageMode /UseNone /Pages 37 0 R /Type /Catalog
+>>
+endobj
+36 0 obj
+<<
+/Author (James Lavrenz) /CreationDate (D:20000101000000+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20000101000000+00'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
+  /Subject (Source: README.md; SHA-256: 98ef85c8ea47e2e81cf31beeab462bc60784b6a93a2c7eb032baac8939e9cc81) /Title (kwskit: Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
+>>
+endobj
+37 0 obj
+<<
+/Count 5 /Kids [ 14 0 R 17 0 R 24 0 R 30 0 R 34 0 R ] /Type /Pages
+>>
+endobj
+38 0 obj
+<<
+/Length 6293
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -249,45 +305,76 @@ q
 1 0 0 1 60 521.6 cm
 q
 .070588 .396078 .470588 rg
+BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Engineering Highlights) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 488.2 cm
+q
+BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (- ) Tj /F2 9.3 Tf (Real-board validation:) Tj /F1 9.3 Tf ( Arduino Nano 33 BLE Sense / 64 MHz Cortex-M4F running Zephyr; 16 kHz microphone) Tj T* (capture, CMSIS-DSP log-mel features, int8 inference, and spoken-) Tj (") Tj (yes) Tj (" LED toggling verified on hardware \() Tj .070588 .396078 .470588 rg (validation) Tj .094118 .156863 .231373 rg (\).) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 441.6 cm
+q
+BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (- ) Tj /F2 9.3 Tf (Measured timing:) Tj /F1 9.3 Tf ( 54.994 ms average / 55.054 ms observed maximum inference; 768 of 8,192 audio-ring slots at the) Tj T* (recorded high-water mark, with no reported audio loss during normal capture \() Tj .070588 .396078 .470588 rg (measured Zephyr session) Tj .094118 .156863 .231373 rg (\). These are) Tj T* (observations, ) Tj /F2 9.3 Tf (not WCET guarantees) Tj /F1 9.3 Tf (.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 395 cm
+q
+BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (- ) Tj /F2 9.3 Tf (Recorded memory budget:) Tj /F1 9.3 Tf ( 206,032 bytes sketch flash and 118,096 bytes sketch RAM, including a 65,536-byte) Tj T* (tensor arena \(12,500 bytes measured used\); figures apply to the recorded build, not every subsequent image \() Tj .070588 .396078 .470588 rg (memory) Tj T* (notes) Tj .094118 .156863 .231373 rg (\).) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 361.6 cm
+q
+BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (- ) Tj /F2 9.3 Tf (Real-time design:) Tj /F1 9.3 Tf ( Preemptible PDM acquisition, fixed buffers/stacks, bounded audio work, and nonblocking) Tj T* (timestamped score handoff; intentional control stalls exercise stale-result rejection \() Tj .070588 .396078 .470588 rg (RTOS design) Tj .094118 .156863 .231373 rg (, ) Tj .070588 .396078 .470588 rg (real-time limits) Tj .094118 .156863 .231373 rg (\).) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 328.2 cm
+q
+BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (- ) Tj /F2 9.3 Tf (Verification:) Tj /F1 9.3 Tf ( 12 host unit and four regression entries, a separate PDM driver fault test, firmware CI, and recorded) Tj T* (on-board capture/stress checks \() Tj .070588 .396078 .470588 rg (testing and limits) Tj .094118 .156863 .231373 rg (, ) Tj .070588 .396078 .470588 rg (hardware validation) Tj .094118 .156863 .231373 rg (\).) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 298.2 cm
+q
+.070588 .396078 .470588 rg
 BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Build, test, and upload) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 475 cm
+1 0 0 1 60 251.6 cm
 q
 BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (Requirements: Git, Make, Python 3.9+, HTTPS access for setup, and a host ) Tj /F3 9.3 Tf (c++) Tj /F1 9.3 Tf ( compiler with C++20 and) Tj T* (AddressSanitizer/UndefinedBehaviorSanitizer support. macOS Command Line Tools and Ubuntu 24.04 are suitable) Tj T* (host environments. The cross-compiler is installed by Arduino CLI, not supplied by the host compiler.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 387.5 cm
+1 0 0 1 60 164.1 cm
 %PreformattedPara
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 72.3 Tm /F3 8.2 Tf 11.5 TL (make setup                         # Install locked tools and libraries locally) Tj T* (make test-unit                     # Isolated component tests) Tj T* (make test-regression               # Units plus integration and build-tool checks) Tj T* (make test-pdm-driver               # Actual pinned driver fault test; needs setup) Tj T* (make build JOBS=4                  # Compile for Zephyr) Tj T* (make boards                        # Find the connected Nano) Tj T* (make flash PORT=/dev/cu.usbmodem11301 JOBS=4) Tj T* ET
 Q
 q
-1 0 0 1 60 338.9 cm
+1 0 0 1 60 115.5 cm
 q
 BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (Substitute your actual USB port; Linux commonly uses ) Tj /F3 9.3 Tf (/dev/ttyACM0) Tj /F1 9.3 Tf (. Close any other serial monitor before) Tj T* (uploading. Arduino CLI installs/updates the official Zephyr loader automatically. Double-press RESET if bootloader) Tj T* (recovery is needed. On Apple Silicon, the packaged Intel uploader requires Rosetta 2.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 279.1 cm
+1 0 0 1 60 82.1 cm
 q
-BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (All tools, downloads, libraries, staged sources, objects, and binaries stay under ignored ) Tj /F3 9.3 Tf (.build/) Tj /F1 9.3 Tf (. Existing global) Tj T* (Arduino installations are not used. Edit ) Tj /F3 9.3 Tf (firmware/) Tj /F1 9.3 Tf (, never the generated sketch. Outputs and their exact input manifest) Tj T* (are in ) Tj /F3 9.3 Tf (.build/zephyr-artifacts/) Tj /F1 9.3 Tf (. The selected FQBN is) Tj T* /F3 9.3 Tf (arduino:zephyr_main:nano33ble:link_mode=static) Tj /F1 9.3 Tf (.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 60 219.3 cm
-q
-BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The locked inputs are Arduino CLI 1.5.1, Arduino Zephyr Boards 1.0.0, its official ) Tj /F3 9.3 Tf (arm-zephyr-eabi@1.0.1) Tj /F1 9.3 Tf ( compiler) Tj T* (\(GCC 14.3.0\), Arduino_CMSIS-DSP 5.7.0, and the exact TensorFlow Lite source revision recorded in) Tj T* .070588 .396078 .470588 rg (dependencies.lock.json) Tj .094118 .156863 .231373 rg (. Firmware and host tests use C++20. See ) Tj .070588 .396078 .470588 rg (build and CI) Tj .094118 .156863 .231373 rg ( for provenance, prerequisites, optional) Tj T* (IDE settings, troubleshooting, and PDF generation.) Tj T* ET
+BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (All tools, downloads, libraries, staged sources, objects, and binaries stay under ignored ) Tj /F3 9.3 Tf (.build/) Tj /F1 9.3 Tf (. Existing global) Tj T* (Arduino installations are not used. Edit ) Tj /F3 9.3 Tf (firmware/) Tj /F1 9.3 Tf (, never the generated sketch. Outputs and their exact input manifest) Tj T* ET
 Q
 Q
  
 endstream
 endobj
-31 0 obj
+39 0 obj
 <<
-/Length 10483
+/Length 10459
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -300,14 +387,26 @@ BT 1 0 0 1 54 27.36 Tm (kwskit | Project guide) Tj T* ET
 BT 1 0 0 1 553.552 27.36 Tm (2) Tj T* ET
 Q
 q
-1 0 0 1 60 722.2 cm
+1 0 0 1 60 712.8 cm
+q
+BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (are in ) Tj /F3 9.3 Tf (.build/zephyr-artifacts/) Tj /F1 9.3 Tf (. The selected FQBN is) Tj T* /F3 9.3 Tf (arduino:zephyr_main:nano33ble:link_mode=static) Tj /F1 9.3 Tf (.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 653 cm
+q
+BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The locked inputs are Arduino CLI 1.5.1, Arduino Zephyr Boards 1.0.0, its official ) Tj /F3 9.3 Tf (arm-zephyr-eabi@1.0.1) Tj /F1 9.3 Tf ( compiler) Tj T* (\(GCC 14.3.0\), Arduino_CMSIS-DSP 5.7.0, and the exact TensorFlow Lite source revision recorded in) Tj T* .070588 .396078 .470588 rg (dependencies.lock.json) Tj .094118 .156863 .231373 rg (. Firmware and host tests use C++20. See ) Tj .070588 .396078 .470588 rg (build and CI) Tj .094118 .156863 .231373 rg ( for provenance, prerequisites, optional) Tj T* (IDE settings, troubleshooting, and PDF generation.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 623 cm
 q
 .070588 .396078 .470588 rg
 BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Runtime architecture and ownership) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 470.8 cm
+1 0 0 1 60 371.6 cm
 q
 .866667 .921569 .941176 rg
 n 0 244.4 504 -18.8 re f*
@@ -610,17 +709,17 @@ Q
 Q
 Q
 q
-1 0 0 1 60 461.8 cm
+1 0 0 1 60 362.6 cm
 Q
 q
-1 0 0 1 60 395.8 cm
+1 0 0 1 60 296.6 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 56.7 Tm /F1 9.3 Tf 13.2 TL (Lower Zephyr priority numbers run first. The audio thread owns feature extraction, the model, and stream recovery.) Tj T* (Control owns temporal detection and the LED. The lower-priority main thread owns telemetry, isolating internal Serial) Tj T* (waits from keyword control. A queue copies score/timestamp/sequence/generation values, never pointers into shared) Tj T* (audio or tensor buffers. A delayed control thread can lose scores without blocking the audio consumer. An overflowing) Tj T* (audio ring rejects new samples and explicitly resets detection evidence.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 168.4 cm
+1 0 0 1 60 69.2 cm
 q
 .866667 .921569 .941176 rg
 n 0 220.4 504 -20.8 re f*
@@ -753,20 +852,14 @@ Q
 Q
 Q
 q
-1 0 0 1 60 159.4 cm
-Q
-q
-1 0 0 1 60 80.2 cm
-q
-BT 1 0 0 1 0 69.9 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The application and model runtime have static lifetime. Fixed application stacks reserve 8192 bytes for audio and 6144) Tj T* (for control. A nonblocking mutex protects only short metrics copies. Zephyr IRQ keys preserve nested capture) Tj T* (snapshots; scheduler locking covers the final freshness check and initialized GPIO write while leaving interrupts) Tj T* (enabled. See ) Tj .070588 .396078 .470588 rg (RTOS design) Tj .094118 .156863 .231373 rg ( and ) Tj .070588 .396078 .470588 rg (C++ ownership) Tj .094118 .156863 .231373 rg (. Application buffers and kernel resources use fixed storage, including) Tj T* (the inference arena. The build rejects direct heap allocation/deallocation imports in sketch objects, disables) Tj T* (exceptions/RTTI and rejects variable-length arrays. Each audio activation handles at most eight hops; a full batch yields) Tj T* ET
-Q
+1 0 0 1 60 60.2 cm
 Q
  
 endstream
 endobj
-32 0 obj
+40 0 obj
 <<
-/Length 7519
+/Length 7400
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -779,221 +872,179 @@ BT 1 0 0 1 54 27.36 Tm (kwskit | Project guide) Tj T* ET
 BT 1 0 0 1 553.552 27.36 Tm (3) Tj T* ET
 Q
 q
-1 0 0 1 60 712.8 cm
+1 0 0 1 60 633.6 cm
 q
-BT 1 0 0 1 0 17.1 Tm -0.002983 Tw 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (for 1 ms before resuming. These controls do not establish a whole-system WCET or prove that loader/driver code never) Tj T* 0 Tw (allocates.) Tj T* ET
+BT 1 0 0 1 0 96.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The application and model runtime have static lifetime. Fixed application stacks reserve 8192 bytes for audio and 6144) Tj T* (for control. A nonblocking mutex protects only short metrics copies. Zephyr IRQ keys preserve nested capture) Tj T* (snapshots; scheduler locking covers the final freshness check and initialized GPIO write while leaving interrupts) Tj T* (enabled. See ) Tj .070588 .396078 .470588 rg (RTOS design) Tj .094118 .156863 .231373 rg ( and ) Tj .070588 .396078 .470588 rg (C++ ownership) Tj .094118 .156863 .231373 rg (. Application buffers and kernel resources use fixed storage, including) Tj T* (the inference arena. The build rejects direct heap allocation/deallocation imports in sketch objects, disables) Tj T* (exceptions/RTTI and rejects variable-length arrays. Each audio activation handles at most eight hops; a full batch yields) Tj T* -0.002983 Tw (for 1 ms before resuming. These controls do not establish a whole-system WCET or prove that loader/driver code never) Tj T* 0 Tw (allocates.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 666.2 cm
+1 0 0 1 60 587 cm
 q
 BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The build also stages a ) Tj .070588 .396078 .470588 rg (PDM driver patch) Tj .094118 .156863 .231373 rg ( that sleeps 1 ms before retrying a failed device read. Run ) Tj /F3 9.3 Tf (make) Tj T* -0.064429 Tw (test-pdm-driver) Tj /F1 9.3 Tf ( after setup to fault-test the actual worker; CI runs this additional gate. The installed core and official) Tj T* 0 Tw (compiler/loader remain intact.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 636.2 cm
+1 0 0 1 60 557 cm
 q
 .070588 .396078 .470588 rg
 BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Features, model, and detection) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 576.4 cm
+1 0 0 1 60 497.2 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 43.5 Tm /F1 9.3 Tf 13.2 TL (Each 256-sample hop advances a 512-sample frame with 50% overlap. The extractor uses a periodic Hann window,) Tj T* (257 correctly unpacked FFT power bins, a 20-band mel matrix spanning 20-4000 Hz, natural log with epsilon 1e-6, and) Tj T* (model-supplied int8 quantization. The 61-row context covers 992 ms of audio. First inference requires a full context;) Tj T* (subsequent attempts require eight new rows and a drained hop backlog, giving a nominal 128 ms decision interval.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 516.6 cm
+1 0 0 1 60 437.4 cm
 q
 BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The deployed 8496-byte model classifies ) Tj /F3 9.3 Tf (yes) Tj /F1 9.3 Tf (, unknown speech, and silence. Its six convolution operators contain 992) Tj T* (int8 weights and 83 int32 biases: ) Tj /F2 9.3 Tf (1075 deployed parameter values) Tj /F1 9.3 Tf (, or 1324 parameter payload bytes. Its eight) Tj T* (operators use Conv2D, DepthwiseConv2D, MEAN and SOFTMAX registrations. The model and mel coefficients are) Tj T* (compiled into flash; the 64 KiB arena holds mutable inference data. Startup reports actual tensor allocation.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 456.8 cm
+1 0 0 1 60 377.6 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 43.5 Tm /F1 9.3 Tf 13.2 TL (Control uses class-0 confidence, EMA weight 0.5, raw/smoothed thresholds 0.8/0.75, two qualifying decisions, release) Tj T* (below 0.4, and a 1500 ms cooldown. Events expire after 250 ms; sequence/generation gaps discard partial evidence) Tj T* (while retaining latch and cooldown state. A final scheduler-locked check prevents an obsolete score from triggering an) Tj T* (action after audio invalidates its generation.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 423.4 cm
+1 0 0 1 60 344.2 cm
 q
 BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (See ) Tj .070588 .396078 .470588 rg (DSP details) Tj .094118 .156863 .231373 rg ( for formulas, packed FFT layout and training alignment, and ) Tj .070588 .396078 .470588 rg (TinyML inference) Tj .094118 .156863 .231373 rg ( for the exact model) Tj T* (graph, quantization, training results, inspection commands and accuracy limits.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 393.4 cm
+1 0 0 1 60 314.2 cm
 q
 .070588 .396078 .470588 rg
 BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Measured Zephyr results) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 346.8 cm
+1 0 0 1 60 267.6 cm
 q
 BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The following observations come from the October 22, 2026 Zephyr hardware session. They describe the recorded) Tj T* (image and workload, not worst-case guarantees. The cleanup build and any new measurements are identified) Tj T* (separately in ) Tj .070588 .396078 .470588 rg (validation) Tj .094118 .156863 .231373 rg (.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 78.6 cm
+1 0 0 1 60 72.6 cm
 q
 .866667 .921569 .941176 rg
-n 0 261.2 504 -20.8 re f*
+n 0 188 504 -20.8 re f*
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
-1 0 0 1 6 245.4 cm
+1 0 0 1 6 172.2 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Measurement) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 245.4 cm
+1 0 0 1 247.92 172.2 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Recorded result) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 224.6 cm
+1 0 0 1 6 151.4 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Sampling rate over normal capture) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 224.6 cm
+1 0 0 1 247.92 151.4 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Approximately 15,999.7 samples/second) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 203.8 cm
+1 0 0 1 6 130.6 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Normal DSP average / observed maximum) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 203.8 cm
+1 0 0 1 247.92 130.6 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (2.217 / 5.249 ms per consumed hop) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 183 cm
+1 0 0 1 6 109.8 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Normal inference average / observed maximum) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 183 cm
+1 0 0 1 247.92 109.8 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (54.994 / 55.054 ms) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 162.2 cm
+1 0 0 1 6 89 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Normal processing-step maximum) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 162.2 cm
+1 0 0 1 247.92 89 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (57.342 ms) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 141.4 cm
+1 0 0 1 6 68.2 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Audio-ring high-water mark) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 141.4 cm
+1 0 0 1 247.92 68.2 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (768 of 8192 samples) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 120.6 cm
+1 0 0 1 6 47.4 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Normal losses and errors) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 109.8 cm
+1 0 0 1 247.92 36.6 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Zero reported sample losses, missed buffers, inference errors,) Tj T* (notification errors, event drops or stale events) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 89 cm
+1 0 0 1 6 15.8 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Spoken keyword check) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 78.2 cm
-q
-BT 1 0 0 1 0 13.5 Tm 10.8 TL /F1 8.1 Tf .094118 .156863 .231373 rg (16 cumulative confirmed actions; user confirmed physical LED) Tj T* (toggling on ") Tj (yes) Tj (") Tj T* ET
-Q
-Q
-q
-1 0 0 1 6 57.4 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Deliberate 1500 ms control stall) Tj T* ET
-Q
-Q
-q
-1 0 0 1 247.92 46.6 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Four expected event drops, nine stale scores rejected, no reported) Tj T* (audio loss or inference errors) Tj T* ET
-Q
-Q
-q
-1 0 0 1 6 25.8 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Recorded sketch flash / RAM) Tj T* ET
-Q
-Q
-q
-1 0 0 1 247.92 25.8 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (206,032 / 118,096 bytes) Tj T* ET
-Q
-Q
-q
-1 0 0 1 6 5 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Stock loader sketch RAM region) Tj T* ET
-Q
-Q
-q
 1 0 0 1 247.92 5 cm
 q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (131,072 bytes; recorded remainder 12,976 bytes) Tj T* ET
+BT 1 0 0 1 0 13.5 Tm 10.8 TL /F1 8.1 Tf .094118 .156863 .231373 rg (16 cumulative confirmed actions; user confirmed physical LED) Tj T* (toggling on ") Tj (yes) Tj (") Tj T* ET
 Q
 Q
 q
@@ -1001,18 +1052,15 @@ q
 1 j
 .070588 .396078 .470588 RG
 .6 w
-n 0 240.4 m 504 240.4 l S
+n 0 167.2 m 504 167.2 l S
 .847059 .882353 .905882 RG
 .25 w
-n 0 219.6 m 504 219.6 l S
-n 0 198.8 m 504 198.8 l S
-n 0 178 m 504 178 l S
-n 0 157.2 m 504 157.2 l S
-n 0 136.4 m 504 136.4 l S
+n 0 146.4 m 504 146.4 l S
+n 0 125.6 m 504 125.6 l S
 n 0 104.8 m 504 104.8 l S
-n 0 73.2 m 504 73.2 l S
-n 0 41.6 m 504 41.6 l S
-n 0 20.8 m 504 20.8 l S
+n 0 84 m 504 84 l S
+n 0 63.2 m 504 63.2 l S
+n 0 31.6 m 504 31.6 l S
 n 0 0 m 504 0 l S
 Q
 Q
@@ -1020,9 +1068,9 @@ Q
  
 endstream
 endobj
-33 0 obj
+41 0 obj
 <<
-/Length 8127
+/Length 8359
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -1035,24 +1083,66 @@ BT 1 0 0 1 54 27.36 Tm (kwskit | Project guide) Tj T* ET
 BT 1 0 0 1 553.552 27.36 Tm (4) Tj T* ET
 Q
 q
-1 0 0 1 60 697.6 cm
+1 0 0 1 60 624.4 cm
 q
 .866667 .921569 .941176 rg
-n 0 41.6 504 -20.8 re f*
+n 0 114.8 504 -20.8 re f*
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
-1 0 0 1 6 25.8 cm
+1 0 0 1 6 99 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Measurement) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 25.8 cm
+1 0 0 1 247.92 99 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Recorded result) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 78.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Deliberate 1500 ms control stall) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 67.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Four expected event drops, nine stale scores rejected, no reported) Tj T* (audio loss or inference errors) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 46.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Recorded sketch flash / RAM) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 46.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (206,032 / 118,096 bytes) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 25.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Stock loader sketch RAM region) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 25.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (131,072 bytes; recorded remainder 12,976 bytes) Tj T* ET
 Q
 Q
 q
@@ -1074,206 +1164,182 @@ q
 1 j
 .070588 .396078 .470588 RG
 .6 w
-n 0 20.8 m 504 20.8 l S
+n 0 94 m 504 94 l S
 .847059 .882353 .905882 RG
 .25 w
+n 0 94 m 504 94 l S
+n 0 62.4 m 504 62.4 l S
+n 0 41.6 m 504 41.6 l S
 n 0 20.8 m 504 20.8 l S
 n 0 0 m 504 0 l S
 Q
 Q
 Q
 q
-1 0 0 1 60 688.6 cm
+1 0 0 1 60 615.4 cm
 Q
 q
-1 0 0 1 60 635.8 cm
+1 0 0 1 60 562.6 cm
 q
 BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The RAM figure already includes both application stacks, ring, DSP workspace, and reserved arena. The remainder is) Tj T* (not measured free heap. Stock loader stack watermarks are unavailable: ) Tj /F3 9.3 Tf (stack_free=0/0) Tj /F1 9.3 Tf ( means unmeasured.) Tj T* (General system heap, framework/interrupt stacks, extended endurance, cold power-cycle, and calibrated acoustic) Tj T* (accuracy remain separate validation work. See ) Tj .070588 .396078 .470588 rg (real-time limits) Tj .094118 .156863 .231373 rg (.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 589.2 cm
+1 0 0 1 60 516 cm
 q
 BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The table preserves the original image) Tj (') Tj (s evidence. The later C++20 hardening build uses 206,824 bytes flash. ) Tj .070588 .396078 .470588 rg (Current) Tj T* (validation) Tj .094118 .156863 .231373 rg ( records its source hashes, captures and limits. A later ) Tj .070588 .396078 .470588 rg (spoken-keyword check) Tj .094118 .156863 .231373 rg ( on this image recorded 13 new) Tj T* (actions and user-confirmed LED toggling on ") Tj (yes.) Tj (") Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 555.8 cm
+1 0 0 1 60 482.6 cm
 q
 BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The ) Tj .070588 .396078 .470588 rg (renamed-sketch validation) Tj .094118 .156863 .231373 rg ( records the current ) Tj /F3 9.3 Tf (kwskit.ino) Tj /F1 9.3 Tf ( build, upload and live telemetry check. Earlier) Tj T* (spoken-keyword evidence retains its original image identity.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 509.2 cm
+1 0 0 1 60 436 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 30.3 Tm /F1 9.3 Tf 13.2 TL (The saved training notebook reports 93.48% floating-point held-out test accuracy, 97.90% validation accuracy, and) Tj T* (98.02% final training accuracy. These are training artifacts, not measured recognition rates for the quantized model on) Tj T* (this board. Speech/LED checks establish functionality without an accuracy denominator.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 479.2 cm
+1 0 0 1 60 406 cm
 q
 .070588 .396078 .470588 rg
 BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Hardware checks and telemetry) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 459 cm
+1 0 0 1 60 385.8 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 3.9 Tm /F1 9.3 Tf 13.2 TL (Install PySerial in a local environment, then capture normal operation:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 383 cm
+1 0 0 1 60 309.8 cm
 %PreformattedPara
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 60.8 Tm /F3 8.2 Tf 11.5 TL (python3 -m venv .build/hardware-venv) Tj T* (.build/hardware-venv/bin/python -m pip install pyserial==3.5) Tj T* (.build/hardware-venv/bin/python tests/hardware_capture.py --port /dev/cu.usbmodem11301 \\) Tj T* (    --seconds 60 --allow-unavailable-stack-metrics --output .build/normal.json) Tj T* (.build/hardware-venv/bin/python scripts/rtos_stress.py --port /dev/cu.usbmodem11301 \\) Tj T* (    --seconds 25 --output .build/stress.json) Tj T* ET
 Q
 q
-1 0 0 1 60 347.6 cm
+1 0 0 1 60 274.4 cm
 q
 BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The stress script uploads a test-only control-stall image and restores the normal image in ) Tj /F3 9.3 Tf (finally) Tj /F1 9.3 Tf (; confirm restoration) Tj T* (succeeds. Speak ") Tj (yes) Tj (" with pauses and observe the LED separately. Ending a capture leaves the firmware running.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 78.6 cm
+1 0 0 1 60 68.6 cm
 q
 .866667 .921569 .941176 rg
-n 0 262 504 -20.8 re f*
+n 0 198.8 504 -20.8 re f*
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
-1 0 0 1 6 246.2 cm
+1 0 0 1 6 183 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Telemetry field) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 246.2 cm
+1 0 0 1 247.92 183 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Meaning) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 225.4 cm
+1 0 0 1 6 162.2 cm
 q
 BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (ms) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (samples) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 225.4 cm
+1 0 0 1 247.92 162.2 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Uptime and cumulative samples received by the callback) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 204.6 cm
+1 0 0 1 6 141.4 cm
 q
 BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (dropped) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (missed_buffers) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 204.6 cm
+1 0 0 1 247.92 141.4 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Rejected ring samples and callbacks with lost/invalid reads) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 183.8 cm
+1 0 0 1 6 120.6 cm
 q
 BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (queue_max) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (gap_max_us) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (audio_age_us) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 173 cm
+1 0 0 1 247.92 109.8 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Ring high-water mark, maximum callback gap, age of last received) Tj T* (audio) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 152.2 cm
+1 0 0 1 6 89 cm
 q
 BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (dsp_us) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (infer_us) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (process_us) Tj T* ET
-Q
-Q
-q
-1 0 0 1 247.92 152.2 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Average / observed maximum DSP, inference and one pipeline step) Tj T* ET
-Q
-Q
-q
-1 0 0 1 6 131.4 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (response_us) Tj T* ET
-Q
-Q
-q
-1 0 0 1 247.92 120.6 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Last / maximum response from estimated first high-confidence) Tj T* (window end to action; not acoustic-onset latency) Tj T* ET
-Q
-Q
-q
-1 0 0 1 6 99.8 cm
-q
-BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (inferences) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (errors) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (dsp_errors) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (p_milli) Tj T* ET
 Q
 Q
 q
 1 0 0 1 247.92 89 cm
 q
 .094118 .156863 .231373 rg
-BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Invocation count, inference/DSP failures and latest class-0 score) Tj T* (scaled by 1000) Tj T* ET
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Average / observed maximum DSP, inference and one pipeline step) Tj T* ET
 Q
 Q
 q
 1 0 0 1 6 68.2 cm
 q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (response_us) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 57.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Last / maximum response from estimated first high-confidence) Tj T* (window end to action; not acoustic-onset latency) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 36.6 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (inferences) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (errors) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (dsp_errors) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (p_milli) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 25.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Invocation count, inference/DSP failures and latest class-0 score) Tj T* (scaled by 1000) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 5 cm
+q
 BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (triggers) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (led) Tj T* ET
-Q
-Q
-q
-1 0 0 1 247.92 68.2 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Confirmed action count and logical LED state) Tj T* ET
-Q
-Q
-q
-1 0 0 1 6 47.4 cm
-q
-BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (event_drops) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (stale_events) Tj T* ET
-Q
-Q
-q
-1 0 0 1 247.92 36.6 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Dropped classification results and rejected expired/old-generation) Tj T* (results) Tj T* ET
-Q
-Q
-q
-1 0 0 1 6 15.8 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (notify_errors) Tj T* ET
 Q
 Q
 q
 1 0 0 1 247.92 5 cm
 q
 .094118 .156863 .231373 rg
-BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Reserved diagnostic counter; Zephyr binary-semaphore give has no) Tj T* (failure return) Tj T* ET
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Confirmed action count and logical LED state) Tj T* ET
 Q
 Q
 q
@@ -1281,17 +1347,15 @@ q
 1 j
 .070588 .396078 .470588 RG
 .6 w
-n 0 241.2 m 504 241.2 l S
+n 0 178 m 504 178 l S
 .847059 .882353 .905882 RG
 .25 w
-n 0 220.4 m 504 220.4 l S
-n 0 199.6 m 504 199.6 l S
-n 0 168 m 504 168 l S
-n 0 147.2 m 504 147.2 l S
-n 0 115.6 m 504 115.6 l S
+n 0 157.2 m 504 157.2 l S
+n 0 136.4 m 504 136.4 l S
+n 0 104.8 m 504 104.8 l S
 n 0 84 m 504 84 l S
-n 0 63.2 m 504 63.2 l S
-n 0 31.6 m 504 31.6 l S
+n 0 52.4 m 504 52.4 l S
+n 0 20.8 m 504 20.8 l S
 n 0 0 m 504 0 l S
 Q
 Q
@@ -1299,9 +1363,9 @@ Q
  
 endstream
 endobj
-34 0 obj
+42 0 obj
 <<
-/Length 3635
+/Length 4355
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -1314,24 +1378,51 @@ BT 1 0 0 1 54 27.36 Tm (kwskit | Project guide) Tj T* ET
 BT 1 0 0 1 553.552 27.36 Tm (5) Tj T* ET
 Q
 q
-1 0 0 1 60 666 cm
+1 0 0 1 60 602.8 cm
 q
 .866667 .921569 .941176 rg
-n 0 73.2 504 -20.8 re f*
+n 0 136.4 504 -20.8 re f*
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
-1 0 0 1 6 57.4 cm
+1 0 0 1 6 120.6 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Telemetry field) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 57.4 cm
+1 0 0 1 247.92 120.6 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Meaning) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 99.8 cm
+q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (event_drops) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (stale_events) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 89 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Dropped classification results and rejected expired/old-generation) Tj T* (results) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 68.2 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (notify_errors) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 57.4 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Reserved diagnostic counter; Zephyr binary-semaphore give has no) Tj T* (failure return) Tj T* ET
 Q
 Q
 q
@@ -1367,9 +1458,11 @@ q
 1 j
 .070588 .396078 .470588 RG
 .6 w
-n 0 52.4 m 504 52.4 l S
+n 0 115.6 m 504 115.6 l S
 .847059 .882353 .905882 RG
 .25 w
+n 0 115.6 m 504 115.6 l S
+n 0 84 m 504 84 l S
 n 0 52.4 m 504 52.4 l S
 n 0 31.6 m 504 31.6 l S
 n 0 0 m 504 0 l S
@@ -1377,37 +1470,37 @@ Q
 Q
 Q
 q
-1 0 0 1 60 657 cm
+1 0 0 1 60 593.8 cm
 Q
 q
-1 0 0 1 60 630.6 cm
+1 0 0 1 60 567.4 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 17.1 Tm /F1 9.3 Tf 13.2 TL (Counters are cumulative and may precede a host recording. Compare successive records to infer activity within an) Tj T* (interval. A buffered telemetry line may precede the fresh lines received when reopening a monitor.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 600.6 cm
+1 0 0 1 60 537.4 cm
 q
 .070588 .396078 .470588 rg
 BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Tests and documentation) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 540.8 cm
+1 0 0 1 60 477.6 cm
 q
 BT 1 0 0 1 0 43.5 Tm 13.2 TL /F3 9.3 Tf .094118 .156863 .231373 rg (make test) Tj /F1 9.3 Tf ( runs the same complete host gate as GitHub Actions: twelve unit entries and four additional regression) Tj T* (entries. ) Tj /F3 9.3 Tf (make test-pdm-driver) Tj /F1 9.3 Tf ( is a separate gate after setup and also runs in firmware CI. These suites exercise) Tj T* (actual Zephyr application modules with deterministic PDM, IRQ, serial, DSP, model and kernel fixtures. Hardware) Tj T* (checks cover the real microphone/DSP/model path. ) Tj .070588 .396078 .470588 rg (Testing) Tj .094118 .156863 .231373 rg ( describes coverage and limits.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 494.2 cm
+1 0 0 1 60 431 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 30.3 Tm /F1 9.3 Tf 13.2 TL (Line/branch coverage percentages are not measured. Fixtures do not exhaustively reproduce thread interleavings or) Tj T* (execute the real CMSIS-DSP/TFLite numerical path; feature parity, recognition accuracy and long-duration timing need) Tj T* (separate evidence.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 434.4 cm
+1 0 0 1 60 371.2 cm
 q
 BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .070588 .396078 .470588 rg (Documentation index) Tj .094118 .156863 .231373 rg ( links setup, architecture, DSP, inference, ownership, real-time behavior and validation evidence.) Tj T* .070588 .396078 .470588 rg (README.pdf) Tj .094118 .156863 .231373 rg ( is generated from this root README; CI checks that the export is current. Its architecture table retains) Tj T* (every node and connection in the Markdown diagram. The other topic guides are maintained as Markdown without PDF) Tj T* (counterparts. Model assets and the training notebook remain available under ) Tj /F3 9.3 Tf (models/) Tj /F1 9.3 Tf ( and ) Tj /F3 9.3 Tf (training/) Tj /F1 9.3 Tf (.) Tj T* ET
 Q
@@ -1416,52 +1509,60 @@ Q
 endstream
 endobj
 xref
-0 35
+0 43
 0000000000 65535 f 
 0000000073 00000 n 
-0000000124 00000 n 
-0000000231 00000 n 
-0000000343 00000 n 
-0000000551 00000 n 
-0000000656 00000 n 
-0000000867 00000 n 
-0000001075 00000 n 
-0000001300 00000 n 
-0000001514 00000 n 
-0000001728 00000 n 
-0000001949 00000 n 
-0000002172 00000 n 
-0000002387 00000 n 
-0000002607 00000 n 
-0000002819 00000 n 
-0000003055 00000 n 
-0000003272 00000 n 
-0000003520 00000 n 
-0000003761 00000 n 
-0000004017 00000 n 
-0000004266 00000 n 
-0000004509 00000 n 
-0000004718 00000 n 
-0000004922 00000 n 
-0000005125 00000 n 
-0000005354 00000 n 
-0000005424 00000 n 
-0000005824 00000 n 
-0000005912 00000 n 
-0000010570 00000 n 
-0000021106 00000 n 
-0000028677 00000 n 
-0000036856 00000 n 
+0000000125 00000 n 
+0000000232 00000 n 
+0000000344 00000 n 
+0000000552 00000 n 
+0000000765 00000 n 
+0000000971 00000 n 
+0000001179 00000 n 
+0000001380 00000 n 
+0000001594 00000 n 
+0000001813 00000 n 
+0000002024 00000 n 
+0000002238 00000 n 
+0000002344 00000 n 
+0000002609 00000 n 
+0000002821 00000 n 
+0000003030 00000 n 
+0000003252 00000 n 
+0000003467 00000 n 
+0000003681 00000 n 
+0000003904 00000 n 
+0000004119 00000 n 
+0000004339 00000 n 
+0000004553 00000 n 
+0000004803 00000 n 
+0000005022 00000 n 
+0000005270 00000 n 
+0000005511 00000 n 
+0000005767 00000 n 
+0000006014 00000 n 
+0000006257 00000 n 
+0000006468 00000 n 
+0000006670 00000 n 
+0000006875 00000 n 
+0000007104 00000 n 
+0000007174 00000 n 
+0000007574 00000 n 
+0000007663 00000 n 
+0000014008 00000 n 
+0000024520 00000 n 
+0000031972 00000 n 
+0000040383 00000 n 
 trailer
 <<
 /ID 
-[<2512bbb073309b31a6f0d9458f642db8><2512bbb073309b31a6f0d9458f642db8>]
+[<d541ba31cb503cfa24ba60d57573d94c><d541ba31cb503cfa24ba60d57573d94c>]
 % ReportLab generated PDF document -- digest (http://www.reportlab.com)
 
-/Info 28 0 R
-/Root 27 0 R
-/Size 35
+/Info 36 0 R
+/Root 35 0 R
+/Size 43
 >>
 startxref
-40543
+44790
 %%EOF
