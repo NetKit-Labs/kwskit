@@ -79,6 +79,10 @@ namespace tflite {
     public:
         MicroInterpreter(const Model *, MicroMutableOpResolver<4> &, std::uint8_t *, std::size_t) {}
 
+        std::size_t arena_used_bytes() const {
+            return 12500;
+        }
+
         int AllocateTensors() {
             return FakeModel::allocation ? kTfLiteOk : kTfLiteError;
         }

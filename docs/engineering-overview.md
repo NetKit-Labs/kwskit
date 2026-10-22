@@ -1,182 +1,58 @@
-# Engineering overview: real-time keyword spotting on Cortex-M4F
+# Zephyr engineering overview
 
-This project implements continuous, single-keyword voice control on an nRF52840
-at 64 MHz using an Arduino Nano 33 BLE-class board with a PDM microphone. CMSIS-DSP
-extracts log-mel features, an int8 TensorFlow Lite Micro model scores the keyword
-"yes," and confirmed detections toggle the built-in LED. Two CMSIS-RTOS2 application
-tasks run on the board's existing Mbed/RTX kernel. PDM capture runs in an interrupt
-callback outside both tasks. The present workload could also use a cooperative
-main loop; the maintained build deliberately uses two tasks for separate ownership
-and scheduling as device functions expand. See [the RTOS rationale](rtos-design.md#why-two-application-tasks).
+This application continuously classifies a rolling second of microphone audio
+on a 64 MHz Cortex-M4F. Samples arrive every 16 ms while inference takes roughly
+55 ms. Acquisition therefore needs independent scheduling and buffering, and
+control must reject results that become obsolete during a delay.
 
-The implementation addresses a concrete scheduling problem: microphone samples
-continue arriving every 16 ms while a neural-network inference takes roughly
-59 ms. Acquisition must preserve sample order during inference, and delayed
-device-control work must not block the audio consumer. Detection also needs
-fresh temporal evidence to avoid acting on old scores after a stall.
-
-## Requirements and design decisions
+## Requirements and decisions
 
 | Requirement | Implementation and tradeoff |
-|---|---|
-| Preserve audio during bounded processing delays | PDM interrupt callback publishes into an 8192-sample SPSC ring. The ring provides 512 ms nominal capacity and rejects new samples when full rather than overwriting unread data. |
-| Keep interrupt work bounded to acquisition | Callback drains PDM data, updates counters, and sets an ISR-safe thread flag. DSP, inference, filtering, GPIO actions, and USB telemetry execute in task context. |
-| Separate processing from device response | Higher-priority audio task owns DSP/model state; normal-priority control task owns filtering, LED state, and telemetry. Preemption occurs on one CPU; tasks are not executing simultaneously. |
-| Avoid pointer-lifetime and ownership ambiguity | An eight-entry RTOS queue copies score/timestamp/sequence/generation values. No audio, feature, or tensor pointers cross tasks. |
-| Bound control backpressure | Queue sends never wait. Overflow drops a score and invalidates previous-generation evidence, allowing audio to continue at the cost of possibly missing commands during the stall. |
-| Reject obsolete or incomplete detection evidence | Control rejects scores older than 250 ms or from old generations. Missing/duplicate sequences and long score gaps reset temporal evidence while preserving latch/cooldown history. |
-| Suppress isolated/repeated detections | EMA smoothing, raw/smoothed confidence thresholds, two qualifying decisions, release hysteresis, and a 1500 ms cooldown precede an LED action. |
-| Make builds and failures reviewable | Pinned dependencies, source/dependency manifests, host regression tests, hardware telemetry, checked initialization, and cleanup on partial RTOS startup failure. |
+| --- | --- |
+| Preserve audio through bounded processing delays | Priority-3 PDM callback publishes into an 8192-sample ring; full rings reject new samples and report loss |
+| Bound acquisition work | At most one 512-byte PCM block per callback; no DSP, model, actions or serial output |
+| Isolate slow control | Audio priority 4, control priority 5; score sends never wait |
+| Avoid cross-thread buffer lifetime problems | Eight-entry Zephyr queue copies values, never audio/tensor pointers |
+| Prevent stale actions | Generation, sequence and dual-clock age checks; final scheduler-locked check immediately before GPIO |
+| Avoid isolated/repeated detections | EMA, raw/smoothed thresholds, consecutive evidence, release hysteresis and cooldown |
+| Make evidence reviewable | Locked dependencies, actual-module host tests, source manifests, CI and dated telemetry |
 
-## Runtime and source navigation
+## Source map
 
-The [README architecture diagram](../README.md#runtime-architecture-and-ownership)
-shows the complete flow. The main ownership boundary is:
+| Source | Responsibility |
+| --- | --- |
+| [kws_pipeline.cpp](../firmware/kws_pipeline.cpp) | Zephyr resources, startup, thread bodies, generation handling and action serialization |
+| [audio_capture.cpp](../firmware/audio_capture.cpp) | Callback ownership, bounded PDM reads and arrival/loss snapshots |
+| [audio_queue.h](../firmware/audio_queue.h) | Atomic single-producer/single-consumer ring |
+| [audio_pipeline.cpp](../firmware/audio_pipeline.cpp) | Audio loss recovery, readiness, backlog deferral and timing |
+| [feature_extractor.cpp](../firmware/feature_extractor.cpp) | Frame overlap, periodic Hann, FFT, mel/log and input quantization |
+| [fft_power.h](../firmware/fft_power.h) | Separate DC/Nyquist and interior complex power bins |
+| [keyword_model.cpp](../firmware/keyword_model.cpp) | Model schema/operators, fixed arena, tensor validation and score decoding |
+| [keyword_event.h](../firmware/keyword_event.h) | Freshness, continuity and temporal-evidence invalidation |
+| [keyword_filter.h](../firmware/keyword_filter.h) | Smoothing, qualification, latch and cooldown |
+| [device_control.cpp](../firmware/device_control.cpp) | Initialized LED and toggle action |
+| [telemetry.cpp](../firmware/telemetry.cpp) | Fixed formatting buffer and bounded Arduino Serial writes |
 
-```text
-PDM interrupt -> sample ring -> audio task -> score queue -> control task -> LED
-                                  DSP + NN                   filter + USB
-```
+The static application owns noncopyable stateful modules. Audio exclusively
+uses DSP/model state after initialization; control owns detection/LED/telemetry.
+References describe required dependencies and typed arrays carry extents across
+interfaces. Pointer/context adapters stay confined to platform API boundaries.
+See [ownership](cpp-idioms.md) and [scheduling](rtos-design.md).
 
-Start with these source files to follow that flow:
+## Evidence and remaining work
 
-| Source | What to review |
-|---|---|
-| [kws_pipeline.cpp](../firmware/kws_pipeline.cpp) | Static task/queue storage, priorities, ISR notification, startup/cleanup, nonblocking score transport, and generation handling |
-| [audio_capture.cpp](../firmware/audio_capture.cpp), [audio_queue.h](../firmware/audio_queue.h) | PDM staging, atomic SPSC publication, complete-hop reads, and explicit loss counters |
-| [audio_pipeline.cpp](../firmware/audio_pipeline.cpp) | Loss recovery, feature readiness, backlog-aware inference, and timing boundaries |
-| [feature_extractor.cpp](../firmware/feature_extractor.cpp), [fft_power.h](../firmware/fft_power.h) | Overlapped frames, packed real-FFT power, log-mel features, quantization, and rolling model context |
-| [keyword_model.cpp](../firmware/keyword_model.cpp) | Model/operator setup, static 96 KiB arena, tensor validation, and int8 score conversion |
-| [keyword_event.h](../firmware/keyword_event.h), [keyword_filter.h](../firmware/keyword_filter.h) | Freshness, sequence continuity, smoothing, hysteresis, and retrigger suppression |
-| [device_control.cpp](../firmware/device_control.cpp), [telemetry.cpp](../firmware/telemetry.cpp) | Confirmed-action handling and nonblocking diagnostic output |
+The [Zephyr normal capture](zephyr-normal.json) records approximately 16 kHz
+sampling, zero reported losses/errors, 16 confirmed actions and physical LED
+confirmation. Its average DSP/inference work over eight hops is approximately
+`8 * 2.217 + 54.994 = 72.730 ms` per nominal 128 ms decision interval.
+This estimate excludes other work and is not measured CPU utilization or WCET.
+A [control stall](zephyr-stress.json) demonstrates score loss/stale rejection
+while audio continues. [Validation](validation.md) distinguishes those recorded
+hardware results from the cleanup build and current host/CI checks.
 
-Synchronization stays narrow: the ISR never acquires a mutex. A
-metrics mutex protects only a small audio-statistics copy using timeout-zero
-attempts. Contention skips that diagnostic update. The mutex is not
-held across DSP, inference, GPIO, USB transmission, or queue waits. Thread flags
-may coalesce because sample ownership lives in the ring; audio drains complete
-hops before waiting again. See [RTOS design](rtos-design.md) for the full rules.
-
-The FFT helper explicitly handles the CMSIS fast real-FFT packing: DC is at
-output index 0, Nyquist at index 1, and interior complex bins occupy the remaining
-pairs. The 512-float transform produces 257 power bins without reading outside
-the transform output. Exact-size-array sanitizer tests exercise this boundary.
-The [DSP pipeline guide](dsp-pipeline.md) follows every stage through mel/log
-projection, quantization, and rolling model context, including startup/reset
-behavior and the periodic Hann convention used by training.
-The [TinyML inference guide](tinyml-inference.md) describes the deployed CNN,
-distinguishes Keras and folded parameter counts, and verifies the model/arena
-flash/SRAM placements using the artifact and linked firmware.
-
-## C++ state ownership
-
-The [object refactor](cpp-refactor.md) makes the stateful modules ordinary C++
-classes. `FeatureExtractor` owns `std::array` workspaces and is noncopyable because
-CMSIS descriptors point into them. `AudioPipeline` receives its dependencies by
-reference. `AudioCapture` routes the driver's C callback to its active owner;
-RTOS callbacks use an application context pointer. The model has one encapsulated,
-statically reserved runtime. DSP/model state remains exclusive to the audio task.
-The later [C++ idioms review](cpp-idioms.md) adds typed buffer extents, scoped
-interrupt/mutex guards, and destruction-based capture/application cleanup.
-
-## Measured results and their meaning
-
-The current-source records were collected October 20, 2026 after the real-time
-hardening. Normal timing below uses the final cumulative statistics in
-[realtime-normal.json](realtime-normal.json); the deliberate stall is a
-separate [stress capture](realtime-stress.json). Build identity and procedure
-are in [the verification record](realtime-review.md#verification). Earlier captures
-remain in [historical RTOS validation](rtos-validation.md).
-
-| Measurement | Recorded result / interpretation |
-|---|---|
-| Input / features | 16 kHz mono; 256-sample hop; 512-sample FFT; 61 x 20 int8 feature context |
-| Nominal decisions | Every eight new feature hops, about 128 ms after warmup, when backlog permits |
-| Normal DSP average / observed maximum | 1.987 / 2.129 ms per hop |
-| Normal inference average / observed maximum | 57.655 / 57.772 ms |
-| Normal processing-step observed maximum | 59.851 ms; excludes score dispatch, metrics publication, and control work |
-| Normal result delivery average / observed maximum | 8.595 / 9.193 ms, from inference completion to control-side validation |
-| Speech/LED check | 10 cumulative confirmed actions; physical LED toggling confirmed by the developer |
-| Forced control stall | 1500 ms delay; four score drops and nine stale-result rejections; zero reported audio losses |
-| Normal operation | Zero reported audio losses, inference/notification errors, score drops, or stale-result rejections |
-| Firmware footprint | 320,088 bytes flash; 188,392 bytes static RAM, including application stacks and tensor arena |
-
-The saved Colab notebook reports **93.48% test accuracy (loss 0.1853)**,
-with **97.90% validation accuracy** and **98.02% training accuracy** in the final
-epoch. These floating-point dataset results are separate from on-device results.
-
-The developer reports approximately **95% keyword-recognition
-success in informal use** with the current **1075 deployed parameter values**.
-No labeled trial count or false-trigger rate accompanies that estimate. A wider
-or deeper model reaching the upper 90% range is an **untested hypothesis** that
-requires suitable training and comparison on shared held-out data, plus timing
-and RAM checks. On-device accuracy also depends on data, microphone and noise
-conditions, preprocessing, quantization, and detection thresholds.
-See [recognition evidence and hypothesis](tinyml-inference.md#informal-recognition-and-possible-model-expansion).
-
-With the final normal averages, eight feature hops plus one inference account
-for approximately `8 x 1.987 + 57.655 = 73.551 ms` of a nominal 128 ms decision
-interval. The difference is about 54.4 ms before other work. This is a useful
-processing-budget estimate, not measured total CPU utilization or a worst-case
-deadline guarantee. The hardware captures also verify continuing sample and
-inference progression rather than relying on this estimate alone.
-
-The deliberate control stall exceeds the score queue's roughly one-second
-nominal capacity. Score drops and stale rejection are expected protective
-behavior in that experiment, while the audio task continues. A larger event
-queue would not make results older than the 250 ms freshness limit usable.
-Score loss during routine expected operation would require investigation.
-
-Measured unused stack watermarks were 6872 of 8192 bytes for audio and 4680 of
-6144 bytes for control. The ring peaked at 768 of 8192 samples. These exercised
-paths leave about 84%, 76%, and 91% capacity respectively. The remaining 73,752
-bytes outside static RAM allocation are not a measured free-heap value.
-Peak heap, framework/interrupt stacks, and unused tensor-arena capacity have not
-been quantified. See the [current verification](realtime-review.md#verification).
-
-## Evidence for reviewers
-
-| Engineering claim | Check / supporting artifact |
-|---|---|
-| Ring preserves ordering and handles overflow explicitly | [Queue tests](../tests/audio_queue_test.cpp) and [stream-stall simulation](../tests/stream_test.cpp) |
-| Packed FFT reads stay within exact buffer bounds | [FFT tests](../tests/fft_power_test.cpp), run with address/undefined-behavior sanitizers |
-| Real pipeline defers inference under backlog and resets after loss | [Pipeline integration test](../tests/pipeline_test.py), compiling the actual pipeline with fake dependencies |
-| Old/gapped scores do not erase retrigger protection | [Event tests](../tests/keyword_event_test.cpp), [filter tests](../tests/keyword_filter_test.cpp), and [detector tests](../tests/keyword_detector_test.cpp) |
-| Task storage/priorities and partial-startup cleanup are checked | [RTOS startup tests](../tests/rtos_startup_test.py), compiling the actual coordinator against fake CMSIS APIs |
-| Audio continues while control is deliberately stalled | [Current hardware stress capture](realtime-stress.json) and [stress procedure](rtos-design.md#hardware-backpressure-test) |
-| Normal firmware is restored and runs without reported losses | [Current normal capture](realtime-normal.json) |
-| Detection reaches a physical output | [Normal spoken-word capture](realtime-normal.json) and physical LED confirmation recorded in [current verification](realtime-review.md#verification) |
-| A clean checkout can test/build without IDE-installed libraries | [Make/CI workflow](../.github/workflows/ci.yml), [build-tool tests](../tests/build_tooling_test.py), and [build guide](build.md) |
-
-Run `make test-unit` for the eleven component checks, or `make test-regression`
-for all fifteen checks including integration/build regressions. `make test` is the
-same complete gate used in CI. The [testing guide](testing.md) details coverage
-and hardware reproduction.
-
-Host fakes test logic and failure paths; physical captures test actual scheduling
-and I/O. Neither substitutes for the other. Saved counters are cumulative since
-boot and can include time before capture; trigger counts are not accuracy rates.
-The latest normal capture includes the current filtering, periodic Hann window,
-C++ ownership changes, and C++20 build settings and runtime hardening. Earlier builds and their separate physical checks
-remain labeled in the validation chronology.
-
-## Build boundary and remaining validation
-
-The primary workflow is `make setup`, `make test`, `make build`, and
-`make flash PORT=<port>`; the [build guide](build.md) covers prerequisites and
-reproduction. Make invokes a pinned Arduino CLI to configure the Arm compiler,
-board startup/linking, Mbed core, and drivers. The maintained `.ino` only delegates
-startup and idle handling; application logic is C++. Arduino IDE is optional,
-but the firmware still uses the Arduino Mbed platform. This project does not
-claim an independent board-support package or custom RTOS kernel.
-All maintained native application/test sources require C++20; host checks use
-`-std=c++20`, and firmware uses pinned Arm GNU Toolchain 13.3.Rel1 with GNU++20. The
-[source-style guide](source-style.md) documents the four-space formatter settings,
-separate C++ test fixtures, upstream dependency boundary, and CI formatting gate.
-
-Remaining validation includes labeled false-accept/false-reject measurements
-across speakers/noise/distance, acoustic-onset response timing, hours-to-days
-endurance, the unmeasured memory allocations above, and peripheral-fault recovery.
-The observed timing maxima are not established worst-case execution times.
-Future communications or device actions must preserve the bounded audio/control
-handoff and be evaluated against the timing and memory budgets again.
+The stock loader gives the sketch 128 KiB RAM. The arena reserves 64 KiB and used
+12,500 bytes in the recorded model run; fixed application stacks are 8192/6144
+bytes. Stack watermarks and peak system heap remain unmeasured. Cold-start,
+extended endurance, fault recovery and calibrated acoustic/model accuracy need
+separate trials. [DSP](dsp-pipeline.md), [inference](tinyml-inference.md),
+[testing](testing.md) and [real-time limits](realtime-review.md) expand these topics.

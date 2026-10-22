@@ -105,43 +105,26 @@ for row ordering and logarithm/scaling details.
 
 ## Where the model and working memory reside
 
-| Data | Location | Allocation / lifetime |
-|---|---|---|
-| FlatBuffer, weights, biases, serialized graph/quantization data | Internal flash, compiled from the header's `const unsigned char` array | 8496 bytes; persists across resets/reflashing until replaced |
-| Tensor arena | SRAM, `alignas(16)` array in the private static `KeywordModel::Runtime` | 96 KiB = 98,304 bytes, reserved for the life of the application |
-| Activations, input/output tensors, kernel scratch and prepared runtime metadata | Allocated by TFLite Micro within the arena | Planned/reused according to tensor lifetimes; actual total arena consumption is not reported by this application |
-| Rolling DSP feature context | `FeatureExtractor` member array; application has static lifetime | 1220 bytes, copied into the arena's input tensor for each invocation |
-| Operator profiler | Disabled; no MicroProfiler object or callbacks | Frees the former 20,488-byte static allocation; whole-invocation telemetry is retained |
-| Interpreter / four-type operator resolver | Private runtime members; interpreter constructed in fixed storage during `KeywordModel::begin` | 176 / 188 bytes in the recorded build; pointers/scalars and guards add small allocations |
+| Data | Location / lifetime |
+| --- | --- |
+| Serialized model, weights, biases and metadata | 8496-byte constant compiled into internal flash |
+| Tensor arena | Fixed 65,536-byte aligned array in the static model runtime; recorded allocation use 12,500 bytes |
+| Activations, input/output tensors, kernel scratch and runtime metadata | Allocated within the arena and reused according to tensor lifetimes |
+| Rolling feature context | 1220-byte member array of the audio-owned extractor; copied to model input per invocation |
+| Interpreter and four-type resolver | Private runtime members; interpreter placement-constructed in fixed aligned storage |
 
-`tflite::GetModel` maps the compiled FlatBuffer. In the pinned runtime, constant
-tensor payloads reference the model buffers; the complete blob is not copied
-into SRAM for each invocation. The arena holds mutable inference state and
-runtime allocations. Its 96 KiB reservation is not the size of the learned
-weights, and successful `AllocateTensors()` does not establish the minimum arena
-size or quantify spare arena capacity. A typical intermediate activation here
-has 4960 int8 elements; tensor lifetimes and scratch requirements determine the
-working set beyond parameter storage.
+`tflite::GetModel` maps the compiled FlatBuffer. Constant tensor payloads reference
+its flash-resident buffers; the whole model is not copied to RAM per invocation.
+An intermediate activation has 4960 int8 elements; mutable working memory also
+includes scratch and prepared metadata. The model's parameter payload, serialized
+size and arena use measure different things.
 
-The recorded pre-object-refactor normal ELF confirmed these placements:
-
-```text
-Address     Size (hex)   Symbol
-0x0003afc0  0x00002130   kws_1class_depthwise_int8_tflite (flash)
-0x20007c00  0x00018000   tensor_arena (SRAM)
-0x2001fc14  0x00005008   profiler (SRAM)
-```
-
-These are observations from the recorded build, not fixed linker addresses for
-future binaries. In the current build, model flash is already included in the
-320,088-byte firmware flash footprint. The arena, interpreter, resolver,
-and DSP context are already included in the 188,392-byte static RAM total; do not
-subtract them again from the build's 73,752-byte remainder. That remainder is not
-measured free heap. See [current build verification](realtime-review.md#verification).
-
-Normal telemetry reports whole-invocation timing. The unused per-layer profiler
-was removed during the [real-time review](realtime-review.md); its former SRAM
-allocation is no longer part of the current build.
+The recorded Zephyr image uses 206,032 bytes sketch flash and 118,096 bytes sketch
+RAM. The arena, stacks and DSP context are already included; do not subtract them
+again from the 12,976-byte sketch-region remainder. This remainder is not a free
+system heap measurement. The measured allocation does not establish a minimum
+safe arena size for another model. No per-layer profiler is enabled; telemetry
+measures complete invocation time. See [runtime memory](zephyr-runtime.md).
 
 ## Runtime initialization and invocation
 
@@ -175,11 +158,11 @@ MEAN is supplied by TFLite Micro's reduction implementation. CMSIS-NN implements
 integer neural-network kernels; CMSIS-DSP implements the float feature pipeline.
 The runtime revision and compatibility headers are pinned in
 [dependencies.lock.json](../dependencies.lock.json) and documented in
-[build provenance](build.md#locked-inputs-and-provenance).
+[build provenance](build.md#single-supported-target-and-locked-inputs).
 
 Inference is nominally attempted every eight new feature rows (128 ms), subject
-to backlog/readiness checks. The [final normal telemetry](rtos-final-normal.json)
-reported 58.630 ms average and 59.652 ms observed maximum inference time. That
+to backlog/readiness checks. The [recorded Zephyr normal telemetry](zephyr-normal.json)
+reported 54.994 ms average and 55.054 ms observed maximum inference time. That
 measurement includes input copy, invocation, and score decoding, not DSP or
 control-task filtering. These are observed times, not a proven worst-case bound.
 The [RTOS design](rtos-design.md) documents scheduling and score-queue ownership.
@@ -210,39 +193,15 @@ validation work. See [DSP verification coverage](dsp-pipeline.md#training-alignm
 Retraining is not claimed to reproduce the same bytes; the tracked binary and
 matching header identify the actual deployed model.
 
-## Informal recognition and possible model expansion
+## Model expansion
 
-On October 20, 2026, the developer reported an empirical estimate of **roughly
-95% keyword-recognition success during informal use** of the current model:
-**1075 deployed parameter values** (992 weights and 83 biases), corresponding to
-1315 total Keras parameters before conversion. This associates the reported
-recognition behavior with the inspected model's small parameter count and the
-current DSP/filter/control implementation.
-
-The estimate describes the developer's experience under current operating
-conditions. A labeled attempt log, sample count, speaker/noise distribution, and
-false-trigger rate were not supplied with it. It is therefore an informal
-recognition estimate, not a measured three-class dataset accuracy, a confidence
-interval, or the saved notebook's separate 93.48% floating-point test result.
-The [hardware validation record](rtos-validation.md#developer-reported-informal-recognition)
-records this provenance separately from the captured telemetry.
-
-**Working hypothesis:** increasing model capacity, for example by adding feature
-channels or another depthwise/pointwise block, could potentially improve
-recognition into the **upper 90% range**, with representative training data and
-appropriate tuning. No larger candidate has been trained or evaluated in this
-project to establish that improvement. Added parameters may help if current
-errors reflect limited model capacity. On-device accuracy also depends on data
-coverage, microphone and noise conditions, preprocessing alignment, quantization,
-and detection thresholds.
-
-Evaluate this hypothesis by comparing the current and larger models on the same
-held-out labeled recordings and continuous-stream trials across intended
-speakers/noise conditions. Report successful detections, missed keywords, and
-false triggers separately, then measure the quantized candidates' inference time
-and peak RAM on the Nano. Capacity expansion must preserve the application's
-audio continuity and response requirements. The proposed upper-90s outcome is a
-testable possibility, not a demonstrated result or a guaranteed forecast.
+More channels or another depthwise/pointwise block could increase capacity, but
+no larger candidate has been trained and evaluated here. Compare candidates on
+the same labeled held-out recordings and continuous streams, reporting misses
+and false triggers separately. Measure quantized accuracy, inference time and
+arena use on the Nano. Data coverage, microphone conditions, preprocessing,
+quantization and detection thresholds can matter as much as parameter count;
+no accuracy improvement is guaranteed by adding parameters.
 
 ## Reproduce the artifact inspection
 
@@ -269,18 +228,18 @@ rejection were checked separately from the dependency-free host test suite.
 To reproduce the linked placement check after `make build`:
 
 ```sh
-.build/toolchain/arm-gnu-toolchain-13.3.rel1-darwin-arm64-arm-none-eabi/bin/arm-none-eabi-nm \
-    -S -C .build/artifacts/KWS_Arm_CortexM4F.ino.elf \
+.build/arduino-data/packages/zephyr/tools/arm-zephyr-eabi/1.0.1/bin/arm-zephyr-eabi-nm \
+    -S -C .build/zephyr-artifacts/KWS_Arm_CortexM4F.ino.elf \
     | rg 'kws_1class_depthwise_int8_tflite$|KeywordModel::instance\(\)::storage$'
 ```
 
-Substitute the installed host-specific compiler directory on Intel macOS or
-Linux. The arena is now a member of the private runtime storage; the historical
-standalone arena/profiler symbols shown earlier are not current symbol names.
+The official compiler directory is selected by Arduino's package manager. The
+arena is a member of the private runtime storage, rather than a standalone symbol.
+Linker addresses can change across images and should not be hardcoded.
 
 The verification of artifact/header identity, tensor metadata, parameter counts,
 and ELF placement does not run the network on labeled examples. See
-[unit/regression coverage](testing.md) and [hardware evidence](rtos-validation.md)
+[unit/regression coverage](testing.md) and [hardware evidence](validation.md)
 for the different validation scopes.
 
 The shared compiler header defines `TF_LITE_STRIP_ERROR_STRINGS` for TFLite

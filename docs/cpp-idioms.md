@@ -1,113 +1,65 @@
-# C++ idioms and ownership review
+# C++20 contracts and ownership
 
-The later [real-time review](realtime-review.md) makes metrics guards nonblocking,
-adds the final-action scheduler guard, and supersedes the measurements below.
+The firmware, host inspector and native tests use C++20. Stateful modules are
+noncopyable owners with fixed storage; pure events/results/statistics are ordinary
+copyable values. Namespaces group stateless helpers and internal implementation
+types. No application class hierarchy or dynamic polymorphism is needed.
 
-This record describes the ownership/buffer review before the subsequent
-[C++17 update](cpp17-modernization.md), which supersedes its language settings,
-ring read API, and current-build measurements. The results below remain evidence
-for the earlier build.
+## Fixed-size interfaces
 
-This review covers every maintained native firmware source/header and Arduino
-adapter, the host model inspector, native tests, and their fake driver/RTOS
-interfaces. Generated model/filter data and the three upstream-derived TFLite
-compatibility headers were checked as data/API boundaries. Downloaded board,
-CMSIS, and TFLite implementations retain their original languages and APIs.
-Python tooling/training and shell/build files retain their own languages.
+`AudioHop` is `std::array<int16_t, 256>` and `FeatureTensor` is
+`std::array<int8_t, 1220>`. References preserve extents when capture, extraction
+and inference exchange data. The ring's `pop` rejects a requested count larger
+than its destination before consuming anything. `fftPower` binds the transform
+length to exactly `N/2 + 1` power outputs and rejects odd transform lengths.
+`std::has_single_bit` enforces a nonzero power-of-two ring capacity. Compiler
+probes reject wrong extents, raw-pointer ring reads and copying resource owners.
 
-## Changes with concrete guarantees
+`std::copy` expresses frame/context movement; left-shift destinations precede
+the source ranges. The consumer discards backlog by advancing the atomic tail
+to a head snapshot; later publications remain queued. Timestamp arithmetic widens
+the backlog product to 64 bits before multiplying by 1,000,000.
+`KeywordEvent` must remain trivially copyable for `k_msgq` byte-copy transport.
 
-| Area | C++ design and guarantee |
-|---|---|
-| Capture / DSP / model handoff | `AudioHop` is `std::array<std::int16_t, 256>` and `FeatureTensor` is `std::array<std::int8_t, 1220>`. References preserve extents at the interface, so wrong-sized buffers cannot bind. `FeatureExtractor::features()` returns a const reference to its tensor. |
-| FFT power | Array-reference template binds the real FFT length to its output extent (`N/2 + 1`), with an even-length compile-time assertion. DC/Nyquist handling stays explicit. |
-| Numeric buffer movement | `std::copy` expresses value copying for overlapping left shifts and feature-row insertion. Destinations of the left shifts precede the source ranges, as required. Numeric move semantics add no resource-transfer behavior here. |
-| Audio ring | Fixed `std::array` storage, private loss counter with a const accessor, nonzero power-of-two capacity checks, and a typed array-read overload. The lower-level pointer/count overload supports variable-length reads. |
-| Loss recovery | The single consumer discards the current published backlog by advancing its atomic tail to a head snapshot. Samples published later remain queued. This needs no temporary discard buffer or drain loop. |
-| Interrupt critical sections | Noncopyable `InterruptLock` saves/restores PRIMASK on scope entry/exit, preserving an already-disabled caller. Snapshots and timestamp reads cannot accidentally enable that caller's interrupts. |
-| Metrics critical sections | Noncopyable `MutexLock` acquires an initialized CMSIS mutex and releases it on scope exit, including an early return. Guards cover only the short metrics copies. |
-| Peripheral ownership | `AudioCapture` stops capture and clears its callback ownership on destruction. Capture, pipeline, extractor, model, device output, telemetry, and application owners cannot be copied. Pure filter/statistics value objects remain copyable. |
-| Application lifetime | Function-local static application is constructed after board globals. Its destructor stops acquisition before releasing tasks, queues, and the mutex. Repeated successful `begin()` does not allocate duplicate RTOS resources. |
-| RTOS transport/storage | Task stacks and queue bytes use aligned `std::array`; control blocks are value-initialized. A compile-time assertion requires `KeywordEvent` to remain trivially copyable for CMSIS message transport. |
-| Standard library use | Maintained native code uses C++ standard headers, qualified fixed-width integer/size types, and explicit casts for representation conversions. `AudioPipeline` forward-declares borrowed module types. |
+## Objects and lifetimes
 
-The core responsibilities remain in their respective types: `AudioCapture`,
-`AudioPipeline`, `FeatureExtractor`, `KeywordModel`, `DeviceControl`, `Telemetry`,
-and the private `Application`. Pure helpers such as `fftPower` appropriately
-remain free functions. Simple event/result/statistics aggregates are ordinary
-C++ value types; they do not require class hierarchies or custom constructors.
+| Owner | State and lifetime |
+| --- | --- |
+| `AudioCapture` | Single active callback owner, PDM staging buffer, ring and counters; destruction stops capture and unregisters ownership |
+| `FeatureExtractor` | Fixed frame/FFT/mel/context arrays and descriptors pointing into them; copying would invalidate ownership |
+| `AudioPipeline` | Borrows capture, extractor and model by reference; owns hop, timing and recovery state |
+| `KeywordModel::Runtime` | Static aligned arena, resolver, tensors and placement-constructed interpreter |
+| `DeviceControl` | Initialized GPIO action and logical LED state |
+| `Telemetry` | Fixed 640-byte buffer, offsets and report timestamp |
+| Private `Application` | Static kernel objects, aligned stacks, score storage, modules and shared diagnostics |
 
-## Intentional low-level interfaces
+The function-local application is constructed after Arduino globals. Its cleanup
+stops capture before aborting consumers. Repeated successful startup creates no
+duplicate resources. Interpreter construction uses aligned member storage and
+explicit destruction rather than an application heap allocation. Framework/driver
+startup may still allocate. Resource ownership does not make concurrent use of
+the model or extractor safe; their thread ownership remains exclusive.
 
-PDM and CMSIS callbacks accept function pointers and context pointers. Small
-adapters route them to stable, noncopyable owners. CMSIS DSP calls receive
-`.data()` pointers only at their buffer boundary. Its matrix API takes a mutable
-coefficient pointer even though multiplication reads the flash-resident filters;
-the documented `const_cast` is confined to that API requirement.
+## Scoped synchronization and API boundaries
 
-USB sends byte representations, so its byte-pointer cast is deliberate.
-`std::snprintf` is a standard C++ facility used for bounded telemetry output;
-stream allocation and a new formatting dependency are unnecessary. TFLite's
-interpreter is placement-constructed in aligned, privately owned static storage
-and destroyed by that runtime's destructor. This supports fallible startup and
-avoids allocating an interpreter from the application heap. The host inspector
-already uses RAII file streams, vectors, sets, and exceptions; its metadata output
-is checked against the saved model inspection.
+`InterruptLock` saves the Zephyr IRQ key and restores it, preserving nested masks.
+`MutexLock` tries `k_mutex_lock` with `K_NO_WAIT` and unlocks only when acquired.
+`SchedulerLock` balances recursive Zephyr scheduler locks and leaves interrupts
+enabled around the final event check and initialized LED write. Guards do not
+permit waits or blocking device operations within their scopes.
 
-These adapters provide ownership/lifetime guarantees while continuing to use
-the existing platform/DSP implementations. No virtual dispatch or new dynamic
-allocation was introduced in capture, DSP, inference, transport, or control.
-At this stage the pinned board toolchain used GNU++14 and host tests used C++11.
+Thread entry functions and the PDM C callback route context pointers to stable
+owners. Required existing objects use references; null-state runtime tensors,
+optional FlatBuffer metadata and inactive callback owners appropriately use
+pointers. CMSIS-DSP receives raw `.data()` buffers only at its API boundary.
+Its matrix API requires a mutable coefficient pointer although multiplication
+reads the flash table; the confined `const_cast` addresses that API signature.
+Serial writes use explicit byte views. Bounded `std::snprintf` avoids introducing
+an allocating formatting dependency.
 
-## Verification
-
-`make test` now has fourteen suite entries: ten component checks and four
-integration/build checks. The new `buffer_contract` entry compiles ten probes
-from `tests/fixtures/contracts`: valid calls must compile; wrong audio/feature/FFT
-sizes, odd FFT lengths, invalid ring capacities, and copies of capture/extractor
-owners must fail compilation. These intentionally rejected probes are kept
-separate from executable firmware and are formatted with the other native code.
-
-Behavioral tests also cover queue discard/reuse, owner destruction/late callbacks,
-interrupt-mask preservation, scope-based mutex release, repeated startup, and the
-existing partial-startup cleanup cases. The scalar-host extractor still matches
-the 84,180-byte periodic-Hann feature reference. The host model inspector produces
-metadata identical to `docs/model-metadata.json` under address/undefined-behavior
-sanitizers. Full TensorFlow/CMSIS numerical parity and dataset accuracy remain
-separate measurements; see [DSP verification](dsp-pipeline.md#training-alignment-and-verification-limits).
-
-On October 20, 2026, the formatter gate, all fourteen host entries, and the final
-Nano build passed. Flash is 332,120 bytes and static RAM is 209,328 bytes, an
-increase of 184 and 8 bytes respectively from the preceding build. The 52,816-byte
-remainder is not measured free heap. The model bytes, mel coefficients, and
-periodic-Hann feature digest remain unchanged.
-
-The 20-second [control-stall capture](cpp-idioms-stress.json) passed: four score
-drops and nine stale-result rejections, zero reported audio sample/buffer losses,
-and zero inference/notification errors. Audio and inference counters advanced;
-peak ring occupancy was 768/8192 samples, with 6776/8192 and 4976/6144 bytes
-reported unused in the audio/control stacks. The stress script restored the
-updated normal firmware successfully. The developer then repeated spoken "yes"
-attempts and confirmed that the built-in LED toggles.
-
-The normal BIN is 332,716 bytes including image layout, SHA-256
-`6705e8f2be8d5854974b9614d8186f8ed7645a20436b68a8938f5e37cb0b367c`.
-The source manifest matches all 27 maintained firmware files.
-
-A subsequent 60-second [normal-operation capture](cpp-idioms-normal.json) passed
-with zero reported sample drops, missed buffers, score drops, stale results,
-inference errors, or notification errors. The final cumulative statistics were
-2.612/2.841 ms DSP average/maximum, 59.097/60.130 ms inference average/maximum,
-and 62.823 ms maximum processing iteration. The counters reached 2,257,408
-samples, 1,095 inferences, and 21 confirmed actions; these are cumulative since
-boot, not counts for a controlled accuracy experiment. The first record was
-buffered startup telemetry; the subsequent records span roughly one minute of
-normal operation. Peak audio-ring occupancy was 768 samples and the minimum
-reported unused task stacks were 6776/4976 bytes. Normal firmware was installed
-after that capture, and the developer confirmed the physical LED response.
-
-The [GitHub Actions run for firmware commit `2f47745`](https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/runs/39504902995)
-passed source formatting, host regressions, and the clean Linux Nano build.
-A subsequent documentation refresh reran all fourteen host entries successfully
-and checked the build manifest against all 27 maintained firmware files. That
-refresh changed documentation only; it did not add a new hardware capture.
+C++20 designated initialization names event/snapshot members, `constinit` sets
+the callback owner at static initialization, and `std::numbers::pi_v<double>`
+provides the periodic Hann constant. The host inspector uses `std::set::contains`
+and `std::string_view`. The shared header rejects older language standards.
+[Unit/regression tests](testing.md) protect these contracts and
+[source style](source-style.md) defines their maintained formatting.

@@ -6,7 +6,7 @@ This document describes the maintained firmware in
 [audio_pipeline.cpp](../firmware/audio_pipeline.cpp). All feature extraction and
 model access execute in the audio task. Capture-to-DSP input is a fixed-size
 `AudioHop` reference; DSP-to-model input is a const `FeatureTensor` reference.
-The FFT power helper also enforces its input/output extents at compile time. The PDM interrupt only acquires samples
+The FFT power helper also enforces its input/output extents at compile time. The core PDM thread callback only acquires samples
 and wakes that task; the control task receives classification scores.
 
 ## Signal flow and dimensions
@@ -45,8 +45,8 @@ The constants are defined in [kws_config.h](../firmware/kws_config.h).
 
 [audio_capture.cpp](../firmware/audio_capture.cpp) configures the PDM microphone
 for one channel at 16 kHz and sets the driver gain to 60. The driver supplies
-signed 16-bit PCM; PDM decimation is handled below the feature extractor. An
-interrupt producer writes the SPSC audio ring, and the audio task reads complete
+signed 16-bit PCM; PDM decimation is handled below the feature extractor. A
+PDM callback producer writes the SPSC audio ring, and the audio task reads complete
 256-sample hops into its private hop buffer.
 
 Each sample is converted to float with `sample / 32768.0f`, giving a range from
@@ -192,17 +192,17 @@ into the object. No workspace is allocated on the task stack or application heap
 | Array subtotal | 10,540 bytes |
 
 This subtotal excludes FFT/matrix descriptors, counters, coefficient storage,
-the audio ring/hop buffer, and the model's separate 96 KiB arena. It is a fixed
+the audio ring/hop buffer, and the model's separate 64 KiB arena. It is a fixed
 workspace budget, not a measured dynamic-memory high-water value.
 
-In the [current normal capture](realtime-normal.json), `dsp_us` averaged 1987 us
-with a 2129 us observed maximum; inference averaged 57,655 us with a 57,772 us
+In the [recorded Zephyr normal capture](zephyr-normal.json), `dsp_us` averaged 2217 us
+with a 5249 us observed maximum; inference averaged 54,994 us with a 55,054 us
 maximum. `dsp_us` wraps `FeatureExtractor::consume`, including the cheap priming hop.
 It includes frame movement, window/FFT/power, mel/log/quantization, and feature
 movement on later hops. These are whole-step measurements, not per-stage timings
 or established worst-case execution times. `infer_us` includes the input copy
 and model invocation. Definitions are in [RTOS design](rtos-design.md); current
-build identity and capture results are in [verification](realtime-review.md#verification).
+build identity and capture results are in [validation](validation.md).
 
 ## Training alignment and verification limits
 
@@ -226,4 +226,4 @@ it does not execute CMSIS or establish training parity. Full numerical regressio
 would need shared PCM fixtures and comparison
 of the actual firmware window, power, mel/log, and quantized tensors against a
 reference with explicit tolerances and the same window convention. See
-[testing coverage](testing.md#limits).
+[testing coverage](testing.md#evidence-ci-and-limits).

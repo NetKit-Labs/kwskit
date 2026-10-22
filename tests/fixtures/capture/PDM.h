@@ -9,16 +9,12 @@ struct PdmFake {
     bool startOk = true;
     bool running = false;
     int stops = 0;
-    std::size_t bufferSize = 0;
+    std::size_t bufferSize = 512;
     int readLimit = 512, readCalls = 0;
     std::deque<std::int16_t> pending;
 
     void onReceive(void (*receiver)()) {
         callback = receiver;
-    }
-
-    void setBufferSize(std::size_t size) {
-        bufferSize = size;
     }
 
     bool begin(int channels, int rate);

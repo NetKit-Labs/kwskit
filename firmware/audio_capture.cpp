@@ -29,8 +29,8 @@ void AudioCapture::receive() {
 
     bool missed = false;
 
-    // The driver publishes one configured DMA block per callback. Even a faulty
-    // driver that keeps reporting data cannot extend this ISR beyond one block.
+    // The driver publishes one configured PCM block per callback. Even a faulty
+    // driver that keeps reporting data cannot extend this callback beyond one block.
     int remaining = sizeof(pdmBuffer);
     while (remaining >= static_cast<int>(sizeof(pdmBuffer[0]))) {
         const int bytes = std::min(PDM.available(), remaining) & ~1;
@@ -67,9 +67,6 @@ bool AudioCapture::begin(Notification notify, void *context) {
     notificationContext = context;
     activeReceiver = this;
     PDM.onReceive(receiveCallback);
-#ifndef ARDUINO_ARCH_ZEPHYR
-    PDM.setBufferSize(pdmBuffer.size() * sizeof(pdmBuffer[0]));
-#endif
     if (!PDM.begin(1, SAMPLE_RATE)) {
         activeReceiver = nullptr;
         notifyConsumer = nullptr;

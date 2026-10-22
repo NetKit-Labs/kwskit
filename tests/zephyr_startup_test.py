@@ -10,7 +10,6 @@ with tempfile.TemporaryDirectory(prefix="kws-zephyr-") as directory:
         [
             "c++",
             "-std=c++20",
-            "-DARDUINO_ARCH_ZEPHYR",
             "-Wall",
             "-Wextra",
             "-Werror",

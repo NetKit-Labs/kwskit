@@ -24,9 +24,11 @@ python3 tests/feature_extractor_test.py
 echo 'PASS: feature_extractor'
 python3 tests/keyword_model_test.py
 echo 'PASS: keyword_model'
+python3 tests/telemetry_test.py
+echo 'PASS: telemetry'
 python3 tests/buffer_contract_test.py
 echo 'PASS: buffer_contract'
-echo 'PASS: unit suite (11 checks)'
+echo 'PASS: unit suite (12 checks)'
 if [ "$suite" = unit ]; then
     exit 0
 fi
@@ -37,8 +39,6 @@ python3 tests/pipeline_test.py
 echo "PASS: pipeline"
 python3 tests/build_tooling_test.py
 echo 'PASS: build_tooling'
-python3 tests/rtos_startup_test.py
-echo 'PASS: rtos_startup'
 python3 tests/zephyr_startup_test.py
 echo 'PASS: zephyr_startup'
 echo 'PASS: complete regression suite (16 checks, including unit tests)'

@@ -6,14 +6,14 @@
 
 #include "keyword_detector.h"
 
-// CMSIS queue copies this value; no audio/feature/tensor pointers cross tasks.
+// Zephyr queue copies this value; no audio/feature/tensor pointers cross tasks.
 struct KeywordEvent {
     float probability;
     std::uint32_t captureEndUs, decisionUs, decisionMs, sequence, generation;
 };
 
 static_assert(
-    std::is_trivially_copyable_v<KeywordEvent>, "CMSIS copies event object representations");
+    std::is_trivially_copyable_v<KeywordEvent>, "Zephyr copies event object representations");
 
 struct EventResult {
     DetectionResult detection;

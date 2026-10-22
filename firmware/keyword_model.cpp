@@ -7,9 +7,7 @@
 #include <cstdint>
 #include <new>
 
-#ifdef ARDUINO_ARCH_ZEPHYR
 #include <Arduino.h>
-#endif
 #include <TensorFlowLite.h>
 #include <tensorflow/lite/micro/micro_error_reporter.h>
 #include <tensorflow/lite/micro/micro_interpreter.h>
@@ -23,12 +21,8 @@ struct KeywordModel::Runtime {
     Runtime(const Runtime &) = delete;
     Runtime &operator=(const Runtime &) = delete;
 
-#ifdef ARDUINO_ARCH_ZEPHYR
     // The stock loader reserves 128 KiB for the complete sketch's mutable state.
     alignas(16) std::array<std::uint8_t, 64 * 1024> tensorArena{};
-#else
-    alignas(16) std::array<std::uint8_t, 96 * 1024> tensorArena{};
-#endif
 
     tflite::MicroErrorReporter errorReporter;
     tflite::MicroMutableOpResolver<4> resolver;
@@ -78,10 +72,8 @@ bool KeywordModel::begin() {
             .Report("AllocateTensors() failed");
         return false;
     }
-#ifdef ARDUINO_ARCH_ZEPHYR
     Serial.print("tensor_arena_used=");
     Serial.println(interpreter.arena_used_bytes());
-#endif
     runtime.input = interpreter.input(0);
     runtime.output = interpreter.output(0);
     if (!runtime.input || !runtime.output) {

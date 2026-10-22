@@ -35,11 +35,6 @@ jobs:
                 run: make test
 
     nano-firmware:
-        strategy:
-            matrix:
-                core: [zephyr, mbed]
-        env:
-            KWS_CORE: ${{ matrix.core }}
         runs-on: ubuntu-24.04
         timeout-minutes: 30
         steps:
@@ -55,8 +50,6 @@ jobs:
                 name: Archive firmware and build provenance
                 uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
                 with:
-                    name: nano33ble-${{ matrix.core }}-firmware
-                    path: |
-                        .build/artifacts/
-                        .build/zephyr-artifacts/
+                    name: nano33ble-zephyr-firmware
+                    path: .build/zephyr-artifacts/
                     if-no-files-found: error

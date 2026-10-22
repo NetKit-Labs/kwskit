@@ -9,8 +9,8 @@
 #include <cstdint>
 #include <limits>
 
-// Single interrupt producer, single audio-task consumer. Never overwrite unread audio.
-static_assert(ATOMIC_INT_LOCK_FREE == 2, "ISR queue requires lock-free atomics");
+// Single PDM producer, single audio-task consumer. Never overwrite unread audio.
+static_assert(ATOMIC_INT_LOCK_FREE == 2, "Audio queue requires lock-free atomics");
 
 template <std::size_t Capacity> class AudioQueue {
     static_assert(std::has_single_bit(Capacity), "Nonzero power-of-two capacity required");
@@ -21,7 +21,7 @@ template <std::size_t Capacity> class AudioQueue {
     std::atomic<std::uint32_t> head{0}, tail{0};
 
 public:
-    // Producer-owned counter; the audio task reads it with interrupts disabled.
+    // Producer-owned counter; the audio task reads it in a short IRQ-locked snapshot.
     std::uint32_t droppedSamples() const {
         return droppedCount;
     }

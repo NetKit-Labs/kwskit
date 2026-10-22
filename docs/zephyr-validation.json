@@ -15,12 +15,7 @@
     "tensor_arena_used_bytes": 12500,
     "application_sha256": "f22f4a341ac33cc33df7cc613cbf717b60734c514ca114b263a4833db5985928"
   },
-  "mbed_build": {
-    "flash_bytes": 320088,
-    "static_ram_bytes": 188392,
-    "result": "passed; not flashed during this migration"
-  },
-  "host_regressions": "16 suite checks, including 10 build-tooling unittest cases; ASan/UBSan where applicable",
+  "host_regressions": "Initial Zephyr validation: shared unit and integration checks plus native Zephyr startup fixture; see testing.md for the maintained suite",
   "format_check": "passed",
   "upload": {
     "initial_loader_bytes": 275720,
@@ -119,7 +114,23 @@
     "Stock loader disables stack watermark measurement; stack_free=0/0 means unavailable",
     "No peak system heap measurement",
     "No cold power-cycle or long-duration soak test",
-    "No calibrated recognition accuracy or acoustic dataset evaluation",
-    "Remote CI configured but not run; no merge or push performed"
-  ]
+    "No calibrated recognition accuracy or acoustic dataset evaluation"
+  ],
+  "remote_ci": {
+    "url": "https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/runs/39785916551",
+    "result": "Zephyr firmware, host tests, formatting and artifact upload passed for 48b774c"
+  },
+  "single_target_cleanup": {
+    "date": "2026-10-22",
+    "unit_entries": 12,
+    "regression_entries": 16,
+    "build_tooling_cases": 9,
+    "setup": "passed",
+    "format_check": "passed",
+    "cross_build": "passed",
+    "packaged_application_identical_to_recorded_hardware_image": true,
+    "local_document_links_checked": 130,
+    "pdf_pages_visually_checked": 4,
+    "new_upload_or_speech_test": false
+  }
 }

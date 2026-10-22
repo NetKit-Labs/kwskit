@@ -166,9 +166,9 @@ def export():
             code = token.content.rstrip()
             if token.info.strip() == "mermaid":
                 code = (
-                    "PDM / DMA -> interrupt -> circular audio buffer\n"
+                    "PDM microphone -> core PDM thread -> circular audio buffer\n"
                     "Audio task: frame overlap / FFT / log-mel -> int8 model\n"
-                    "  -> eight-entry RTOS value queue -> control task\n"
+                    "  -> eight-entry Zephyr value queue -> control task\n"
                     "Control task: confidence filter -> LED; USB telemetry"
                 )
             block = [Preformatted(ascii_text(code), STYLES["CodeKWS"], maxLineLength=99)]

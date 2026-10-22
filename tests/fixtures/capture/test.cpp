@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include <PDM.h>
+#include <zephyr/irq.h>
 
 #include "audio_capture.h"
 
@@ -15,20 +16,14 @@ std::uint32_t micros() {
     return clockUs;
 }
 
-void noInterrupts() {
+unsigned int irq_lock() {
+    const auto previous = interruptMask;
     interruptMask = 1;
+    return previous;
 }
 
-void interrupts() {
-    interruptMask = 0;
-}
-
-std::uint32_t __get_PRIMASK() {
-    return interruptMask;
-}
-
-void __set_PRIMASK(std::uint32_t mask) {
-    interruptMask = static_cast<int>(mask);
+void irq_unlock(unsigned int key) {
+    interruptMask = static_cast<int>(key);
 }
 
 bool PdmFake::begin(int channels, int rate) {
@@ -94,11 +89,11 @@ int main() {
     }
     assert(
         time == clockUs - (static_cast<std::uint64_t>(8192 - HOP_SIZE) * 1000000ULL) / SAMPLE_RATE);
-    noInterrupts();
+    const auto outerKey = irq_lock();
     capture.snapshot();
     assert(interruptMask == 1); // Nested snapshots must preserve a disabled caller.
     assert(capture.readHop(hop, time) && interruptMask == 1);
-    interrupts();
+    irq_unlock(outerKey);
     capture.discardPending();
     assert(capture.available() == 0 && !capture.readHop(hop, time));
     PDM.pending.push_back(123);

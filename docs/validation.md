@@ -1,82 +1,76 @@
-# Validation — October 20, 2026
+# Zephyr validation and evidence
 
-This is a historical validation record for the build described below. For the
-current command-line build procedure and measured memory use, see the
-[build guide](build.md) and [current verification](realtime-review.md#verification).
+## Identified hardware session: October 22, 2026
 
-Changes were implemented in the requested order. Each item's focused host test
-passed before implementation of the following item began:
+The retained session used Arduino Zephyr Boards 1.0.0, static link mode, official
+GCC 14.3.0 and the pinned model/DSP libraries. Its packaged normal application
+SHA-256 was:
 
-1. Audio buffering: ordering, full-queue rejection without overwrite, wraparound,
-   and 10,000 repeated push/pop operations.
-2. FFT handling: exact-size 512-float input / 257-bin output under AddressSanitizer
-   and UndefinedBehaviorSanitizer; separate DC, Nyquist, and interior complex-bin powers.
-3. Continuous processing: ten-second simulated 16 kHz input with repeated 60 ms
-   inference stalls, ordered consumption, and no ring overflow.
-4. Keyword filtering: isolated spike rejection, sustained-score confirmation,
-   hysteresis, suppression while latched, release/rearming, and cooldown.
-5. Device control: compile the sketch's actual action function against fake GPIO;
-   verify successive calls toggle the configured LED pin high and low.
-6. Instrumentation: timing averages/maxima, empty statistics, and unsigned timer
-   wraparound. All host tests were rerun successfully after integration.
+```text
+f22f4a341ac33cc33df7cc613cbf717b60734c514ca114b263a4833db5985928
+```
 
-## Build and upload
+The image used 206,032 bytes sketch flash and 118,096 bytes sketch RAM. The
+stock loader reserves 557,056 flash bytes and 131,072 RAM bytes for the sketch.
+These are sketch budgets, not whole-board free memory measurements. The
+64 KiB tensor arena used 12,500 bytes at allocation, printed during startup.
 
-Arduino CLI, `arduino:mbed_nano:nano33ble`, installed core 4.6.0,
-Arduino_CMSIS-DSP 5.7.0, Arduino_TensorFlowLite 2.4.0-ALPHA.
-Build succeeded: 327,928 bytes flash (33%), 194,112 bytes static RAM (74%),
-68,032 bytes remaining for stack/heap. The installed TensorFlow library fell
-back to source compilation because its precompiled binary was unavailable.
+| Check | Observed result |
+| --- | --- |
+| Initial upload | Arduino CLI/bossac installed the 275,720-byte official loader and 206,032-byte packaged sketch; subsequent USB/KWS operation observed |
+| [Normal capture](zephyr-normal.json) | 60-second requested capture, 31 records, approximately 15,999.7 samples/second, no reported audio loss, inference errors, event loss or stale scores |
+| Spoken “yes” | 16 cumulative confirmed actions; user independently confirmed physical LED toggling |
+| Monitor closed/reopened | Sample/inference counters continued without reported loss; a buffered record preceded fresh output |
+| [Control-stall capture](zephyr-stress.json) | 25-second requested capture, 14 records, 1500 ms injected stall, four expected event drops and nine stale-score rejections, no reported audio/inference failure |
+| [Restored normal capture](zephyr-restored.json) | Normal image reuploaded and verified for 30 seconds, 16 records, 492,032 samples and 233 inferences cumulatively, no reported failures |
 
-Firmware uploaded successfully to the connected Nano 33 BLE on
-`/dev/cu.usbmodem11201`. No external GPIO hardware was required.
+The normal run ended at 2,343,424 samples and 1,137 inferences. Cumulative DSP
+average/maximum was 2.217/5.249 ms, inference 54.994/55.054 ms and processing-step
+maximum 57.342 ms. Ring high-water was 768 of 8192 samples; callback gap maximum
+was 16.022 ms. Event delivery average/maximum was 9.503/13.855 ms. Timings are
+observations for exercised paths, not worst-case bounds or acoustic-onset latency.
+The [summary](zephyr-validation.json) preserves identity and final counters.
 
-## Hardware results
+## Remote verification
 
-Initial 15-second capture and the subsequent 60-second capture both passed the
-hardware checker. The later capture includes one older USB-buffered record;
-subsequent records span uptime 540.319–599.674 seconds. Cumulative counters at
-the end therefore also cover approximately ten minutes of board operation.
+[GitHub Actions run 39785916551](https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/runs/39785916551)
+passed the Zephyr firmware build, formatting and shared host tests for commit
+`48b774c`. Its Zephyr firmware/provenance artifact was uploaded. That run predates
+the single-target cleanup; it is not evidence that a later commit ran remotely.
+The maintained workflow now contains only the Zephyr firmware target.
 
-| Measurement | Final recorded value |
-|---|---:|
-| Received samples | 9562368 |
-| Inferences | 4662 |
-| Dropped samples | 0 |
-| Callbacks with dropped samples | 0 |
-| Inference errors | 0 |
-| Peak ring occupancy (of 8192) | 768 |
-| Largest PDM callback gap (µs) | 16042 |
-| DSP average / maximum (µs) | 2460/3489 |
-| Inference average / maximum (µs) | 59022/59220 |
-| Processing average / maximum (µs) | 9926/61916 |
-| Response last / maximum (µs) | 445639/445772 |
-| Confirmed LED actions | 26 |
+## Single-target cleanup verification
 
-During the user's spoken-word test, telemetry showed new confirmed detections
-and alternating LED states. No acquisition stalls or reported queue losses were
-observed during inference or those actions. Raw evidence is in
-[hardware-telemetry.json](hardware-telemetry.json).
+The single-target cleanup passed `make test-unit` (12 entries),
+`make test-regression` (16 entries, including nine build-tooling cases),
+`make format-check`, the simplified Zephyr setup, and the Nano cross-build.
+Legacy-only test fixtures were removed; capture uses Zephyr IRQ fixtures, the
+coordinator fixture covers startup/final-action/overflow behavior, and a new
+serial telemetry unit checks disconnected and backpressured output.
 
-Response timing starts at the estimated end of the first high-confidence input
-window, not the start of the spoken word. The ~1-second rolling context and
-~128 ms decision cadence also affect perceived response time. A controlled audio
-stimulus and independent timestamp are required for acoustic onset-to-action
-latency. This session does not establish a false-positive/false-negative rate,
-or prove absence of losses inside the PDM hardware/driver; sample progression
-and callback-gap measurements complement the ring loss counters.
+The rebuilt packaged normal image is byte-for-byte identical to the hardware
+session image identified above: 206,032 bytes, with the same SHA-256. Flash and
+RAM remain 206,032/118,096 bytes. No fresh upload or speech session is claimed
+for the cleanup; the matching executable ties it to the retained hardware runs.
+The model and mel coefficients are unchanged.
 
-Reproduce host checks with `sh tests/run_tests.sh`. With pyserial installed,
-run `python3 tests/hardware_capture.py --port /dev/cu.usbmodem11201 --seconds 60`
-for acquisition/inference checks. Repeat spoken `yes` attempts with pauses and
-observe the built-in LED to check behavior in the deployment environment.
+All 130 local Markdown file/anchor links across 14 guides were checked. The root
+overview and topic guides describe the single Zephyr runtime. Historical platform
+records were removed from the active documentation, and the refreshed four-page
+PDF was rendered and all pages visually inspected. A source/docs audit found no
+retired-platform API, target-selection code, or documentation references.
 
+## Limits and reproducibility
 
-## Subsequent module refactor
+Run [unit/regression checks](testing.md), follow [build/upload](build.md), then
+repeat normal, disconnected-monitor and control-stall checks for relevant
+runtime changes. Preserve raw captures and source manifests. Counters include
+operation before capture; 16 actions are not 16 labeled trials or an accuracy
+rate. A physical LED observation establishes functional correspondence only.
 
-The application was later separated into capture, features, model, detection,
-control, telemetry, and coordinator modules. The original FFT/buffering fixes
-and detection settings remain in place. See
-[module separation validation](module-refactor-validation.md) for the module-refactor
-build and repeated spoken-word/physical LED results, and the
-[documentation index](README.md) for all raw captures.
+The stock loader cannot measure application stack headroom. No peak system heap,
+cold power-cycle, hours-to-days soak, calibrated acoustic accuracy or broad
+peripheral/allocation/brownout fault campaign is claimed. Training notebook
+results and inspected model metadata are separate from microphone deployment
+accuracy. See [real-time limits](realtime-review.md) and
+[training evidence](tinyml-inference.md#training-evidence-and-limitations).

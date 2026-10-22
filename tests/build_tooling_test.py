@@ -16,8 +16,7 @@ spec = importlib.util.spec_from_file_location(
     "project", Path(__file__).resolve().parents[1] / "scripts/project.py"
 )
 project = importlib.util.module_from_spec(spec)
-with mock.patch.dict(os.environ, {"KWS_CORE": "mbed"}):
-    spec.loader.exec_module(project)
+spec.loader.exec_module(project)
 
 
 class BuildToolingTests(unittest.TestCase):
@@ -83,14 +82,14 @@ class BuildToolingTests(unittest.TestCase):
     def test_core_archive_restores_missing_headers_and_preserves_existing_files(self):
         archive = self.root / "core.tar.gz"
         with tarfile.open(archive, "w:gz") as output:
-            info = tarfile.TarInfo("ArduinoCore-mbed/include/cmsis_os.h")
+            info = tarfile.TarInfo("ArduinoCore-zephyr/include/zephyr/kernel.h")
             data = b"official header"
             info.size = len(data)
             info.mtime = 1000
             output.addfile(info, io.BytesIO(data))
         with mock.patch.object(project, "download", return_value=archive):
             project.restore_core_archive()
-            header = project.core_directory() / "include/cmsis_os.h"
+            header = project.core_directory() / "include/zephyr/kernel.h"
             self.assertEqual(header.read_bytes(), b"official header")
             stamp = header.stat().st_mtime_ns
             project.restore_core_archive()
@@ -111,33 +110,21 @@ class BuildToolingTests(unittest.TestCase):
             self.assertIn("--config-file", command)
             self.assertIn(str(project.CONFIG), command)
 
-    def test_normal_and_stress_compiler_require_cpp20(self):
+    def test_normal_and_stress_use_official_compiler_and_pdm_configuration(self):
         with mock.patch.object(project, "cli") as cli:
-            for output in (self.root / "artifacts", self.root / "stress-artifacts"):
-                project.compile_sketch(4, output)
+            for output in (self.root / "zephyr-artifacts", self.root / "zephyr-stress-artifacts"):
+                project.compile_sketch(2, output)
                 args = cli.call_args.args
-                self.assertEqual(args[0], "compile")
+                flags = args[args.index("--build-property") + 1]
+                self.assertIn("-std=gnu++20", flags)
+                self.assertIn("-DPDM_NUMBER_OF_SAMPLES=256", flags)
+                self.assertIn("-DPDM_THREAD_PRIORITY=3", flags)
+                self.assertFalse(any(str(arg).startswith("compiler.path=") for arg in args))
+                self.assertIn(project.BUILD / "zephyr-objects", args)
                 self.assertEqual(
-                    args[args.index("--build-property") + 1],
-                    'compiler.cpp.extra_flags=-std=gnu++20 -include "'
-                    + str(project.SKETCH / "cpp_standard.h")
-                    + '"',
+                    args[args.index("--fqbn") + 1], "arduino:zephyr_main:nano33ble:link_mode=static"
                 )
                 self.assertEqual(args[args.index("--output-dir") + 1], output)
-                self.assertIn(
-                    "compiler.path=" + str(project.toolchain_directory() / "bin") + "/", args
-                )
-
-    def test_zephyr_uses_official_compiler_and_pdm_configuration(self):
-        with mock.patch.object(project, "ZEPHYR", True), mock.patch.object(project, "cli") as cli:
-            project.compile_sketch(2, self.root / "zephyr-artifacts")
-            args = cli.call_args.args
-            flags = args[args.index("--build-property") + 1]
-            self.assertIn("-std=gnu++20", flags)
-            self.assertIn("-DPDM_NUMBER_OF_SAMPLES=256", flags)
-            self.assertIn("-DPDM_THREAD_PRIORITY=3", flags)
-            self.assertFalse(any(str(arg).startswith("compiler.path=") for arg in args))
-            self.assertIn(project.BUILD / "zephyr-objects", args)
 
     def test_build_manifest_records_language_and_staged_sources(self):
         sketch = self.root / "sketch"
@@ -168,56 +155,45 @@ class BuildToolingTests(unittest.TestCase):
                 header.read_bytes(), (project.ROOT / "firmware/cpp_standard.h").read_bytes()
             )
 
-    def compiler_archive(self, entries):
-        archive = self.root / "compiler.tar.xz"
-        root = project.toolchain_directory().name
-        with tarfile.open(archive, "w:xz") as output:
-            for name, content, link in entries:
-                info = tarfile.TarInfo(root + "/" + name)
-                if link:
-                    info.type = tarfile.SYMTYPE
-                    info.linkname = content
-                    output.addfile(info)
-                else:
-                    info.size = len(content)
-                    info.mode = 0o755 if name.startswith("bin/") else 0o644
-                    output.addfile(info, io.BytesIO(content))
-        return archive
-
-    def test_toolchain_integrity_version_and_restoration(self):
-        archive = self.compiler_archive(
-            [
-                ("bin/arm-none-eabi-g++", b"compiler", False),
-                ("include/example.h", b"original", False),
-            ]
-        )
-        with (
-            mock.patch.object(project, "download", return_value=archive),
-            mock.patch.object(project.subprocess, "check_output", return_value="13.3.1\n"),
-        ):
-            project.install_toolchain()
-            project.verify_toolchain()
-            header = project.toolchain_directory() / "include/example.h"
-            stamp = header.stat().st_mtime_ns
-            project.install_toolchain()
-            self.assertEqual(header.stat().st_mtime_ns, stamp)
-            header.write_text("changed")
-            with self.assertRaisesRegex(RuntimeError, "Compiler files changed"):
+    def test_official_compiler_version_and_missing_installation(self):
+        with mock.patch.object(project, "toolchain_directory", return_value=self.root):
+            with self.assertRaisesRegex(RuntimeError, "toolchain missing"):
                 project.verify_toolchain()
-            project.install_toolchain()
-            self.assertEqual(header.read_bytes(), b"original")
-            with mock.patch.object(project.subprocess, "check_output", return_value="7.2.1\n"):
-                with self.assertRaisesRegex(RuntimeError, "Compiler version differs"):
+            compiler = self.root / "bin/arm-zephyr-eabi-g++"
+            compiler.parent.mkdir()
+            compiler.write_bytes(b"official compiler fixture")
+            with mock.patch.object(project.subprocess, "check_output", return_value="14.3.0\n"):
+                project.verify_toolchain()
+            with mock.patch.object(project.subprocess, "check_output", return_value="13.3.1\n"):
+                with self.assertRaisesRegex(RuntimeError, "compiler version differs"):
                     project.verify_toolchain()
 
-    def test_toolchain_archive_rejects_path_and_link_escape(self):
-        for entry in (("../../escape", b"bad", False), ("bin/escape", "../../../escape", True)):
-            with self.subTest(entry=entry):
-                archive = self.compiler_archive([entry])
-                with mock.patch.object(project, "download", return_value=archive):
-                    with self.assertRaisesRegex(RuntimeError, "Invalid compiler archive"):
-                        project.install_toolchain()
-                self.assertFalse((self.root / "escape").exists())
+    def test_inference_dependency_excludes_unused_example_sources(self):
+        archive = self.archive(
+            "inference.zip",
+            {
+                "lib/library.properties": "version=1",
+                "lib/src/TensorFlowLite.h": '#include "peripherals/peripherals.h"\n',
+                "lib/src/peripherals/i2s.cpp": "unused I2S driver",
+                "lib/src/peripherals/utility.h": "generic timer declarations",
+                "lib/src/test_over_serial/test.cpp": "unused serial constructor",
+                "lib/src/tensorflow/lite/micro/runtime.cpp": "inference preserved",
+            },
+        )
+        library = {"name": "Arduino_TensorFlowLite", "url": "unused", "sha256": "123"}
+        with (
+            mock.patch.object(project, "download", return_value=archive),
+            mock.patch.object(project, "LOCK", {"libraries": [library]}),
+        ):
+            project.install_library(library)
+            project.verify_libraries()
+        source = project.LIBRARIES / library["name"] / "src"
+        self.assertEqual([p.name for p in (source / "peripherals").iterdir()], ["utility.h"])
+        self.assertFalse((source / "test_over_serial").exists())
+        self.assertNotIn("peripherals", (source / "TensorFlowLite.h").read_text())
+        self.assertEqual(
+            (source / "tensorflow/lite/micro/runtime.cpp").read_text(), "inference preserved"
+        )
 
 
 if __name__ == "__main__":

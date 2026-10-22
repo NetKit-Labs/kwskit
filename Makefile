@@ -3,7 +3,7 @@ JOBS ?= 2
 PORT ?=
 CLANG_FORMAT ?= .build/style-venv/bin/clang-format
 BLACK ?= .build/style-venv/bin/black
-CPP_SOURCES := $(wildcard firmware/*.cpp firmware/*.h firmware/*.ino tests/*.cpp tests/fixtures/*/*.cpp tests/fixtures/*/*.h tests/fixtures/zephyr/zephyr/*.h scripts/*.cpp build-support/tflm-compat/*.h)
+CPP_SOURCES := $(wildcard firmware/*.cpp firmware/*.h firmware/*.ino tests/*.cpp tests/fixtures/*/*.cpp tests/fixtures/*/*.h tests/fixtures/*/zephyr/*.h scripts/*.cpp build-support/tflm-compat/*.h)
 
 .DEFAULT_GOAL := help
 .PHONY: help setup build test test-unit test-regression format format-check flash boards

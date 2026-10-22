@@ -16,18 +16,12 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / ".build"
-CORE = os.environ.get("KWS_CORE", "zephyr")
-if CORE not in ("mbed", "zephyr"):
-    raise RuntimeError("KWS_CORE must be mbed or zephyr")
-ZEPHYR = CORE == "zephyr"
-LOCK = json.loads(
-    (ROOT / ("dependencies.lock.json" if ZEPHYR else "dependencies-mbed.lock.json")).read_text()
-)
+LOCK = json.loads((ROOT / "dependencies.lock.json").read_text())
 CLI = BUILD / "bin" / "arduino-cli"
 CONFIG = BUILD / "arduino-cli.json"
-SKETCH = BUILD / ("zephyr-sketch" if ZEPHYR else "sketch") / "KWS_Arm_CortexM4F"
+SKETCH = BUILD / "zephyr-sketch" / "KWS_Arm_CortexM4F"
 LIBRARIES = BUILD / "arduino-user" / "libraries"
-OUTPUT = BUILD / ("zephyr-artifacts" if ZEPHYR else "artifacts")
+OUTPUT = BUILD / "zephyr-artifacts"
 CPP_STANDARD = "gnu++20"
 
 
@@ -138,21 +132,19 @@ def install_library(library):
             bridge = staged / "src/tensorflow/lite/micro"
             for header in (ROOT / "build-support/tflm-compat").glob("*.h"):
                 shutil.copyfile(header, bridge / header.name)
-            # The bundled WM8960/I2S example helpers own Nordic IRQs and use
-            # Mbed PinName. KWS uses the core PDM driver, never these peripherals.
-            for source in [
-                *(staged / "src/peripherals").glob("*.cpp"),
-                staged / "src/test_over_serial/test_over_serial.cpp",
-            ]:
-                source.write_text(
-                    "#ifndef ARDUINO_ARCH_ZEPHYR\n" + source.read_text() + "\n#endif\n"
-                )
+            # KWS uses the core PDM driver. Exclude unrelated I2S example
+            # helpers and the serial-test constructor from this dependency.
+            # micro_time.cpp still includes the generic timer declarations.
+            for source in (staged / "src/peripherals").iterdir():
+                if source.name != "utility.h":
+                    if source.is_dir():
+                        shutil.rmtree(source)
+                    else:
+                        source.unlink()
+            shutil.rmtree(staged / "src/test_over_serial")
             header = staged / "src/TensorFlowLite.h"
             header.write_text(
-                header.read_text().replace(
-                    '#include "peripherals/peripherals.h"',
-                    '#ifndef ARDUINO_ARCH_ZEPHYR\n#include "peripherals/peripherals.h"\n#endif',
-                )
+                header.read_text().replace('#include "peripherals/peripherals.h"', "")
             )
         manifest = tree_manifest(staged)
         # Preserve mtimes on an unchanged setup so incremental builds stay fast.
@@ -173,86 +165,25 @@ def tree_manifest(directory):
     }
 
 
-def toolchain_asset():
-    key = platform.system() + "-" + platform.machine().lower()
-    asset = LOCK["toolchain"]["archives"].get(key)
-    if not asset:
-        raise RuntimeError("Unsupported compiler host: " + key)
-    return asset
-
-
 def toolchain_directory():
-    if ZEPHYR:
-        tool = LOCK["toolchain"]
-        return (
-            BUILD
-            / "arduino-data/packages"
-            / tool["packager"]
-            / "tools"
-            / tool["name"]
-            / tool["version"]
-        )
-    return BUILD / "toolchain" / toolchain_asset()["file"].removesuffix(".tar.xz")
+    tool = LOCK["toolchain"]
+    return (
+        BUILD
+        / "arduino-data/packages"
+        / tool["packager"]
+        / "tools"
+        / tool["name"]
+        / tool["version"]
+    )
 
 
 def verify_toolchain():
-    if ZEPHYR:
-        compiler = toolchain_directory() / "bin/arm-zephyr-eabi-g++"
-        if not compiler.is_file():
-            raise RuntimeError("Official Zephyr toolchain missing; run make setup")
-        version = subprocess.check_output([str(compiler), "-dumpfullversion"], text=True).strip()
-        if version != LOCK["toolchain"]["gcc_version"]:
-            raise RuntimeError("Official Zephyr compiler version differs from lock")
-        return
-    directory = toolchain_directory()
-    stamp = directory / ".kws-manifest.json"
-    if not stamp.exists():
-        raise RuntimeError("Pinned C++20 compiler missing; run make setup")
-    manifest = json.loads(stamp.read_text())
-    if manifest["source"] != LOCK["toolchain"] or tree_manifest(directory) != manifest["files"]:
-        raise RuntimeError("Compiler files changed; run make setup")
-    version = subprocess.check_output(
-        [str(directory / "bin/arm-none-eabi-g++"), "-dumpfullversion"], text=True
-    ).strip()
+    compiler = toolchain_directory() / "bin/arm-zephyr-eabi-g++"
+    if not compiler.is_file():
+        raise RuntimeError("Official Zephyr toolchain missing; run make setup")
+    version = subprocess.check_output([str(compiler), "-dumpfullversion"], text=True).strip()
     if version != LOCK["toolchain"]["gcc_version"]:
-        raise RuntimeError("Compiler version differs from dependencies.lock.json")
-
-
-def install_toolchain():
-    destination = toolchain_directory()
-    if (destination / ".kws-manifest.json").exists():
-        try:
-            verify_toolchain()
-            return
-        except RuntimeError:
-            pass
-    asset = toolchain_asset()
-    archive = download(LOCK["toolchain"]["base_url"] + asset["file"], asset["sha256"])
-    with tempfile.TemporaryDirectory(dir=BUILD) as scratch:
-        scratch = Path(scratch)
-        with tarfile.open(archive) as source:
-            for member in source.getmembers():
-                path = scratch / member.name
-                if not path.resolve().is_relative_to(scratch.resolve()):
-                    raise RuntimeError("Invalid compiler archive path")
-                if member.issym() or member.islnk():
-                    target = (path.parent if member.issym() else scratch) / member.linkname
-                    if not target.resolve().is_relative_to(scratch.resolve()):
-                        raise RuntimeError("Invalid compiler archive link")
-            source.extractall(scratch)
-        staged = scratch / destination.name
-        if not (staged / "bin/arm-none-eabi-g++").is_file():
-            raise RuntimeError("Compiler archive has no expected toolchain root")
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        if destination.exists():
-            shutil.rmtree(destination)
-        shutil.move(str(staged), destination)
-    (destination / ".kws-manifest.json").write_text(
-        json.dumps(
-            {"source": LOCK["toolchain"], "files": tree_manifest(destination)}, sort_keys=True
-        )
-    )
-    verify_toolchain()
+        raise RuntimeError("Official Zephyr compiler version differs from lock")
 
 
 def verify_libraries():
@@ -289,9 +220,7 @@ def restore_core_archive():
         for member in source.getmembers():
             if not member.isfile():
                 continue
-            relative = Path(member.name).relative_to(
-                "ArduinoCore-zephyr" if ZEPHYR else "ArduinoCore-mbed"
-            )
+            relative = Path(member.name).relative_to("ArduinoCore-zephyr")
             target = destination / relative
             if not target.resolve().is_relative_to(destination.resolve()):
                 raise RuntimeError("Invalid core archive path")
@@ -304,7 +233,7 @@ def restore_core_archive():
                 target.write_bytes(data)
                 target.chmod(member.mode & 0o777)
                 os.utime(target, (member.mtime, member.mtime))
-    (BUILD / ("zephyr-core-manifest.json" if ZEPHYR else "core-manifest.json")).write_text(
+    (BUILD / "zephyr-core-manifest.json").write_text(
         json.dumps({"source": board, "files": manifest}, sort_keys=True)
     )
 
@@ -317,7 +246,7 @@ def verify_core():
         for core in cores
     ):
         raise RuntimeError("Pinned board core missing; run make setup")
-    stamp = BUILD / ("zephyr-core-manifest.json" if ZEPHYR else "core-manifest.json")
+    stamp = BUILD / "zephyr-core-manifest.json"
     if not stamp.exists():
         raise RuntimeError("Core source manifest missing; run make setup")
     manifest = json.loads(stamp.read_text())
@@ -336,8 +265,7 @@ def setup():
     restore_core_archive()
     for library in LOCK["libraries"]:
         install_library(library)
-    if not ZEPHYR:
-        install_toolchain()
+    verify_toolchain()
     verify_core()
     verify_libraries()
 
@@ -346,13 +274,7 @@ def compile_sketch(jobs, output):
     # Last -std flag wins over each core's default language standard.
     # Preinclude chrono before Arduino's abs macro, including in upstream C++ sources.
     cpp_flags = "-std=" + CPP_STANDARD + ' -include "' + str(SKETCH / "cpp_standard.h") + '"'
-    if ZEPHYR:
-        cpp_flags += " -DPDM_NUMBER_OF_SAMPLES=256 -DPDM_THREAD_PRIORITY=3"
-    compiler_properties = (
-        []
-        if ZEPHYR
-        else ["--build-property", "compiler.path=" + str(toolchain_directory() / "bin") + "/"]
-    )
+    cpp_flags += " -DPDM_NUMBER_OF_SAMPLES=256 -DPDM_THREAD_PRIORITY=3"
     cli(
         "compile",
         "--fqbn",
@@ -363,9 +285,8 @@ def compile_sketch(jobs, output):
         "default",
         "--build-property",
         "compiler.cpp.extra_flags=" + cpp_flags,
-        *compiler_properties,
         "--build-path",
-        BUILD / ("zephyr-objects" if ZEPHYR else "objects"),
+        BUILD / "zephyr-objects",
         "--output-dir",
         output,
         SKETCH,
@@ -394,7 +315,7 @@ def build(jobs):
     # Hash staged inputs before compiling, not live source files after a long build.
     provenance = {
         "dependencies": LOCK,
-        "core": CORE,
+        "core": "zephyr",
         "build_tooling_sha256": sha256(Path(__file__)),
         "firmware": tree_manifest(SKETCH),
         "compatibility_headers": tree_manifest(ROOT / "build-support/tflm-compat"),
