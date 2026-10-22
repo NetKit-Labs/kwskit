@@ -40,6 +40,11 @@ artifact upload passed. The maintained workflow contains only the Zephyr firmwar
 target. This identified run is evidence for that commit; later changes need their
 own checks.
 
+[Application-hardening run 39802129083](https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/runs/39802129083)
+also completed successfully for `097e520`, covering the C++20 safety flags,
+object audit, firmware artifact and host/style gates. The PDM backoff follow-up
+adds a separate actual-driver fault gate and needs its own run.
+
 ## Single-target cleanup verification
 
 The single-target cleanup passed `make test-unit` (12 entries),
@@ -109,10 +114,50 @@ spoken keyword or physical LED observation is claimed for this build.
 
 The updated four-page PDF was rendered and every page visually checked. See the
 [real-time review](realtime-review.md) for the allocation boundary, Serial wait
-isolation and remaining upstream PDM error-retry limitation. These checks
+isolation and original upstream PDM error-retry limitation. The driver follow-up
+below addresses that retry loop. These checks
 establish exercised behavior, not whole-system hard real-time safety.
 All 139 local Markdown file/anchor links and the documentation JSON parsed
 successfully; recorded firmware source hashes match the maintained files.
+
+## PDM read-error backoff validation
+
+The later driver fix preserves the application source above and adds a 1 ms
+backoff in the staged PDM worker's read-error path. The packaged application is
+206,824 bytes, with 118,096 bytes sketch RAM reported by Arduino. Its SHA-256 is:
+
+```text
+b9701db4855a56faf4576d92086557682da0f7bcef8bbd8350079ea249dd8306
+```
+
+The compiler dependency file identifies `.build/pdm-realtime/PDM/src/PDM.cpp`
+as the PDM source used. The official core's original source remains intact.
+Normal/stress manifests include the staged driver hashes. The full cross-build,
+sketch object audit, formatting, 16 host regression entries and eleven build-tooling
+cases passed. `make test-pdm-driver` separately passed: the unpatched actual worker
+failed the retry-delay check, and the staged worker passed transient/persistent
+read errors, full-queue slab release and no-progress callback cases.
+
+The original tight retry loop is therefore addressed in the maintained build;
+the earlier hardening summary describes the pre-backoff image. These fault tests
+use host fixtures and do not inject physical microphone failures or measure
+device-call WCET. The [driver note](../build-support/pdm/README.md) records the
+patch scope and test procedure.
+
+The [source/evidence summary](zephyr-pdm-validation.json) identifies the final
+application and staged driver hashes. All three board checks passed:
+
+| Hardware check | Observed result |
+| --- | --- |
+| [Normal capture](zephyr-pdm-normal.json) | 60 seconds requested, 31 records, approximately 16 kHz sample progress; zero reported sample loss, missed buffers, inference/DSP errors, score drops or stale scores |
+| [Control-stall capture](zephyr-pdm-stress.json) | 25 seconds requested, 13 records; four expected score drops and nine stale rejections with no reported audio or inference/DSP failure |
+| [Restored normal capture](zephyr-pdm-restored.json) | Normal image restored, 30 seconds requested, 16 records, continuing acquisition/inference and zero reported losses/errors |
+
+The four-page overview PDF was refreshed and all pages visually inspected.
+All 155 local file/anchor links across 15 guides passed; application, driver and
+build-tooling source hashes match the recorded evidence summary.
+No new spoken keyword/physical LED check, cold power-cycle, extended soak or
+physical microphone fault injection is claimed for the follow-up image.
 
 ## Limits and reproducibility
 

@@ -95,6 +95,11 @@ rejects variable-length arrays. Each audio activation handles at most eight hops
 a full batch yields for 1 ms before resuming. These controls do not establish a
 whole-system WCET or prove that loader/driver code never allocates.
 
+The build also stages a [PDM driver patch](build-support/pdm/README.md) that sleeps
+1 ms before retrying a failed device read. Run `make test-pdm-driver` after setup
+to fault-test the actual worker; CI runs this additional gate. The installed core
+and official compiler/loader remain intact.
+
 ## Features, model, and detection
 
 Each 256-sample hop advances a 512-sample frame with 50% overlap. The extractor
@@ -149,8 +154,7 @@ framework/interrupt stacks, extended endurance, cold power-cycle, and calibrated
 acoustic accuracy remain separate validation work. See [real-time limits](docs/realtime-review.md).
 
 The table preserves the original image's evidence. The later C++20 hardening
-build uses 206,808 bytes flash; normal, control-stall and restored-image checks
-passed with the new runtime. [Current validation](docs/validation.md#c20-real-time-hardening-validation)
+build uses 206,824 bytes flash. [Current validation](docs/validation.md#pdm-read-error-backoff-validation)
 records its source hashes, captures and limits; speech/LED was not repeated.
 
 The saved training notebook reports 93.48% floating-point held-out test accuracy,

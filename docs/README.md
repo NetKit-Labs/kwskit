@@ -33,3 +33,8 @@ and normal, control-stall and restored-image records linked from
 [validation](validation.md#c20-real-time-hardening-validation). It includes the
 lower-priority diagnostic main thread, fixed audio-batch budget and build-time
 allocation policy; the original captures describe the earlier image.
+
+The later [PDM backoff validation](validation.md#pdm-read-error-backoff-validation)
+identifies the driver patch, actual-worker fault test and the latest board image.
+Its [source/evidence summary](zephyr-pdm-validation.json) links the normal,
+control-stall and restored-image captures.

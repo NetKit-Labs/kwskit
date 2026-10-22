@@ -6,7 +6,7 @@ BLACK ?= .build/style-venv/bin/black
 CPP_SOURCES := $(wildcard firmware/*.cpp firmware/*.h firmware/*.ino tests/*.cpp tests/fixtures/*/*.cpp tests/fixtures/*/*.h tests/fixtures/*/zephyr/*.h scripts/*.cpp build-support/tflm-compat/*.h)
 
 .DEFAULT_GOAL := help
-.PHONY: help setup build test test-unit test-regression format format-check flash boards
+.PHONY: help setup build test test-unit test-regression test-pdm-driver format format-check flash boards
 
 help:
 	@echo 'make setup                 Install locked tools/libraries into .build/'
@@ -14,6 +14,7 @@ help:
 	@echo 'make test                  Run the complete host regression suite'
 	@echo 'make test-unit             Run isolated component unit tests'
 	@echo 'make test-regression       Run unit tests plus integration/regression checks'
+	@echo 'make test-pdm-driver       Fault-test the pinned PDM worker after make setup'
 	@echo 'make format                Apply the maintained four-space code style'
 	@echo 'make format-check          Check C++/Python/notebook formatting'
 	@echo 'make boards                List connected boards'
@@ -32,6 +33,9 @@ test-unit:
 
 test-regression:
 	sh tests/run_tests.sh all
+
+test-pdm-driver:
+	$(PYTHON) tests/pdm_driver_test.py
 
 format:
 	$(CLANG_FORMAT) -i $(CPP_SOURCES)

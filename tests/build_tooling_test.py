@@ -111,7 +111,10 @@ class BuildToolingTests(unittest.TestCase):
             self.assertIn(str(project.CONFIG), command)
 
     def test_normal_and_stress_use_official_compiler_and_pdm_configuration(self):
-        with mock.patch.object(project, "cli") as cli:
+        with (
+            mock.patch.object(project, "cli") as cli,
+            mock.patch.object(project, "stage_pdm_library", return_value=self.root / "PDM"),
+        ):
             for output in (self.root / "zephyr-artifacts", self.root / "zephyr-stress-artifacts"):
                 project.compile_sketch(2, output)
                 args = cli.call_args.args
@@ -126,11 +129,15 @@ class BuildToolingTests(unittest.TestCase):
                     args[args.index("--fqbn") + 1], "arduino:zephyr_main:nano33ble:link_mode=static"
                 )
                 self.assertEqual(args[args.index("--output-dir") + 1], output)
+                self.assertEqual(args[args.index("--library") + 1], self.root / "PDM")
 
     def test_build_manifest_records_language_and_staged_sources(self):
         sketch = self.root / "sketch"
         output = self.root / "artifacts"
         output.mkdir()
+        pdm = self.root / "PDM"
+        pdm.mkdir()
+        (pdm / "PDM.cpp").write_text("staged driver source")
         with (
             mock.patch.object(project, "SKETCH", sketch),
             mock.patch.object(project, "OUTPUT", output),
@@ -140,6 +147,7 @@ class BuildToolingTests(unittest.TestCase):
             mock.patch.object(project, "verify_toolchain"),
             mock.patch.object(project, "compile_sketch") as compile_sketch,
             mock.patch.object(project, "audit_realtime_objects") as audit,
+            mock.patch.object(project, "stage_pdm_library", return_value=pdm),
         ):
             project.build(2)
             compile_sketch.assert_called_once_with(2, output)
@@ -148,6 +156,7 @@ class BuildToolingTests(unittest.TestCase):
             self.assertEqual(manifest["cpp_standard"], "gnu++20")
             self.assertEqual(manifest["cpp_safety_flags"], project.CPP_SAFETY_FLAGS)
             self.assertEqual(manifest["firmware"], project.tree_manifest(sketch))
+            self.assertEqual(manifest["pdm_driver"], project.tree_manifest(pdm))
             self.assertIn("cpp_standard.h", manifest["firmware"])
             header = sketch / "cpp_standard.h"
             stamp = header.stat().st_mtime_ns
@@ -158,6 +167,31 @@ class BuildToolingTests(unittest.TestCase):
             self.assertEqual(
                 header.read_bytes(), (project.ROOT / "firmware/cpp_standard.h").read_bytes()
             )
+
+    def test_pdm_override_preserves_core_and_rejects_changed_patch_context(self):
+        core = self.root / "core"
+        source = core / "libraries/PDM/src/PDM.cpp"
+        source.parent.mkdir(parents=True)
+        original = "void pdm_thread() {\n" + project.PDM_READ_FAILURE + "\n}\n"
+        source.write_text(original)
+        (source.parent.parent / "library.properties").write_text("name=PDM\nversion=1.0\n")
+        with mock.patch.object(project, "core_directory", return_value=core):
+            library = project.stage_pdm_library()
+            staged = library / "src/PDM.cpp"
+            self.assertEqual(source.read_text(), original)
+            self.assertIn(project.PDM_READ_BACKOFF, staged.read_text())
+            stamp = staged.stat().st_mtime_ns
+            project.stage_pdm_library()
+            self.assertEqual(staged.stat().st_mtime_ns, stamp)
+            staged.write_text("modified generated copy")
+            extra = library / "src/obsolete.cpp"
+            extra.write_text("obsolete source")
+            project.stage_pdm_library()
+            self.assertIn(project.PDM_READ_BACKOFF, staged.read_text())
+            self.assertFalse(extra.exists())
+            source.write_text("upstream loop changed")
+            with self.assertRaisesRegex(RuntimeError, "PDM read-failure context changed"):
+                project.stage_pdm_library()
 
     def test_realtime_audit_allows_fixed_placement_and_rejects_unsafe_imports(self):
         archive = self.root / "zephyr-objects/sketch/objs.a"

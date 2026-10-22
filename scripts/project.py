@@ -25,6 +25,12 @@ LIBRARIES = BUILD / "arduino-user" / "libraries"
 OUTPUT = BUILD / "zephyr-artifacts"
 CPP_STANDARD = "gnu++20"
 CPP_SAFETY_FLAGS = "-fno-exceptions -fno-rtti -Werror=vla"
+PDM_READ_FAILURE = "\t\tif (ret < 0) {\n\t\t\tcontinue;\n\t\t}"
+PDM_READ_BACKOFF = (
+    "\t\tif (ret < 0) {\n"
+    "\t\t\t// Yield on device failure so acquisition cannot starve application threads.\n"
+    "\t\t\tk_msleep(1);\n\t\t\tcontinue;\n\t\t}"
+)
 
 
 def sha256(path):
@@ -272,6 +278,35 @@ def setup():
     verify_libraries()
 
 
+def stage_pdm_library():
+    """Stage a minimal driver override without modifying the verified official core."""
+    source = core_directory() / "libraries/PDM"
+    destination = BUILD / "pdm-realtime/PDM"
+    inputs = [source / "library.properties", *sorted((source / "src").rglob("*"))]
+    expected = set()
+    for path in inputs:
+        if not path.is_file():
+            continue
+        relative = path.relative_to(source)
+        expected.add(relative)
+        data = path.read_bytes()
+        if relative == Path("src/PDM.cpp"):
+            text = data.decode()
+            if text.count(PDM_READ_FAILURE) != 1:
+                raise RuntimeError("Pinned PDM read-failure context changed; review backoff patch")
+            data = text.replace(PDM_READ_FAILURE, PDM_READ_BACKOFF).encode()
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if not target.exists() or target.read_bytes() != data:
+            target.write_bytes(data)
+    if Path("src/PDM.cpp") not in expected:
+        raise RuntimeError("Pinned core PDM source is missing")
+    for path in destination.rglob("*"):
+        if path.is_file() and path.relative_to(destination) not in expected:
+            path.unlink()
+    return destination
+
+
 def compile_sketch(jobs, output):
     # Last -std flag wins over each core's default language standard.
     # Preinclude chrono before Arduino's abs macro, including in upstream C++ sources.
@@ -282,6 +317,8 @@ def compile_sketch(jobs, output):
         "compile",
         "--fqbn",
         LOCK["board"]["fqbn"],
+        "--library",
+        stage_pdm_library(),
         "--jobs",
         str(jobs),
         "--warnings",
@@ -376,6 +413,7 @@ def build(jobs):
         "build_tooling_sha256": sha256(Path(__file__)),
         "firmware": tree_manifest(SKETCH),
         "compatibility_headers": tree_manifest(ROOT / "build-support/tflm-compat"),
+        "pdm_driver": tree_manifest(stage_pdm_library()),
         "host": platform.platform(),
         "cpp_standard": CPP_STANDARD,
         "cpp_safety_flags": CPP_SAFETY_FLAGS,

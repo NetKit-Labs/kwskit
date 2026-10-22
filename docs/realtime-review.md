@@ -93,11 +93,12 @@ thread stack. A slab/driver loss below the application ring is not necessarily
 visible as `dropped`. Counter progress and audio age help reveal stalls; there
 is no automatic peripheral restart, watchdog or comprehensive fault supervisor.
 Startup failures within core/driver code are not exhaustively injected here.
-In particular, the pinned core PDM thread retries a negative device read without
-an application-controlled delay; a persistent device failure can monopolize its
-higher priority. This is an upstream fault-path limitation, not corrected or
-certified by the sketch's finite callback/batch budgets. A requirement to bound
-that failure needs a driver change and separate target fault-injection evidence.
+The project stages a [PDM compatibility patch](../build-support/pdm/README.md)
+that sleeps 1 ms after a negative device read. This fixes the upstream immediate
+retry loop that could monopolize priority 3 on persistent failure. A host test of
+the actual original/patched worker verifies the backoff and queue/callback fault
+paths. Physical device-error injection and device-call WCET remain unmeasured;
+the patch does not guarantee microphone recovery.
 
 The stock loader's 128 KiB sketch RAM budget includes the fixed application
 allocations. Its compiler warning about limited space remains visible. Arena use

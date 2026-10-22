@@ -155,7 +155,8 @@
     "No whole-system WCET proof",
     "No runtime loader/USB heap measurement",
     "Stock loader stack watermark unavailable",
-    "Persistent negative device reads can monopolize the upstream core PDM thread; no fault-injection claim",
+    "Pre-backoff image: Persistent negative device reads can monopolize the upstream core PDM thread; no fault-injection claim",
     "No cold power-cycle or extended soak test"
-  ]
+  ],
+  "scope": "Application hardening before PDM retry backoff; see zephyr-pdm-validation.json for the later driver fix"
 }

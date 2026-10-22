@@ -36,6 +36,11 @@ The same build properties configure both driver and application:
 -DPDM_NUMBER_OF_SAMPLES=256 -DPDM_THREAD_PRIORITY=3
 ```
 
+Builds explicitly select a staged copy of this driver with a 1 ms backoff after
+negative device reads. The [compatibility note](../build-support/pdm/README.md)
+identifies the patch; successful reads retain the upstream PDM behavior. Its
+source hashes appear in the build manifest, and the original core is unchanged.
+
 The callback copies at most 512 bytes per invocation into the SPSC ring and wakes
 the audio thread. Audio priority 4 and control priority 5 keep the producer ahead
 of both consumers. A microphone DMA queue can lose data below the application

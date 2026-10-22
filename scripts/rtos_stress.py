@@ -32,6 +32,7 @@ def main():
                     "dependencies": project.LOCK,
                     "cpp_standard": project.CPP_STANDARD,
                     "cpp_safety_flags": project.CPP_SAFETY_FLAGS,
+                    "pdm_driver": project.tree_manifest(project.stage_pdm_library()),
                 },
                 indent=2,
             )

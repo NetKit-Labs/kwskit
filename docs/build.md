@@ -55,6 +55,13 @@ retained. [Compatibility notes](../build-support/tflm-compat/README.md) explain
 the three tracked declarations. Library transformations participate in the
 installed manifest. Rerun setup after changing those inputs.
 
+Each build also stages a [PDM driver compatibility patch](../build-support/pdm/README.md)
+under `.build/pdm-realtime/PDM` and selects it with `--library`. It adds a 1 ms
+sleep after a failed device read, preventing a tight high-priority retry loop.
+Exact source matching rejects an unexpected upstream change. The installed
+official core remains unmodified; normal/stress manifests record the staged
+driver hashes. No global Arduino library is replaced.
+
 ## Compilation and output
 
 `firmware/` is authoritative. `scripts/project.py` stages maintained `.ino`,
@@ -124,6 +131,7 @@ restores normal firmware in `finally`; check its restoration result.
 | `make setup` | Install/restore locked tools and libraries |
 | `make test-unit` | Isolated actual-module and pure-component checks |
 | `make test-regression` / `make test` | Units plus stream, pipeline, build tooling and Zephyr kernel fixtures |
+| `make test-pdm-driver` | After setup, fault-test the actual pinned and patched PDM worker without a board |
 | `make build JOBS=2` | Verified Zephyr cross-build |
 | `make boards` | Discover boards with the local CLI |
 | `make flash PORT=<port>` | Build then upload; an explicit port is required |
@@ -135,6 +143,8 @@ The firmware job installs dependencies from scratch, builds and uploads
 `nano33ble-zephyr-firmware` containing outputs and provenance. Actions are pinned
 by commit and workflow permissions are read-only. CI does not flash a Nano or
 measure acoustic accuracy. [Validation](validation.md) links actual runs.
+It also runs `make test-pdm-driver` after setup; this gate needs the pinned core
+source and complements the download-free host suite.
 
 ## Optional IDE configuration
 
@@ -150,6 +160,9 @@ Open `firmware/KWS_Arm_CortexM4F.ino`, select the Nano under Arduino Zephyr Boar
 and static link mode, and inspect verbose output. There is no `compiler.path`
 override. IDE UI behavior has not been independently validated. Core reinstalls
 can remove local properties; Make configures them automatically.
+For equivalent PDM retry behavior, the IDE must additionally select the staged
+PDM library described above. The flags alone do not apply that source patch;
+use the Make/CLI path for the complete tested configuration.
 
 ## Troubleshooting and PDF generation
 

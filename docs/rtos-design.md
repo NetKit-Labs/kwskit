@@ -38,6 +38,11 @@ queue bytes are members of the static application object. The arena reserves
 64 KiB. The core/driver can allocate during startup; fixed application storage
 does not establish that the whole framework never allocates.
 
+The staged PDM worker adds a 1 ms sleep on negative device reads, so a persistent
+read failure cannot turn its priority-3 loop into an immediate busy retry. This
+[driver compatibility patch](../build-support/pdm/README.md) preserves normal
+reads and does not allocate additional runtime storage.
+
 ## Ownership and synchronization
 
 Only the PDM callback advances the ring head; only audio advances the tail.

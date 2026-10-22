@@ -44,6 +44,9 @@ jobs:
                 name: Install pinned CLI, core, and libraries
                 run: make setup
             -
+                name: Fault-test pinned PDM worker and retry backoff
+                run: make test-pdm-driver
+            -
                 name: Compile Nano firmware and audit real-time imports
                 run: make build JOBS=2
             -

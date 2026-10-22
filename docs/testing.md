@@ -43,12 +43,27 @@ formatters described in [source style](source-style.md).
 | --- | --- |
 | [stream](../tests/stream_test.cpp) | Ten simulated seconds of ordered 16 kHz samples with 60 ms consumer pauses |
 | [pipeline](../tests/pipeline_test.py) | Real audio pipeline with fake dependencies: readiness, backlog deferral, timestamps, timing, failure and loss-triggered reset |
-| [build_tooling](../tests/build_tooling_test.py) | Ten Python cases: checksum/cache/path safety, source/lock integrity, Zephyr core-header restoration, ambient CLI isolation, C++20/PDM/static-FQBN properties, official compiler version/missing installation, safety flags and object-audit rejection, staged-source provenance and exclusion of unused dependency examples |
+| [build_tooling](../tests/build_tooling_test.py) | Eleven Python cases: checksum/cache/path safety, source/lock integrity, Zephyr core-header restoration, ambient CLI isolation, C++20/PDM/static-FQBN properties, official compiler version/missing installation, safety flags, object-audit rejection, PDM override integrity/context and explicit library selection, staged-source provenance and exclusion of unused dependency examples |
 | [zephyr_startup](../tests/zephyr_startup_test.py) | Real coordinator/guards with native `k_*` fixtures: fixed stacks/priorities, model/DSP/capture failure, producer-before-consumer startup, cleanup/idempotence, coalesced semaphore, eight-hop batch/yield, low-priority main diagnostics, blocked-telemetry isolation, failure idle, metrics contention, nested scheduler locks, final-action expiry/generation invalidation and event-overflow recovery |
 
 The suite has twelve unit entries and four additional regression entries. Entries contain
 many assertions; suite counts are not assertion counts. Zephyr fixtures represent
 the APIs used by the firmware; they are not a complete kernel simulator.
+
+## Pinned driver fault gate
+
+After `make setup`, run `make test-pdm-driver`. This separate board-free gate
+needs the installed core source, so the download-free `make test` suite does not
+invoke it. The firmware CI job runs it after setup. It compiles the actual
+original/staged PDM worker against fixtures with sanitizers: the original must
+fail the yield-before-retry check, while the patched worker must yield after
+transient and 1,000 persistent read errors. It also exercises successful callback
+delivery, queue-full slab release and a callback that makes no progress.
+
+This is host fault injection into the actual worker body, not device-driver
+execution on the Nano. [PDM compatibility](../build-support/pdm/README.md) explains
+the source patch and its limits. The cross-build and live captures separately
+check the full staged library on the board.
 
 ## Hardware checks
 
