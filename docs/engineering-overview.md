@@ -53,8 +53,11 @@ hardware results from the cleanup build and current host/CI checks.
 
 The [latest source/capture summary](zephyr-pdm-validation.json) identifies the
 206,824-byte image with C++20 hardening and PDM read-error backoff. Its normal,
-control-stall and restored-image checks passed; the speech/LED observation above
-belongs to the original image and was not repeated for this revision.
+control-stall and restored-image checks passed. A later
+[spoken-keyword follow-up](validation.md#spoken-keyword-and-physical-led-follow-up)
+reuploaded this same image and recorded 13 new actions with user-confirmed LED
+toggles. The actual spoken-attempt count was not recorded; this is functional
+evidence, not an accuracy measurement.
 
 The stock loader gives the sketch 128 KiB RAM. The arena reserves 64 KiB and used
 12,500 bytes in the recorded model run; fixed application stacks are 8192/6144

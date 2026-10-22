@@ -156,7 +156,9 @@ acoustic accuracy remain separate validation work. See [real-time limits](docs/r
 
 The table preserves the original image's evidence. The later C++20 hardening
 build uses 206,824 bytes flash. [Current validation](docs/validation.md#pdm-read-error-backoff-validation)
-records its source hashes, captures and limits; speech/LED was not repeated.
+records its source hashes, captures and limits. A later
+[spoken-keyword check](docs/validation.md#spoken-keyword-and-physical-led-follow-up)
+on this image recorded 13 new actions and user-confirmed LED toggling on “yes.”
 
 The saved training notebook reports 93.48% floating-point held-out test accuracy,
 97.90% validation accuracy, and 98.02% final training accuracy. These are training

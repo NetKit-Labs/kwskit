@@ -43,7 +43,7 @@ endobj
 endobj
 8 0 obj
 <<
-/Annots [ 4 0 R 6 0 R 7 0 R ] /Contents 28 0 R /MediaBox [ 0 0 612 792 ] /Parent 27 0 R /Resources <<
+/Annots [ 4 0 R 6 0 R 7 0 R ] /Contents 29 0 R /MediaBox [ 0 0 612 792 ] /Parent 28 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 
   /Trans <<
@@ -67,7 +67,7 @@ endobj
 endobj
 11 0 obj
 <<
-/Annots [ 9 0 R 10 0 R ] /Contents 29 0 R /MediaBox [ 0 0 612 792 ] /Parent 27 0 R /Resources <<
+/Annots [ 9 0 R 10 0 R ] /Contents 30 0 R /MediaBox [ 0 0 612 792 ] /Parent 28 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 
   /Trans <<
@@ -105,7 +105,7 @@ endobj
 endobj
 16 0 obj
 <<
-/Annots [ 12 0 R 13 0 R 14 0 R 15 0 R ] /Contents 30 0 R /MediaBox [ 0 0 612 792 ] /Parent 27 0 R /Resources <<
+/Annots [ 12 0 R 13 0 R 14 0 R 15 0 R ] /Contents 31 0 R /MediaBox [ 0 0 612 792 ] /Parent 28 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 
   /Trans <<
@@ -136,38 +136,45 @@ endobj
 endobj
 20 0 obj
 <<
-/Annots [ 17 0 R 18 0 R 19 0 R ] /Contents 31 0 R /MediaBox [ 0 0 612 792 ] /Parent 27 0 R /Resources <<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/validation.md#spoken-keyword-and-physical-led-follow-up)
+>> /Border [ 0 0 0 ] /Rect [ 325.1523 604.44 419.7333 615.6 ] /Subtype /Link /Type /Annot
+>>
+endobj
+21 0 obj
+<<
+/Annots [ 17 0 R 18 0 R 19 0 R 20 0 R ] /Contents 32 0 R /MediaBox [ 0 0 612 792 ] /Parent 28 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 
   /Trans <<
 
 >> /Type /Page
->>
-endobj
-21 0 obj
-<<
-/A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/testing.md)
->> /Border [ 0 0 0 ] /Rect [ 274.5045 625.04 304.9992 636.2 ] /Subtype /Link /Type /Annot
 >>
 endobj
 22 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/README.md)
->> /Border [ 0 0 0 ] /Rect [ 60 558.24 147.3549 569.4 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/testing.md)
+>> /Border [ 0 0 0 ] /Rect [ 274.5045 563.64 304.9992 574.8 ] /Subtype /Link /Type /Annot
 >>
 endobj
 23 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/README.pdf)
->> /Border [ 0 0 0 ] /Rect [ 60 545.04 115.2978 556.2 ] /Subtype /Link /Type /Annot
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/README.md)
+>> /Border [ 0 0 0 ] /Rect [ 60 496.84 147.3549 508 ] /Subtype /Link /Type /Annot
 >>
 endobj
 24 0 obj
 <<
-/Annots [ 21 0 R 22 0 R 23 0 R ] /Contents 32 0 R /MediaBox [ 0 0 612 792 ] /Parent 27 0 R /Resources <<
+/A <<
+/S /URI /Type /Action /URI (https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/docs/README.pdf)
+>> /Border [ 0 0 0 ] /Rect [ 60 483.64 115.2978 494.8 ] /Subtype /Link /Type /Annot
+>>
+endobj
+25 0 obj
+<<
+/Annots [ 22 0 R 23 0 R 24 0 R ] /Contents 33 0 R /MediaBox [ 0 0 612 792 ] /Parent 28 0 R /Resources <<
 /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
 >> /Rotate 0 
   /Trans <<
@@ -175,23 +182,23 @@ endobj
 >> /Type /Page
 >>
 endobj
-25 0 obj
-<<
-/PageMode /UseNone /Pages 27 0 R /Type /Catalog
->>
-endobj
 26 0 obj
 <<
-/Author (James Lavrenz) /CreationDate (D:20000101000000+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20000101000000+00'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
-  /Subject (Source: README.md; SHA-256: d5cb2432ff33ea8026d9e6677876669ff7a8b56a0a8c4cbb205da879bea889d7) /Title (Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
+/PageMode /UseNone /Pages 28 0 R /Type /Catalog
 >>
 endobj
 27 0 obj
 <<
-/Count 5 /Kids [ 8 0 R 11 0 R 16 0 R 20 0 R 24 0 R ] /Type /Pages
+/Author (James Lavrenz) /CreationDate (D:20000101000000+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20000101000000+00'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
+  /Subject (Source: README.md; SHA-256: 8108952075171a50327881052aa2323faf7c1e997c70c014aa295a85eb29d90d) /Title (Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
 >>
 endobj
 28 0 obj
+<<
+/Count 5 /Kids [ 8 0 R 11 0 R 16 0 R 21 0 R 25 0 R ] /Type /Pages
+>>
+endobj
+29 0 obj
 <<
 /Length 4559
 >>
@@ -271,7 +278,7 @@ Q
  
 endstream
 endobj
-29 0 obj
+30 0 obj
 <<
 /Length 10498
 >>
@@ -750,7 +757,7 @@ Q
  
 endstream
 endobj
-30 0 obj
+31 0 obj
 <<
 /Length 7534
 >>
@@ -1006,9 +1013,9 @@ Q
  
 endstream
 endobj
-31 0 obj
+32 0 obj
 <<
-/Length 8295
+/Length 8062
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -1078,196 +1085,255 @@ BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The RAM figu
 Q
 Q
 q
-1 0 0 1 60 602.4 cm
+1 0 0 1 60 589.2 cm
 q
-BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The table preserves the original image) Tj (') Tj (s evidence. The later C++20 hardening build uses 206,824 bytes flash. ) Tj .070588 .396078 .470588 rg (Current) Tj T* (validation) Tj .094118 .156863 .231373 rg ( records its source hashes, captures and limits; speech/LED was not repeated.) Tj T* ET
+BT 1 0 0 1 0 30.3 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The table preserves the original image) Tj (') Tj (s evidence. The later C++20 hardening build uses 206,824 bytes flash. ) Tj .070588 .396078 .470588 rg (Current) Tj T* (validation) Tj .094118 .156863 .231373 rg ( records its source hashes, captures and limits. A later ) Tj .070588 .396078 .470588 rg (spoken-keyword check) Tj .094118 .156863 .231373 rg ( on this image recorded 13 new) Tj T* (actions and user-confirmed LED toggling on ") Tj (yes.) Tj (") Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 555.8 cm
+1 0 0 1 60 542.6 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 30.3 Tm /F1 9.3 Tf 13.2 TL (The saved training notebook reports 93.48% floating-point held-out test accuracy, 97.90% validation accuracy, and) Tj T* (98.02% final training accuracy. These are training artifacts, not measured recognition rates for the quantized model on) Tj T* (this board. Speech/LED checks establish functionality without an accuracy denominator.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 525.8 cm
+1 0 0 1 60 512.6 cm
 q
 .070588 .396078 .470588 rg
 BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Hardware checks and telemetry) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 505.6 cm
+1 0 0 1 60 492.4 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 3.9 Tm /F1 9.3 Tf 13.2 TL (Install PySerial in a local environment, then capture normal operation:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 429.6 cm
+1 0 0 1 60 416.4 cm
 %PreformattedPara
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 60.8 Tm /F3 8.2 Tf 11.5 TL (python3 -m venv .build/hardware-venv) Tj T* (.build/hardware-venv/bin/python -m pip install pyserial==3.5) Tj T* (.build/hardware-venv/bin/python tests/hardware_capture.py --port /dev/cu.usbmodem11301 \\) Tj T* (    --seconds 60 --allow-unavailable-stack-metrics --output .build/normal.json) Tj T* (.build/hardware-venv/bin/python scripts/rtos_stress.py --port /dev/cu.usbmodem11301 \\) Tj T* (    --seconds 25 --output .build/stress.json) Tj T* ET
 Q
 q
-1 0 0 1 60 394.2 cm
+1 0 0 1 60 381 cm
 q
 BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (The stress script uploads a test-only control-stall image and restores the normal image in ) Tj /F3 9.3 Tf (finally) Tj /F1 9.3 Tf (; confirm restoration) Tj T* (succeeds. Speak ") Tj (yes) Tj (" with pauses and observe the LED separately. Ending a capture leaves the firmware running.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 72.8 cm
+1 0 0 1 60 91.2 cm
 q
 .866667 .921569 .941176 rg
-n 0 314.4 504 -20.8 re f*
+n 0 282.8 504 -20.8 re f*
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
-1 0 0 1 6 298.6 cm
+1 0 0 1 6 267 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Telemetry field) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 298.6 cm
+1 0 0 1 247.92 267 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Meaning) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 277.8 cm
+1 0 0 1 6 246.2 cm
 q
 BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (ms) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (samples) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 277.8 cm
+1 0 0 1 247.92 246.2 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Uptime and cumulative samples received by the callback) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 257 cm
+1 0 0 1 6 225.4 cm
 q
 BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (dropped) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (missed_buffers) Tj T* ET
-Q
-Q
-q
-1 0 0 1 247.92 257 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Rejected ring samples and callbacks with lost/invalid reads) Tj T* ET
-Q
-Q
-q
-1 0 0 1 6 236.2 cm
-q
-BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (queue_max) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (gap_max_us) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (audio_age_us) Tj T* ET
 Q
 Q
 q
 1 0 0 1 247.92 225.4 cm
 q
 .094118 .156863 .231373 rg
-BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Ring high-water mark, maximum callback gap, age of last received) Tj T* (audio) Tj T* ET
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Rejected ring samples and callbacks with lost/invalid reads) Tj T* ET
 Q
 Q
 q
 1 0 0 1 6 204.6 cm
 q
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (queue_max) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (gap_max_us) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (audio_age_us) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 193.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Ring high-water mark, maximum callback gap, age of last received) Tj T* (audio) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 173 cm
+q
 BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (dsp_us) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (infer_us) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (process_us) Tj T* ET
-Q
-Q
-q
-1 0 0 1 247.92 204.6 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Average / observed maximum DSP, inference and one pipeline step) Tj T* ET
-Q
-Q
-q
-1 0 0 1 6 183.8 cm
-q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (response_us) Tj T* ET
 Q
 Q
 q
 1 0 0 1 247.92 173 cm
 q
 .094118 .156863 .231373 rg
-BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Last / maximum response from estimated first high-confidence) Tj T* (window end to action; not acoustic-onset latency) Tj T* ET
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Average / observed maximum DSP, inference and one pipeline step) Tj T* ET
 Q
 Q
 q
 1 0 0 1 6 152.2 cm
 q
-BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (inferences) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (errors) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (dsp_errors) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (p_milli) Tj T* ET
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (response_us) Tj T* ET
 Q
 Q
 q
 1 0 0 1 247.92 141.4 cm
 q
 .094118 .156863 .231373 rg
-BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Invocation count, inference/DSP failures and latest class-0 score) Tj T* (scaled by 1000) Tj T* ET
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Last / maximum response from estimated first high-confidence) Tj T* (window end to action; not acoustic-onset latency) Tj T* ET
 Q
 Q
 q
 1 0 0 1 6 120.6 cm
 q
-BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (triggers) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (led) Tj T* ET
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (inferences) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (errors) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (dsp_errors) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (p_milli) Tj T* ET
 Q
 Q
 q
-1 0 0 1 247.92 120.6 cm
+1 0 0 1 247.92 109.8 cm
 q
 .094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Confirmed action count and logical LED state) Tj T* ET
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Invocation count, inference/DSP failures and latest class-0 score) Tj T* (scaled by 1000) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 99.8 cm
+1 0 0 1 6 89 cm
 q
-BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (event_drops) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (stale_events) Tj T* ET
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (triggers) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (led) Tj T* ET
 Q
 Q
 q
 1 0 0 1 247.92 89 cm
 q
 .094118 .156863 .231373 rg
-BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Dropped classification results and rejected expired/old-generation) Tj T* (results) Tj T* ET
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Confirmed action count and logical LED state) Tj T* ET
 Q
 Q
 q
 1 0 0 1 6 68.2 cm
 q
-.094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (notify_errors) Tj T* ET
+BT 1 0 0 1 0 2.7 Tm 10.8 TL /F3 8.1 Tf .094118 .156863 .231373 rg (event_drops) Tj /F1 8.1 Tf (, ) Tj /F3 8.1 Tf (stale_events) Tj T* ET
 Q
 Q
 q
 1 0 0 1 247.92 57.4 cm
 q
 .094118 .156863 .231373 rg
-BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Reserved diagnostic counter; Zephyr binary-semaphore give has no) Tj T* (failure return) Tj T* ET
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Dropped classification results and rejected expired/old-generation) Tj T* (results) Tj T* ET
 Q
 Q
 q
 1 0 0 1 6 36.6 cm
 q
 .094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (notify_errors) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 25.8 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 13.5 Tm /F1 8.1 Tf 10.8 TL (Reserved diagnostic counter; Zephyr binary-semaphore give has no) Tj T* (failure return) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 5 cm
+q
+.094118 .156863 .231373 rg
 BT 1 0 0 1 0 2.7 Tm /F3 8.1 Tf 10.8 TL (event_us) Tj T* ET
+Q
+Q
+q
+1 0 0 1 247.92 5 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Average / maximum inference-completion to control-validation delay) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.070588 .396078 .470588 RG
+.6 w
+n 0 262 m 504 262 l S
+.847059 .882353 .905882 RG
+.25 w
+n 0 241.2 m 504 241.2 l S
+n 0 220.4 m 504 220.4 l S
+n 0 188.8 m 504 188.8 l S
+n 0 168 m 504 168 l S
+n 0 136.4 m 504 136.4 l S
+n 0 104.8 m 504 104.8 l S
+n 0 84 m 504 84 l S
+n 0 52.4 m 504 52.4 l S
+n 0 20.8 m 504 20.8 l S
+n 0 0 m 504 0 l S
+Q
+Q
+Q
+ 
+endstream
+endobj
+33 0 obj
+<<
+/Length 3341
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+.792157 .843137 .878431 RG
+n 54 40.32 m 558 40.32 l S
+BT /F1 8 Tf 9.6 TL ET
+.094118 .156863 .231373 rg
+BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
+BT 1 0 0 1 553.552 27.36 Tm (5) Tj T* ET
+Q
+q
+1 0 0 1 60 686.8 cm
+q
+.866667 .921569 .941176 rg
+n 0 52.4 504 -20.8 re f*
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 36.6 cm
+q
+.094118 .156863 .231373 rg
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Telemetry field) Tj T* ET
 Q
 Q
 q
 1 0 0 1 247.92 36.6 cm
 q
 .094118 .156863 .231373 rg
-BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Average / maximum inference-completion to control-validation delay) Tj T* ET
+BT 1 0 0 1 0 2.7 Tm /F1 8.1 Tf 10.8 TL (Meaning) Tj T* ET
 Q
 Q
 q
@@ -1289,72 +1355,46 @@ q
 1 j
 .070588 .396078 .470588 RG
 .6 w
-n 0 293.6 m 504 293.6 l S
+n 0 31.6 m 504 31.6 l S
 .847059 .882353 .905882 RG
 .25 w
-n 0 272.8 m 504 272.8 l S
-n 0 252 m 504 252 l S
-n 0 220.4 m 504 220.4 l S
-n 0 199.6 m 504 199.6 l S
-n 0 168 m 504 168 l S
-n 0 136.4 m 504 136.4 l S
-n 0 115.6 m 504 115.6 l S
-n 0 84 m 504 84 l S
-n 0 52.4 m 504 52.4 l S
 n 0 31.6 m 504 31.6 l S
 n 0 0 m 504 0 l S
 Q
 Q
 Q
 q
-1 0 0 1 60 63.8 cm
-Q
- 
-endstream
-endobj
-32 0 obj
-<<
-/Length 2492
->>
-stream
-1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
-q
-.792157 .843137 .878431 RG
-n 54 40.32 m 558 40.32 l S
-BT /F1 8 Tf 9.6 TL ET
-.094118 .156863 .231373 rg
-BT 1 0 0 1 54 27.36 Tm (KWS on ARM Cortex-M4F | Project guide) Tj T* ET
-BT 1 0 0 1 553.552 27.36 Tm (5) Tj T* ET
+1 0 0 1 60 677.8 cm
 Q
 q
-1 0 0 1 60 712.8 cm
+1 0 0 1 60 651.4 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 17.1 Tm /F1 9.3 Tf 13.2 TL (Counters are cumulative and may precede a host recording. Compare successive records to infer activity within an) Tj T* (interval. A buffered telemetry line may precede the fresh lines received when reopening a monitor.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 682.8 cm
+1 0 0 1 60 621.4 cm
 q
 .070588 .396078 .470588 rg
 BT 1 0 0 1 0 4 Tm /F2 13 Tf 17 TL (Tests and documentation) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 623 cm
+1 0 0 1 60 561.6 cm
 q
 BT 1 0 0 1 0 43.5 Tm 13.2 TL /F3 9.3 Tf .094118 .156863 .231373 rg (make test) Tj /F1 9.3 Tf ( runs the same complete host gate as GitHub Actions: twelve unit entries and four additional regression) Tj T* (entries. ) Tj /F3 9.3 Tf (make test-pdm-driver) Tj /F1 9.3 Tf ( is a separate gate after setup and also runs in firmware CI. These suites exercise) Tj T* (actual Zephyr application modules with deterministic PDM, IRQ, serial, DSP, model and kernel fixtures. Hardware) Tj T* (checks cover the real microphone/DSP/model path. ) Tj .070588 .396078 .470588 rg (Testing) Tj .094118 .156863 .231373 rg ( describes coverage and limits.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 576.4 cm
+1 0 0 1 60 515 cm
 q
 .094118 .156863 .231373 rg
 BT 1 0 0 1 0 30.3 Tm /F1 9.3 Tf 13.2 TL (Line/branch coverage percentages are not measured. Fixtures do not exhaustively reproduce thread interleavings or) Tj T* (execute the real CMSIS-DSP/TFLite numerical path; feature parity, recognition accuracy and long-duration timing need) Tj T* (separate evidence.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 60 516.6 cm
+1 0 0 1 60 455.2 cm
 q
 BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .070588 .396078 .470588 rg (Documentation index) Tj .094118 .156863 .231373 rg ( links setup, architecture, DSP, inference, ownership, real-time behavior and validation evidence.) Tj T* .070588 .396078 .470588 rg (README.pdf) Tj .094118 .156863 .231373 rg ( is generated from this root README; CI checks that the export is current. Its architecture table retains) Tj T* (every node and connection in the Markdown diagram. The other topic guides are maintained as Markdown without PDF) Tj T* (counterparts. Model assets and the training notebook remain available under ) Tj /F3 9.3 Tf (models/) Tj /F1 9.3 Tf ( and ) Tj /F3 9.3 Tf (training/) Tj /F1 9.3 Tf (.) Tj T* ET
 Q
@@ -1363,7 +1403,7 @@ Q
 endstream
 endobj
 xref
-0 33
+0 34
 0000000000 65535 f 
 0000000073 00000 n 
 0000000124 00000 n 
@@ -1385,28 +1425,29 @@ xref
 0000003382 00000 n 
 0000003641 00000 n 
 0000003893 00000 n 
-0000004122 00000 n 
-0000004344 00000 n 
-0000004559 00000 n 
-0000004775 00000 n 
-0000005004 00000 n 
-0000005074 00000 n 
-0000005466 00000 n 
-0000005554 00000 n 
-0000010165 00000 n 
-0000020716 00000 n 
-0000028302 00000 n 
-0000036649 00000 n 
+0000004160 00000 n 
+0000004396 00000 n 
+0000004618 00000 n 
+0000004831 00000 n 
+0000005047 00000 n 
+0000005276 00000 n 
+0000005346 00000 n 
+0000005738 00000 n 
+0000005826 00000 n 
+0000010437 00000 n 
+0000020988 00000 n 
+0000028574 00000 n 
+0000036688 00000 n 
 trailer
 <<
 /ID 
-[<1d87232d1815c62ed4ac46c44d5050ed><1d87232d1815c62ed4ac46c44d5050ed>]
+[<bb6c5e8da79af3a1a5b4422a13ae3879><bb6c5e8da79af3a1a5b4422a13ae3879>]
 % ReportLab generated PDF document -- digest (http://www.reportlab.com)
 
-/Info 26 0 R
-/Root 25 0 R
-/Size 33
+/Info 27 0 R
+/Root 26 0 R
+/Size 34
 >>
 startxref
-39193
+40081
 %%EOF

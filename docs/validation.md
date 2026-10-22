@@ -161,8 +161,34 @@ application and staged driver hashes. All three board checks passed:
 The four-page overview PDF was refreshed and all pages visually inspected.
 All 156 local file/anchor links across 15 guides passed; application, driver and
 build-tooling source hashes match the recorded evidence summary.
-No new spoken keyword/physical LED check, cold power-cycle, extended soak or
-physical microphone fault injection is claimed for the follow-up image.
+At that stage, no new spoken keyword/physical LED check, cold power-cycle,
+extended soak or physical microphone fault injection was claimed. The later
+spoken-keyword check below covers the same packaged image.
+
+## Spoken keyword and physical LED follow-up
+
+The October 22, 2026 follow-up recompiled and uploaded the current normal Zephyr
+firmware through `make flash`. Its 206,824-byte packaged image has the same
+`b9701db4...` SHA-256 recorded above; all firmware and staged PDM source hashes
+match that validated image. The sketch import audit passed. The normal firmware
+remains running on the Nano.
+
+The [evidence summary](zephyr-keyword-validation.json) identifies the checkout,
+full image/source identity, user observation and [raw serial capture](zephyr-keyword.json).
+The 120-second requested capture retained 60 records. Its first line was buffered
+startup telemetry; sampling-rate calculations exclude that line. Fresh records
+show approximately 16 kHz sampling, continuous inference, and zero reported
+sample losses, missed buffers, DSP/inference errors, score drops, stale scores
+or notification errors. The ring high-water mark was 768 of 8192 samples.
+
+The detection counter advanced from 0 to 13, and every observed LED state agreed
+with the parity of confirmed actions. The user confirmed: “LED toggled on ‘yes’.”
+This combines serial evidence with a physical LED observation on the current
+Zephyr build. Five spaced attempts were requested, but the actual spoken-attempt
+count was not reported. Thirteen actions are not thirteen labeled trials;
+recognition accuracy and false-trigger rate were not measured. Stack watermarks
+remain unavailable, and no cold power-cycle, extended soak or physical microphone
+fault injection was performed.
 
 ## Limits and reproducibility
 

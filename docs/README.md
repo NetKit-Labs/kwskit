@@ -43,3 +43,8 @@ The later [PDM backoff validation](validation.md#pdm-read-error-backoff-validati
 identifies the driver patch, actual-worker fault test and the latest board image.
 Its [source/evidence summary](zephyr-pdm-validation.json) links the normal,
 control-stall and restored-image captures.
+
+The subsequent [spoken-keyword/physical LED check](validation.md#spoken-keyword-and-physical-led-follow-up)
+reuploaded the same current image. Its [summary](zephyr-keyword-validation.json)
+and [raw capture](zephyr-keyword.json) record 13 new actions, consistent reported
+LED state and the user's confirmation that the physical LED toggled on “yes.”
