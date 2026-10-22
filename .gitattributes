@@ -3,3 +3,10 @@
 
 # Preserve PDF bytes and exclude them from text whitespace checks.
 *.pdf binary
+
+# Keep the language summary focused on the implementation rather than training notebooks.
+training/*.ipynb linguist-detectable=false
+
+# Firmware headers and Arduino sketches contain C++.
+*.h linguist-language=C++
+*.ino linguist-language=C++
