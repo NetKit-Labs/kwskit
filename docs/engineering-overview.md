@@ -31,7 +31,7 @@ control must reject results that become obsolete during a delay.
 | [keyword_event.h](../firmware/keyword_event.h) | Freshness, continuity and temporal-evidence invalidation |
 | [keyword_filter.h](../firmware/keyword_filter.h) | Smoothing, qualification, latch and cooldown |
 | [device_control.cpp](../firmware/device_control.cpp) | Initialized LED and toggle action |
-| [telemetry.cpp](../firmware/telemetry.cpp) | Fixed formatting buffer and bounded Arduino Serial writes |
+| [telemetry.cpp](../firmware/telemetry.cpp) | Fixed formatting buffer and limited Serial requests in best-effort main |
 
 The static application owns noncopyable stateful modules. Audio exclusively
 uses DSP/model state after initialization; control owns detection/LED. The
@@ -42,7 +42,7 @@ See [ownership](cpp-idioms.md) and [scheduling](rtos-design.md).
 
 ## Evidence and remaining work
 
-The [Zephyr normal capture](zephyr-normal.json) records approximately 16 kHz
+The [original Zephyr normal capture](zephyr-normal.json) records approximately 16 kHz
 sampling, zero reported losses/errors, 16 confirmed actions and physical LED
 confirmation. Its average DSP/inference work over eight hops is approximately
 `8 * 2.217 + 54.994 = 72.730 ms` per nominal 128 ms decision interval.
@@ -50,6 +50,11 @@ This estimate excludes other work and is not measured CPU utilization or WCET.
 A [control stall](zephyr-stress.json) demonstrates score loss/stale rejection
 while audio continues. [Validation](validation.md) distinguishes those recorded
 hardware results from the cleanup build and current host/CI checks.
+
+The [latest source/capture summary](zephyr-pdm-validation.json) identifies the
+206,824-byte image with C++20 hardening and PDM read-error backoff. Its normal,
+control-stall and restored-image checks passed; the speech/LED observation above
+belongs to the original image and was not repeated for this revision.
 
 The stock loader gives the sketch 128 KiB RAM. The arena reserves 64 KiB and used
 12,500 bytes in the recorded model run; fixed application stacks are 8192/6144

@@ -19,8 +19,8 @@ RAM region. An intermediate `.elf`, `.bin` or `.hex` is not a substitute for
 the core's packaged `bin-zsk.bin`; use the Arduino upload recipe.
 No custom loader, separate Zephyr SDK or west installation is needed.
 
-The recorded normal image uses 206,032 bytes of its 557,056-byte sketch flash
-region and 118,096 bytes of its 131,072-byte sketch RAM region. Both application
+The latest validated normal image uses 206,824 bytes of its 557,056-byte sketch
+flash region and 118,096 bytes of its 131,072-byte sketch RAM region. Both application
 stacks, ring, DSP workspace, interpreter state and the 64 KiB arena are already
 included. Its 12,976-byte remainder is not system free heap. Future builds may
 change layout: consult the build output and manifest rather than assuming the
@@ -60,8 +60,9 @@ at most 64 bytes per pump after checking connection and `availableForWrite`.
 The core still takes internal `K_FOREVER` semaphore waits and can sleep on a new
 USB connection; the space check does not prove a nonblocking Serial call. These
 calls never execute in either critical application worker. Main holds no metrics,
-scheduler or IRQ lock while accessing Serial. Startup may wait up to two seconds for a monitor; runtime does not require
-one. A pending record can be delivered on reconnect before fresh records.
+scheduler or IRQ lock while accessing Serial. Startup may wait up to two seconds
+for a monitor; runtime does not require one. A pending record can be delivered
+on reconnect before fresh records.
 The first runtime report starts a two-second interval after initialization, so
 startup time is not presented as an aged pre-capture audio record.
 

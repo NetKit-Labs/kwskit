@@ -119,8 +119,8 @@ An intermediate activation has 4960 int8 elements; mutable working memory also
 includes scratch and prepared metadata. The model's parameter payload, serialized
 size and arena use measure different things.
 
-The recorded Zephyr image uses 206,032 bytes sketch flash and 118,096 bytes sketch
-RAM. The arena, stacks and DSP context are already included; do not subtract them
+The latest validated Zephyr image uses 206,824 bytes sketch flash and 118,096 bytes
+sketch RAM. The arena, stacks and DSP context are already included; do not subtract them
 again from the 12,976-byte sketch-region remainder. This remainder is not a free
 system heap measurement. The measured allocation does not establish a minimum
 safe arena size for another model. No per-layer profiler is enabled; telemetry

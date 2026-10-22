@@ -24,6 +24,7 @@ The cross-compiler is installed by Arduino CLI, not supplied by the host compile
 make setup                         # Install locked tools and libraries locally
 make test-unit                     # Isolated component tests
 make test-regression               # Units plus integration and build-tool checks
+make test-pdm-driver               # Actual pinned driver fault test; needs setup
 make build JOBS=4                  # Compile for Zephyr
 make boards                        # Find the connected Nano
 make flash PORT=/dev/cu.usbmodem11301 JOBS=4
@@ -199,10 +200,16 @@ precede the fresh lines received when reopening a monitor.
 
 ## Tests and documentation
 
-`make test` runs the same complete host gate as GitHub Actions. The unit and
-regression suites exercise actual Zephyr application modules with deterministic
+`make test` runs the same complete host gate as GitHub Actions: twelve unit
+entries and four additional regression entries. `make test-pdm-driver` is a
+separate gate after setup and also runs in firmware CI. These suites exercise
+actual Zephyr application modules with deterministic
 PDM, IRQ, serial, DSP, model and kernel fixtures. Hardware checks cover the real
 microphone/DSP/model path. [Testing](docs/testing.md) describes coverage and limits.
+
+Line/branch coverage percentages are not measured. Fixtures do not exhaustively
+reproduce thread interleavings or execute the real CMSIS-DSP/TFLite numerical path;
+feature parity, recognition accuracy and long-duration timing need separate evidence.
 
 [Documentation index](docs/README.md) links setup, architecture, DSP, inference,
 ownership, real-time behavior and validation evidence. [README.pdf](docs/README.pdf)

@@ -56,7 +56,7 @@
     "cross_build": "passed",
     "sketch_object_audit": "passed",
     "pdm_actual_worker_fault_test": "passed; original rejects missing yield, staged handles transient and 1000 persistent read errors, queue overflow and no-progress callback",
-    "local_document_links": 155,
+    "local_document_links": 156,
     "guides_checked": 15,
     "pdf_pages_visually_checked": 4
   },
@@ -164,5 +164,12 @@
     "No loader/USB runtime heap measurement",
     "Stock loader stack watermark unavailable",
     "No physical microphone fault injection, cold power-cycle or extended soak test"
-  ]
+  ],
+  "remote_ci": {
+    "commit": "452e738e4d1875072618064018132dd33f3251ea",
+    "run_id": 39804902644,
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/runs/39804902644"
+  }
 }

@@ -107,3 +107,8 @@ accesses. Shared-PCM TensorFlow-versus-firmware feature parity, calibrated model
 accuracy, acoustic-onset latency, cold boot, extended endurance and system
 heap/stack margins remain separate evidence. The actual arena allocation has
 been measured in the dated Zephyr hardware session.
+
+No line/branch coverage report or percentage threshold is currently generated.
+The suite inventory describes behavioral coverage, not a measured coverage rate.
+There is no exhaustive scheduler-interleaving or ThreadSanitizer test gate; the
+native kernel fixtures and physical control-stall test cover selected cases.

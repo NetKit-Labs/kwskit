@@ -42,8 +42,13 @@ own checks.
 
 [Application-hardening run 39802129083](https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/runs/39802129083)
 also completed successfully for `097e520`, covering the C++20 safety flags,
-object audit, firmware artifact and host/style gates. The PDM backoff follow-up
-adds a separate actual-driver fault gate and needs its own run.
+object audit, firmware artifact and host/style gates.
+
+[PDM-backoff run 39804902644](https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/runs/39804902644)
+completed successfully for `452e738`. Source formatting, all host regressions,
+the actual-driver fault gate, the Zephyr cross-build/object audit and firmware
+artifact upload passed. It verifies the source of the latest recorded Nano image;
+later documentation changes do not constitute new hardware tests.
 
 ## Single-target cleanup verification
 
@@ -154,7 +159,7 @@ application and staged driver hashes. All three board checks passed:
 | [Restored normal capture](zephyr-pdm-restored.json) | Normal image restored, 30 seconds requested, 16 records, continuing acquisition/inference and zero reported losses/errors |
 
 The four-page overview PDF was refreshed and all pages visually inspected.
-All 155 local file/anchor links across 15 guides passed; application, driver and
+All 156 local file/anchor links across 15 guides passed; application, driver and
 build-tooling source hashes match the recorded evidence summary.
 No new spoken keyword/physical LED check, cold power-cycle, extended soak or
 physical microphone fault injection is claimed for the follow-up image.
