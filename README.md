@@ -13,6 +13,14 @@ processing from device control. The core's PDM thread acquires samples; it can
 preempt inference, preserving acquisition while the audio thread spends roughly
 55 ms on a model invocation. All threads share one 64 MHz Cortex-M4F CPU.
 
+## Engineering Highlights
+
+- **Real-board validation:** Arduino Nano 33 BLE Sense / 64 MHz Cortex-M4F running Zephyr; 16 kHz microphone capture, CMSIS-DSP log-mel features, int8 inference, and spoken-“yes” LED toggling verified on hardware ([validation](docs/validation.md)).
+- **Measured timing:** 54.994 ms average / 55.054 ms observed maximum inference; 768 of 8,192 audio-ring slots at the recorded high-water mark, with no reported audio loss during normal capture ([measured Zephyr session](#measured-zephyr-results)). These are observations, **not WCET guarantees**.
+- **Recorded memory budget:** 206,032 bytes sketch flash and 118,096 bytes sketch RAM, including a 65,536-byte tensor arena (12,500 bytes measured used); figures apply to the recorded build, not every subsequent image ([memory notes](#measured-zephyr-results)).
+- **Real-time design:** Preemptible PDM acquisition, fixed buffers/stacks, bounded audio work, and nonblocking timestamped score handoff; intentional control stalls exercise stale-result rejection ([RTOS design](docs/rtos-design.md), [real-time limits](docs/realtime-review.md)).
+- **Verification:** 12 host unit and four regression entries, a separate PDM driver fault test, firmware CI, and recorded on-board capture/stress checks ([testing and limits](docs/testing.md), [hardware validation](docs/validation.md)).
+
 ## Build, test, and upload
 
 Requirements: Git, Make, Python 3.9+, HTTPS access for setup, and a host `c++`
