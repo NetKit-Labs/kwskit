@@ -8,7 +8,7 @@ Initial setup needs HTTPS access to GitHub and Arduino downloads and several GB
 of workspace storage. Firmware builds use Arduino's packaged cross-compiler.
 
 ```sh
-git clone https://github.com/jameslavrenz/KWS_Arm_CortexM4F.git
+git clone https://github.com/NetKit-Labs/KWS_Arm_CortexM4F.git
 cd KWS_Arm_CortexM4F
 make setup
 make test

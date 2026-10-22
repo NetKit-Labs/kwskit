@@ -114,7 +114,7 @@ def inline(children):
         elif token.type == "link_open":
             href = token.attrGet("href")
             if not href.startswith(("http://", "https://", "#")):
-                href = "https://github.com/jameslavrenz/KWS_Arm_CortexM4F/blob/main/" + href
+                href = "https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/blob/main/" + href
             result.append('<a color="#126578" href="' + escape(href, quote=True) + '">')
         elif token.type == "link_close":
             result.append("</a>")

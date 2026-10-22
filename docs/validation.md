@@ -33,7 +33,7 @@ The [summary](zephyr-validation.json) preserves identity and final counters.
 
 ## Remote verification
 
-[GitHub Actions run 39785916551](https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/runs/39785916551)
+[GitHub Actions run 39785916551](https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/runs/39785916551)
 passed the Zephyr firmware build, formatting and shared host tests for commit
 `48b774c`. Its Zephyr firmware/provenance artifact was uploaded. That run predates
 the single-target cleanup; it is not evidence that a later commit ran remotely.

@@ -117,7 +117,7 @@
     "No calibrated recognition accuracy or acoustic dataset evaluation"
   ],
   "remote_ci": {
-    "url": "https://github.com/jameslavrenz/KWS_Arm_CortexM4F/actions/runs/39785916551",
+    "url": "https://github.com/NetKit-Labs/KWS_Arm_CortexM4F/actions/runs/39785916551",
     "result": "Zephyr firmware, host tests, formatting and artifact upload passed for 48b774c"
   },
   "single_target_cleanup": {
