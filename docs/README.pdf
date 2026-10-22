@@ -197,7 +197,7 @@ endobj
 28 0 obj
 <<
 /Author (James Lavrenz) /CreationDate (D:20000101000000+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20000101000000+00'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
-  /Subject (Source: README.md; SHA-256: 589d87f3a1204c854349efcc1594d8b21f4707fec38cff90dce6518bef56eb86) /Title (kwskit: Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
+  /Subject (Source: README.md; SHA-256: 8e3211aa9d9bfa5ee4a9df5fe6449d1ecb454dd1a97f7c1c0dc0705e45636891) /Title (kwskit: Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
 >>
 endobj
 29 0 obj
@@ -207,7 +207,7 @@ endobj
 endobj
 30 0 obj
 <<
-/Length 4552
+/Length 4606
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -236,7 +236,7 @@ Q
 q
 1 0 0 1 60 598.2 cm
 q
-BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (Continuous voice control on an ) Tj /F2 9.3 Tf (Arduino Nano 33 BLE Sense / nRF52840) Tj /F1 9.3 Tf (, running ) Tj /F2 9.3 Tf (Arduino Zephyr Boards 1.0.0) Tj /F1 9.3 Tf (.) Tj T* (The microphone captures mono audio at 16 kHz, CMSIS-DSP extracts log-mel features, and an int8 TensorFlow Lite) Tj T* (Micro model scores the keyword ) Tj /F2 9.3 Tf (") Tj (yes.) Tj (") Tj /F1 9.3 Tf ( Confirmed detections toggle the built-in LED. The application runs continuously) Tj T* (while powered, independently of a serial monitor.) Tj T* ET
+BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (Continuous voice control on an ) Tj /F2 9.3 Tf (Arduino Nano 33 BLE Sense / nRF52840) Tj /F1 9.3 Tf (, running ) Tj /F2 9.3 Tf (Zephyr RTOS) Tj /F1 9.3 Tf ( through ) Tj /F2 9.3 Tf (Arduino) Tj T* (Zephyr Boards 1.0.0) Tj /F1 9.3 Tf (. The microphone captures mono audio at 16 kHz, CMSIS-DSP extracts log-mel features, and an) Tj T* (int8 TensorFlow Lite Micro model scores the keyword ) Tj /F2 9.3 Tf (") Tj (yes.) Tj (") Tj /F1 9.3 Tf ( Confirmed detections toggle the built-in LED. The) Tj T* (application runs continuously while powered, independently of a serial monitor.) Tj T* ET
 Q
 Q
 q
@@ -1448,14 +1448,14 @@ xref
 0000005424 00000 n 
 0000005824 00000 n 
 0000005912 00000 n 
-0000010516 00000 n 
-0000021052 00000 n 
-0000028623 00000 n 
-0000036802 00000 n 
+0000010570 00000 n 
+0000021106 00000 n 
+0000028677 00000 n 
+0000036856 00000 n 
 trailer
 <<
 /ID 
-[<a59923c00f9199f248ffa9afee552312><a59923c00f9199f248ffa9afee552312>]
+[<2512bbb073309b31a6f0d9458f642db8><2512bbb073309b31a6f0d9458f642db8>]
 % ReportLab generated PDF document -- digest (http://www.reportlab.com)
 
 /Info 28 0 R
@@ -1463,5 +1463,5 @@ trailer
 /Size 35
 >>
 startxref
-40489
+40543
 %%EOF

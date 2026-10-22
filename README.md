@@ -3,8 +3,8 @@
 [![Build and test](https://github.com/NetKit-Labs/kwskit/actions/workflows/ci.yml/badge.svg)](https://github.com/NetKit-Labs/kwskit/actions/workflows/ci.yml)
 
 Continuous voice control on an **Arduino Nano 33 BLE Sense / nRF52840**, running
-**Arduino Zephyr Boards 1.0.0**. The microphone captures mono audio at 16 kHz,
-CMSIS-DSP extracts log-mel features, and an int8 TensorFlow Lite Micro model
+**Zephyr RTOS** through **Arduino Zephyr Boards 1.0.0**. The microphone captures
+mono audio at 16 kHz, CMSIS-DSP extracts log-mel features, and an int8 TensorFlow Lite Micro model
 scores the keyword **“yes.”** Confirmed detections toggle the built-in LED.
 The application runs continuously while powered, independently of a serial monitor.
 
