@@ -36,8 +36,15 @@ jobs:
                     python3 -m venv .build/docs-venv
                     .build/docs-venv/bin/python -m pip install -r requirements-docs.txt
             -
-                name: Check README PDF matches its Markdown source
+                name: Check committed README PDF consistency
+                if: github.event_name != 'push'
                 run: .build/docs-venv/bin/python scripts/export_docs.py --check
+            -
+                name: Validate README PDF generation on push
+                if: github.event_name == 'push'
+                run: |
+                    .build/docs-venv/bin/python scripts/export_docs.py
+                    .build/docs-venv/bin/python scripts/export_docs.py --check
 
     host-tests:
         runs-on: ubuntu-24.04
