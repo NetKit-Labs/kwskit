@@ -2,11 +2,20 @@ name: Refresh README PDF
 
 on:
   push:
+    branches: [main]
     paths:
+      - "README.md"
+      - "scripts/export_docs.py"
+      - "requirements-docs.txt"
       - ".github/workflows/refresh-readme-pdf.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: readme-pdf-refresh
+  cancel-in-progress: false
 
 jobs:
   refresh:
@@ -14,27 +23,23 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Repair local anchor links in PDF exporter
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path("scripts/export_docs.py")
-          s = p.read_text()
-          old = '            if not href.startswith(("http://", "https://", "#")):\n                href = "https://github.com/NetKit-Labs/kwskit/blob/main/" + href'
-          new = '            if href.startswith("#"):\n                href = "https://github.com/NetKit-Labs/kwskit" + href\n            elif not href.startswith(("http://", "https://")):\n                href = "https://github.com/NetKit-Labs/kwskit/blob/main/" + href'
-          assert s.count(old) == 1
-          p.write_text(s.replace(old, new))
-          PY
-      - name: Install exact documentation dependencies
+
+      - name: Install pinned documentation dependencies
         run: |
           python3 -m venv .build/docs-venv
           .build/docs-venv/bin/python -m pip install -r requirements-docs.txt
-      - name: Generate and check PDF
+
+      - name: Regenerate and check README PDF
         run: |
           .build/docs-venv/bin/python scripts/export_docs.py
           .build/docs-venv/bin/python scripts/export_docs.py --check
-      - name: Commit documentation synchronization
+
+      - name: Commit updated PDF if needed
         run: |
-          git add scripts/export_docs.py docs/README.pdf
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Fix PDF anchor rendering and regenerate README PDF"
-          git push origin HEAD:main
+          git add docs/README.pdf
+          if ! git diff --cached --quiet; then
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Sync README PDF with updated documentation"
+            git push origin HEAD:main
+          else
+            echo "README PDF already up to date"
+          fi
