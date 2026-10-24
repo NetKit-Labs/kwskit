@@ -2,8 +2,8 @@
 
 [![Build and test](https://github.com/NetKit-Labs/kwskit/actions/workflows/ci.yml/badge.svg)](https://github.com/NetKit-Labs/kwskit/actions/workflows/ci.yml)
 
-Continuous voice control on an **Arduino Nano 33 BLE Sense / nRF52840**, running
-**Zephyr RTOS** through **Arduino Zephyr Boards 1.0.0**. The microphone captures
+Continuous voice control on a **64 MHz Arm Cortex-M4F (nRF52840)** running
+**Zephyr RTOS**. The microphone captures
 mono audio at 16 kHz, CMSIS-DSP extracts log-mel features, and an int8 TensorFlow Lite Micro model
 scores the keyword **“yes.”** Confirmed detections toggle the built-in LED.
 The application runs continuously while powered, independently of a serial monitor.
@@ -15,7 +15,7 @@ preempt inference, preserving acquisition while the audio thread spends roughly
 
 ## Engineering Highlights
 
-- **Real-board validation:** Arduino Nano 33 BLE Sense / 64 MHz Cortex-M4F running Zephyr; 16 kHz microphone capture, CMSIS-DSP log-mel features, int8 inference, and spoken-“yes” LED toggling verified on hardware ([validation](docs/validation.md)).
+- **Real-board validation:** 64 MHz Arm Cortex-M4F (nRF52840) running Zephyr; 16 kHz microphone capture, CMSIS-DSP log-mel features, int8 inference, and spoken-“yes” LED toggling verified on hardware ([validation](docs/validation.md)).
 - **Measured timing:** 54.994 ms average / 55.054 ms observed maximum inference; 768 of 8,192 audio-ring slots at the recorded high-water mark, with no reported audio loss during normal capture ([measured Zephyr session](#measured-zephyr-results)). These are observations, **not WCET guarantees**.
 - **Recorded memory budget:** 206,032 bytes sketch flash and 118,096 bytes sketch RAM, including a 65,536-byte tensor arena (12,500 bytes measured used); figures apply to the recorded build, not every subsequent image ([memory notes](#measured-zephyr-results)).
 - **Real-time design:** Preemptible PDM acquisition, fixed buffers/stacks, bounded audio work, and nonblocking timestamped score handoff; intentional control stalls exercise stale-result rejection ([RTOS design](docs/rtos-design.md), [real-time limits](docs/realtime-review.md)).
