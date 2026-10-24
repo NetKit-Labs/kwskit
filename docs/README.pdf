@@ -26,7 +26,7 @@ endobj
 <<
 /A <<
 /S /URI /Type /Action /URI (https://github.com/NetKit-Labs/kwskit/blob/main/docs/validation.md)
->> /Border [ 0 0 0 ] /Rect [ 503.8797 490.24 543.1629 501.4 ] /Subtype /Link /Type /Annot
+>> /Border [ 0 0 0 ] /Rect [ 467.6934 490.24 506.9766 501.4 ] /Subtype /Link /Type /Annot
 >>
 endobj
 6 0 obj
@@ -253,7 +253,7 @@ endobj
 36 0 obj
 <<
 /Author (James Lavrenz) /CreationDate (D:20000101000000+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20000101000000+00'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
-  /Subject (Source: README.md; SHA-256: 98ef85c8ea47e2e81cf31beeab462bc60784b6a93a2c7eb032baac8939e9cc81) /Title (kwskit: Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
+  /Subject (Source: README.md; SHA-256: 5fa5317aed8905ab4154f9468cb742a2b787041e288ae449d741a8b41bb4668a) /Title (kwskit: Real-time keyword spotting on ARM Cortex-M4F) /Trapped /False
 >>
 endobj
 37 0 obj
@@ -263,7 +263,7 @@ endobj
 endobj
 38 0 obj
 <<
-/Length 6293
+/Length 6208
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -292,7 +292,7 @@ Q
 q
 1 0 0 1 60 598.2 cm
 q
-BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (Continuous voice control on an ) Tj /F2 9.3 Tf (Arduino Nano 33 BLE Sense / nRF52840) Tj /F1 9.3 Tf (, running ) Tj /F2 9.3 Tf (Zephyr RTOS) Tj /F1 9.3 Tf ( through ) Tj /F2 9.3 Tf (Arduino) Tj T* (Zephyr Boards 1.0.0) Tj /F1 9.3 Tf (. The microphone captures mono audio at 16 kHz, CMSIS-DSP extracts log-mel features, and an) Tj T* (int8 TensorFlow Lite Micro model scores the keyword ) Tj /F2 9.3 Tf (") Tj (yes.) Tj (") Tj /F1 9.3 Tf ( Confirmed detections toggle the built-in LED. The) Tj T* (application runs continuously while powered, independently of a serial monitor.) Tj T* ET
+BT 1 0 0 1 0 43.5 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (Continuous voice control on a ) Tj /F2 9.3 Tf (64 MHz Arm Cortex-M4F \(nRF52840\)) Tj /F1 9.3 Tf ( running ) Tj /F2 9.3 Tf (Zephyr RTOS) Tj /F1 9.3 Tf (. The microphone captures) Tj T* (mono audio at 16 kHz, CMSIS-DSP extracts log-mel features, and an int8 TensorFlow Lite Micro model scores the) Tj T* (keyword ) Tj /F2 9.3 Tf (") Tj (yes.) Tj (") Tj /F1 9.3 Tf ( Confirmed detections toggle the built-in LED. The application runs continuously while powered,) Tj T* (independently of a serial monitor.) Tj T* ET
 Q
 Q
 q
@@ -311,7 +311,7 @@ Q
 q
 1 0 0 1 60 488.2 cm
 q
-BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (- ) Tj /F2 9.3 Tf (Real-board validation:) Tj /F1 9.3 Tf ( Arduino Nano 33 BLE Sense / 64 MHz Cortex-M4F running Zephyr; 16 kHz microphone) Tj T* (capture, CMSIS-DSP log-mel features, int8 inference, and spoken-) Tj (") Tj (yes) Tj (" LED toggling verified on hardware \() Tj .070588 .396078 .470588 rg (validation) Tj .094118 .156863 .231373 rg (\).) Tj T* ET
+BT 1 0 0 1 0 17.1 Tm 13.2 TL /F1 9.3 Tf .094118 .156863 .231373 rg (- ) Tj /F2 9.3 Tf (Real-board validation:) Tj /F1 9.3 Tf ( 64 MHz Arm Cortex-M4F \(nRF52840\) running Zephyr; 16 kHz microphone capture,) Tj T* (CMSIS-DSP log-mel features, int8 inference, and spoken-) Tj (") Tj (yes) Tj (" LED toggling verified on hardware \() Tj .070588 .396078 .470588 rg (validation) Tj .094118 .156863 .231373 rg (\).) Tj T* ET
 Q
 Q
 q
@@ -1549,14 +1549,14 @@ xref
 0000007174 00000 n 
 0000007574 00000 n 
 0000007663 00000 n 
-0000014008 00000 n 
-0000024520 00000 n 
-0000031972 00000 n 
-0000040383 00000 n 
+0000013923 00000 n 
+0000024435 00000 n 
+0000031887 00000 n 
+0000040298 00000 n 
 trailer
 <<
 /ID 
-[<d541ba31cb503cfa24ba60d57573d94c><d541ba31cb503cfa24ba60d57573d94c>]
+[<a588b2fb2985fb1c5e4f7fdc9d63a62d><a588b2fb2985fb1c5e4f7fdc9d63a62d>]
 % ReportLab generated PDF document -- digest (http://www.reportlab.com)
 
 /Info 36 0 R
@@ -1564,5 +1564,5 @@ trailer
 /Size 43
 >>
 startxref
-44790
+44705
 %%EOF
