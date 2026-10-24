@@ -1,6 +1,6 @@
 # PDM read-error backoff
 
-Arduino Zephyr Boards 1.0.0's PDM worker immediately retries a negative
+The pinned Zephyr board package's PDM worker immediately retries a negative
 `dmic_read` result at priority 3. A persistent failure can therefore starve the
 lower-priority audio, control and diagnostic threads.
 
