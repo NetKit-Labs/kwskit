@@ -1,7 +1,7 @@
 # kwskit documentation
 
-The maintained firmware has one platform: Arduino Zephyr Boards on the Nano 33
-BLE Sense. Start with the [project overview](../README.md), then follow the topic
+The maintained firmware targets a 64 MHz nRF52840 Arm Cortex-M4F running
+Zephyr RTOS. Start with the [project overview](../README.md), then follow the topic
 guides below. All runtime descriptions and hardware evidence here refer to Zephyr.
 
 | Guide | Contents |
