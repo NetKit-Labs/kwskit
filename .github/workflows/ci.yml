@@ -78,3 +78,17 @@ jobs:
                     name: nano33ble-zephyr-firmware
                     path: .build/zephyr-artifacts/
                     if-no-files-found: error
+
+    cppcheck:
+        name: Cppcheck static analysis
+        runs-on: ubuntu-24.04
+        timeout-minutes: 10
+        steps:
+          - uses: actions/checkout@v4
+          - name: Install Cppcheck
+            run: sudo apt-get update && sudo apt-get install -y cppcheck
+          - name: Analyze project-owned C/C++ sources
+            run: |
+              cppcheck --error-exitcode=1 --quiet --enable=warning,performance,portability \
+                --inline-suppr --suppress=missingIncludeSystem --std=c++20 \
+                -Ifirmware firmware
