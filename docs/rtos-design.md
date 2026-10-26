@@ -1,5 +1,29 @@
 # Zephyr scheduling and ownership
 
+## Why Zephyr was selected
+
+The current keyword-spotting behavior could be implemented without an RTOS,
+using an interrupt-driven or event-driven application with careful buffering.
+Zephyr is therefore not a fundamental requirement of the keyword-spotting
+algorithm or the nRF52840 hardware.
+
+For this project, however, the supported **Arduino Zephyr Boards** core provides
+the vendor-supported PDM microphone, GPIO, timing and USB Serial APIs used by
+the application. Selecting that core retains those existing libraries and
+its Zephyr runtime, rather than replacing the board-support software or
+introducing a separate scheduler. The application deliberately uses the native
+kernel facilities already available in that environment.
+
+Zephyr also provides a practical foundation for expanding the application.
+Separating acquisition, DSP/inference, device control and best-effort telemetry
+establishes ownership and scheduling boundaries that could accommodate
+additional services, such as BLE communications for transmitting keyword
+detection metrics or status, other sensors, or more complex control behavior.
+**Those extensions are possibilities, not implemented features or validated
+capacity.** Each new workload would require renewed CPU, stack, RAM, priority,
+latency and end-to-end timing analysis to ensure that audio capture and keyword
+detection remain reliable.
+
 ## Why two application threads
 
 The audio thread owns DSP/inference and stream recovery; control owns detection
