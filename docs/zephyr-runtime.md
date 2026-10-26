@@ -5,6 +5,19 @@ The core supplies Zephyr and the loader; Arduino APIs provide PDM, GPIO, timing
 and USB serial, while the application uses native Zephyr kernel synchronization.
 See [build](build.md) for commands and exact dependency pins.
 
+## Platform choice and scope
+
+The Nano 33 BLE Sense hardware does not inherently require Zephyr to run
+keyword spotting. **This project's selected Arduino Zephyr Boards core**,
+however, provides the supported PDM microphone, GPIO, timing and USB Serial
+libraries together with the Zephyr runtime. Reusing that software environment
+made more sense here than replacing working board support merely to avoid an
+RTOS. Native Zephyr threads and synchronization additionally provide clear
+scheduling boundaries for the present pipeline and possible future services
+such as BLE-based metrics/status reporting. Such services are not implemented;
+their timing and memory impact would need to be measured before deployment.
+See [RTOS design rationale](rtos-design.md#why-zephyr-was-selected).
+
 ## Loader and static linking
 
 Arduino's core uses a prebuilt loader to host sketches. The standard package
