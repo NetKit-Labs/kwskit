@@ -2,17 +2,18 @@
 
 ## Why Zephyr was selected
 
-The current keyword-spotting behavior could be implemented without an RTOS,
-using an interrupt-driven or event-driven application with careful buffering.
-Zephyr is therefore not a fundamental requirement of the keyword-spotting
-algorithm or the nRF52840 hardware.
+The current keyword-spotting workload does not inherently require an RTOS
+and could be implemented using a bare-metal, interrupt-driven architecture.
+Hardware interrupts remain essential for peripheral operation in either design;
+the PDM application callback in this implementation runs in the core's driver
+thread, not directly in an interrupt service routine. Zephyr complements
+interrupt-driven acquisition by providing preemptive scheduling, synchronization,
+and separation of application responsibilities.
 
-For this project, however, the supported **Arduino Zephyr Boards** core provides
-the vendor-supported PDM microphone, GPIO, timing and USB Serial APIs used by
-the application. Selecting that core retains those existing libraries and
-its Zephyr runtime, rather than replacing the board-support software or
-introducing a separate scheduler. The application deliberately uses the native
-kernel facilities already available in that environment.
+The supported **Arduino Zephyr Boards** core already provides the PDM microphone,
+GPIO, timing and USB Serial APIs used by this application, together with Zephyr
+kernel facilities. Reusing that board-support environment made Zephyr a practical
+choice for the current implementation as well as a foundation for future expansion.
 
 Zephyr also provides a practical foundation for expanding the application.
 Separating acquisition, DSP/inference, device control and best-effort telemetry
